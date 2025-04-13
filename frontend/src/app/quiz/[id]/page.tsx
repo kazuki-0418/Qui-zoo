@@ -129,11 +129,7 @@ export default function QuizDetailPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreateRoom={handleCreateRoom}
-        availableQuizzes={[
-          { id: "1", title: "Piano Quiz" },
-          { id: "2", title: "Coding Quiz" },
-          { id: "3", title: "School Quiz" },
-        ]}
+        selectedQuizId="1"
       />
     </div>
   );
