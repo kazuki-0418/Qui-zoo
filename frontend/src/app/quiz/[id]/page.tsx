@@ -12,6 +12,7 @@ interface Question {
   options: { text: string; isCorrect: boolean }[];
 }
 
+// demo
 const questions: Question[] = [
   {
     id: 1,
@@ -61,7 +62,23 @@ export default function QuizDetailPage() {
 
         {/* Quiz Info */}
         <div className="p-6">
-          <h1 className="text-2xl font-bold mb-4">Back to School Quiz Game</h1>
+          <div className="mb-10">
+            <h1 className="text-2xl font-bold mb-4">Back to School Quiz Game</h1>
+            <p>
+              Test your knowledge with this fun and engaging quiz!
+            </p>
+            {/* Action Buttons */}
+            <div className="flex space-x-4 mt-6">
+              <Button
+                color="blue"
+                size="lg"
+                className="w-full"
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                Create Room
+              </Button>
+            </div>
+          </div>
 
           {/* Question List */}
           <div>
@@ -104,18 +121,6 @@ export default function QuizDetailPage() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-4 mt-8">
-            <Button
-              color="blue"
-              size="lg"
-              className="w-full"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              Create Room
-            </Button>
           </div>
         </div>
       </div>
