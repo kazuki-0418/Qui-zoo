@@ -1,0 +1,154 @@
+{
+  "info": {
+    "_postman_id": "a8e6fcf3-d4c2-4c06-bf7c-b0e57e8f5bff",
+    "name": "Quiz API",
+    "description": "A collection for testing the Quiz API endpoints with CRUD operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Quizzes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/quizzes",
+          "host": ["{{baseUrl}}"],
+          "path": ["quizzes"]
+        },
+        "description": "Retrieves all quizzes from the database"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Quiz By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/quizzes/{{quizId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["quizzes", "{{quizId}}"]
+        },
+        "description": "Retrieves a specific quiz by its ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Quiz",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "",
+              "if (jsonData && jsonData.id) {",
+              "    pm.environment.set('quizId', jsonData.id);",
+              "    console.log('Quiz ID set to: ' + jsonData.id);",
+              "} else {",
+              "    console.log('Could not find id in response');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"Science Quiz 101\",\n    \"category\": \"SCIENCE\",\n    \"creatorId\": \"user123\",\n    \"timeLimit\": 300\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/quizzes",
+          "host": ["{{baseUrl}}"],
+          "path": ["quizzes"]
+        },
+        "description": "Creates a new quiz"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Quiz",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"Updated Science Quiz\",\n    \"category\": \"SCIENCE\",\n    \"timeLimit\": 600\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/quizzes/{{quizId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["quizzes", "{{quizId}}"]
+        },
+        "description": "Updates an existing quiz by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Quiz",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/quizzes/{{quizId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["quizzes", "{{quizId}}"]
+        },
+        "description": "Deletes a quiz by ID"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "quizId",
+      "value": "bf165c55-dabe-4b75-bd7e-c80897e60764",
+      "type": "string"
+    }
+  ]
+}
