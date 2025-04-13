@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { CreateRoomModal } from "@/components/pages/quiz/CreateRoomModal";
 import Image from "next/image";
 
@@ -44,7 +44,7 @@ export default function QuizDetailPage() {
 
   const handleCreateRoom = (roomData: any) => {
     // TODO:logic
-    window.location.href = `/room/${roomData.roomNumber}`;
+    window.location.href = `/play/1`;
   };
 
   return (
