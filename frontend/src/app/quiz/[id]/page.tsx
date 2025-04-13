@@ -16,7 +16,7 @@ const questions: Question[] = [
   {
     id: 1,
     question: "Do you get to school by bus?",
-    icon: "/assets/quiz/school/school.png",
+    icon: "/assets/quiz/school/school-pic.jpg",
     options: [
       { text: "Yes", isCorrect: true },
       { text: "No", isCorrect: false },
@@ -27,7 +27,7 @@ const questions: Question[] = [
   {
     id: 2,
     question: "This is a book?",
-    icon: "/assets/quiz/school/school.png",
+    icon: "/assets/quiz/school/school-pic.jpg",
     options: [
       { text: "True", isCorrect: true },
       { text: "False", isCorrect: false },
@@ -71,35 +71,35 @@ export default function QuizDetailPage() {
                 className="text-blue-600 text-sm"
                 onClick={() => setIsAccordionOpen(!isAccordionOpen)}
               >
-                {isAccordionOpen ? "Hide all ↑" : "View all ↓"}
+                {isAccordionOpen ? "Hide all answers" : "View answers"}
               </button>
             </div>
-            <div className={`${isAccordionOpen ? "block" : "hidden"} space-y-4`}>
+            <div className={`space-y-4`}>
               {questions.map((question) => (
-                <div className="flex items-center space-x-4">
-                  <Image
-                    src={question.icon}
-                    alt={`Question ${question.id}`}
-                    width={50}
-                    height={50}
-                    className="rounded"
-                  />
-                  <div>
-                    <div className="">
+                <div className="">
+                  <div className="flex items-center space-x-4 rounded-lg bg-gray-50">
+                    <Image
+                      src={question.icon}
+                      alt={`Question ${question.id}`}
+                      width={200}
+                      height={200}
+                      className="rounded-s-lg"
+                    />
+                    <div className="flex-1">
                       <div className="text-sm text-gray-500 mb-1">Question {question.id}</div>
                       <div className="font-medium">{question.question}</div>
                     </div>
-                    <div className="mt-4 space-y-2">
-                      {question.options.map((option, index) => (
-                        <div
-                          key={index}
-                          className={`p-2 rounded-lg ${option.isCorrect ? "bg-green-100" : "bg-red-100"
-                            }`}
-                        >
-                          {option.text}
-                        </div>
-                      ))}
-                    </div>
+                  </div>
+                  <div className={`${isAccordionOpen ? "block" : "hidden"} mt-4 space-y-2`}>
+                    {question.options.map((option, index) => (
+                      <div
+                        key={index}
+                        className={`px-4 p-2 rounded-lg ${option.isCorrect ? "bg-green-100" : "bg-red-100"
+                          }`}
+                      >
+                        {option.text}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
