@@ -1,0 +1,135 @@
+"use client";
+
+import { useState } from "react";
+import { Button, Card } from "flowbite-react";
+import { CreateRoomModal } from "@/components/pages/quiz/CreateRoomModal";
+import Image from "next/image";
+
+interface Question {
+  id: number;
+  question: string;
+  icon: string;
+  options: { text: string; isCorrect: boolean }[];
+}
+
+const questions: Question[] = [
+  {
+    id: 1,
+    question: "Do you get to school by bus?",
+    icon: "/assets/quiz/school/school.png",
+    options: [
+      { text: "Yes", isCorrect: true },
+      { text: "No", isCorrect: false },
+      { text: "Sometimes", isCorrect: false },
+      { text: "Never", isCorrect: false },
+    ],
+  },
+  {
+    id: 2,
+    question: "This is a book?",
+    icon: "/assets/quiz/school/school.png",
+    options: [
+      { text: "True", isCorrect: true },
+      { text: "False", isCorrect: false },
+      { text: "Maybe", isCorrect: false },
+      { text: "Not sure", isCorrect: false },
+    ],
+  },
+];
+
+export default function QuizDetailPage() {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
+  const handleCreateRoom = (roomData: any) => {
+    // TODO:logic
+    window.location.href = `/room/${roomData.roomNumber}`;
+  };
+
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-2xl mx-auto bg-white">
+        {/* Header */}
+        <div className="relative h-48 bg-gray-100">
+          <Image
+            src="/assets/quiz/school/school-pic.jpg"
+            alt="Back to School"
+            fill
+            className="object-cover"
+          />
+        </div>
+
+        {/* Quiz Info */}
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-4">Back to School Quiz Game</h1>
+
+          {/* Question List */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-medium">Questions ({questions.length})</h2>
+              <button
+                className="text-blue-600 text-sm"
+                onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+              >
+                {isAccordionOpen ? "Hide all ↑" : "View all ↓"}
+              </button>
+            </div>
+            <div className={`${isAccordionOpen ? "block" : "hidden"} space-y-4`}>
+              {questions.map((question) => (
+                <div className="flex items-center space-x-4">
+                  <Image
+                    src={question.icon}
+                    alt={`Question ${question.id}`}
+                    width={50}
+                    height={50}
+                    className="rounded"
+                  />
+                  <div>
+                    <div className="">
+                      <div className="text-sm text-gray-500 mb-1">Question {question.id}</div>
+                      <div className="font-medium">{question.question}</div>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      {question.options.map((option, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 rounded-lg ${option.isCorrect ? "bg-green-100" : "bg-red-100"
+                            }`}
+                        >
+                          {option.text}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex space-x-4 mt-8">
+            <Button
+              color="blue"
+              size="lg"
+              className="w-full"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              Create Room
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <CreateRoomModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreateRoom={handleCreateRoom}
+        availableQuizzes={[
+          { id: "1", title: "Piano Quiz" },
+          { id: "2", title: "Coding Quiz" },
+          { id: "3", title: "School Quiz" },
+        ]}
+      />
+    </div>
+  );
+}
