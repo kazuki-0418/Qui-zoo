@@ -44,7 +44,7 @@ export default function QuizDetailPage() {
 
   const handleCreateRoom = (roomData: any) => {
     // TODO:logic
-    window.location.href = `/play/1`;
+    window.location.href = `/quiz/play/1`;
   };
 
   return (
