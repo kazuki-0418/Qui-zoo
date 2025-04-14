@@ -93,7 +93,7 @@ export default function QuizDetailPage() {
             </div>
             <div className={`space-y-4`}>
               {questions.map((question) => (
-                <div className="">
+                <div key={question.id}>
                   <div className="flex items-center space-x-4 rounded-lg bg-gray-50">
                     <Image
                       src={question.icon}
