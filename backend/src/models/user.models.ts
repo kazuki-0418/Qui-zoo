@@ -1,69 +1,109 @@
 import { PrismaClient } from "@prisma/client";
-import { User } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { User } from "../types/user";
 
 const prisma = new PrismaClient();
 
 // get all users
 const getAllUsers = async () => {
-  return await prisma.user.findMany();
+  try {
+    const users = await prisma.user.findMany();
+    return users;
+  } catch (error) {
+    throw new Error(`Error fetching users: ${error}`);
+  }
 };
 
 // add user
 const addUser = async (data: User) => {
-  return await prisma.user.create({ data }); // add an user
+  try {
+    return await prisma.user.create({ data }); // add an user
+  } catch (error) {
+    throw new Error(`Error checking if user exists: ${error}`);
+  }
 };
 
 // get user by id
 const getUserById = async (id: string) => {
-  return await prisma.user.findUnique({
-    where: { id },
-  });
+  try {
+    const userFound = await prisma.user.findUnique({
+      where: { id },
+    });
+    if (!userFound) {
+      return null;
+    }
+    return userFound;
+  } catch (error) {
+    throw new Error(`Error fetching user by id: ${error}`);
+  }
+};
+
+const getUserByEmail = async (email: string) => {
+  try {
+    const userFound = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (!userFound) {
+      return null;
+    }
+    return userFound;
+  } catch (error) {
+    throw new Error(`Error fetching user by email: ${error}`);
+  }
 };
 
 // update user
 const updateUser = async (id: string, data: Partial<User>) => {
-  const userFound = await getUserById(id);
-  if (!userFound) {
-    return null;
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        ...data,
+        password: data.password,
+      },
+    });
+    return updatedUser;
+  } catch (error) {
+    throw new Error(`Error updating user: ${error}`);
   }
-  return await prisma.user.update({
-    where: { id },
-    data,
-  });
 };
 
 //delete user
 const deleteUser = async (id: string) => {
-  const userFound = await getUserById(id);
-  if (!userFound) {
-    return null;
+  try {
+    const deletedUser = await prisma.user.delete({
+      where: { id },
+    });
+    return deletedUser;
+  } catch (error) {
+    throw new Error(`Error deleting user: ${error}`);
   }
-  return prisma.user.delete({
-    where: { id },
-  });
 };
 
 // login user
-const userLogin = async (username: string, password: string) => {
-  const userFound = await prisma.user.findUnique({
-    where: { username },
-  });
-  if (!userFound) {
-    return null;
+const userLogin = async (email: string, password: string) => {
+  try {
+    const userFound = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (!userFound) {
+      return null;
+    }
+    const comparePassword: boolean = await bcrypt.compare(password, userFound.password);
+    if (!comparePassword) {
+      return null;
+    }
+    return comparePassword;
+  } catch (error) {
+    throw new Error(`Error logging in user: ${error}`);
   }
-  const comparePassword: boolean = await bcrypt.compare(userFound.password, password);
-  if (comparePassword === false) {
-    return false;
-  }
-
-  return comparePassword;
 };
 
 export default {
   getAllUsers,
   addUser,
   getUserById,
+  getUserByEmail,
   updateUser,
   deleteUser,
   userLogin,
