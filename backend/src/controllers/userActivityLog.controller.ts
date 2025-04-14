@@ -34,7 +34,7 @@ class userActivityLogController {
         questionsAnswered: user?.correctAnswers + user?.wrongAnswers,
         correctAnswers: user.correctAnswers,
       };
-      const logUpdated = await userActivityLog.updateActivityLog(id, data);
+      const _logUpdated = await userActivityLog.updateActivityLog(id, data);
     } catch (error) {
       console.error("Error updating user log", error);
       res.status(500).json({ error: "Error updating user Log" });
