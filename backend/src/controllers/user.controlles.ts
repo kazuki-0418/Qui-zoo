@@ -93,11 +93,38 @@ const deleteUser = async(req: Request<{id: string}>, res: Response)=>{
     res.status(200).json(user)
 }
 
+// log user in 
+const logUserIn = async(req: Request<{},{},{username: string, password: string}>, res: Response)=>{
+    const {username, password} = req.body
+    if(!username || !password){
+        res.status(500).json({message:"Password or Username missing"})
+    }
+    const userLogin = await userModels.userLogin(username, password)
+    if(!userLogin){
+        res.status(500).json({mesasge: "Username or Password are incorrect"})
+        return
+    }
+    if(req.session){
+        req.session.username = username,
+        req.session.isLogin = true
+    }
+    res.status(200).json({message: "Login succesfully"})
+}
+
+// log user out
+const logUserOut = async (req: Request, res: Response)=>{
+    if(req.session){
+        req.session = null
+    }
+    res.status(301).json({message: "User loged out"})
+}
 
 export default{
     getUsers,
     addNewUser,
     getUserById,
     updateUserById,
-    deleteUser
+    deleteUser, 
+    logUserIn,
+    logUserOut
 }

@@ -98,10 +98,36 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     res.status(200).json(user);
 });
+// log user in 
+const logUserIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        res.status(500).json({ message: "Password or Username missing" });
+    }
+    const userLogin = yield user_models_1.default.userLogin(username, password);
+    if (!userLogin) {
+        res.status(500).json({ mesasge: "Username or Password are incorrect" });
+        return;
+    }
+    if (req.session) {
+        req.session.username = username,
+            req.session.isLogin = true;
+    }
+    res.status(200).json({ message: "Login succesfully" });
+});
+// log user out
+const logUserOut = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.session) {
+        req.session = null;
+    }
+    res.status(301).json({ message: "User loged out" });
+});
 exports.default = {
     getUsers,
     addNewUser,
     getUserById,
     updateUserById,
-    deleteUser
+    deleteUser,
+    logUserIn,
+    logUserOut
 };

@@ -19,4 +19,10 @@ userRouter.put("/:id",userController.updateUserById)
 // delete user
 userRouter.delete("/:id",userController.deleteUser)
 
+// log user in
+userRouter.post("/login",userController.logUserIn)
+
+// log user out
+userRouter.post("/logout", userController.logUserOut)
+
 export default userRouter

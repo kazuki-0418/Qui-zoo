@@ -45,13 +45,31 @@ const deleteUser = async(id: string)=>{
     })
 }
 
+// login user
+const userLogin = async(username: string, password: string) =>{
+    const userFound = await prisma.user.findUnique({
+        where: {username}
+    })
+    if(!userFound){
+        return null
+    }
+    const comparePassword: boolean = await bcrypt.compare(userFound.password, password)
+    if(comparePassword === false){
+        return false
+    }
+    
+    return comparePassword 
+}
+
 
 export default{
     getAllUsers,
     addUser,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
+    userLogin,
+
 }
 
 
