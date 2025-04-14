@@ -9,19 +9,17 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// Roles for users
 enum Role {
     TEACHER
     STUDENT
     ADMIN
 }
 
-// Category for quiz
 enum Category {
     PROGRAMMING
     SCIENCE
@@ -32,7 +30,6 @@ enum Category {
     OTHER
 }
 
-// User model
 model User {
     id                 String    @id @default(uuid())
     username           String    @unique
@@ -43,21 +40,18 @@ model User {
     createdAt          DateTime  @default(now())
     updatedAt          DateTime  @updatedAt
     
-    // 統計情報（集計値） User quiz info
     correctAnswers     Int       @default(0)
     wrongAnswers       Int       @default(0)
     totalParticipations Int      @default(0)
     
-    // 日別統計 Sessions
     activityLogs       UserActivityLog[]
     
-    // 作成したクイズ Created quizzes add relation later
+    // Quizzes created by the user
     createdQuizzes     Quiz[]    @relation("CreatorRelation")
 }
 
 
 
-// Logs structure
 model UserActivityLog {
     id               String    @id @default(uuid())
     user             User      @relation(fields: [userId], references: [id])
@@ -70,27 +64,25 @@ model UserActivityLog {
     @@unique([userId, date])
 }
 
-// Quizz structure
 model Quiz {
     id          String    @id @default(uuid())
     title       String
     category    Category  @default(GENERAL)
     creator     User      @relation("CreatorRelation", fields: [creatorId], references: [id])
     creatorId   String
-    timeLimit   Int       @default(10)  // 制限時間（秒）
+    timeLimit   Int       @default(10)  // time limit in seconds
     questions   Question[]
     isActive    Boolean   @default(true)
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 }
 
-// Question structure
 model Question {
     id            String   @id @default(uuid())
     quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
     quizId        String
     questionText  String
     options       String[]
-    correctOption String   // options配列内の正解の値
+    correctOption String   // correct answer
     points        Int      @default(10)
 }

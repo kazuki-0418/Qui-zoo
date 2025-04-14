@@ -1,53 +1,78 @@
-import express, {Request, Response} from "express";
-import dotenv from "dotenv"
-import cors from "cors"
-import cookieSession from "cookie-session"
+import cookieSession from "cookie-session";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
+import helmet from "helmet";
+import morgan from "morgan";
+import quizRouter from "./routes/quiz.route";
 import userRouter from "./routes/user.routes";
-import { error } from "console";
 
-dotenv.config() // initialize dotenv
+// Load environment variables
+dotenv.config();
 
-// create a new express instance
-const app = express()
+// Create Express app
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// middleware
-app.use(cors({
-    credentials: true
-})) // frontend and backend communication
-app.use(express.json())// alows json post
+const cookieKeyPrimary = process.env.COOKIE_S || process.env.SESSION_SECRET;
+const cookieKeySecondary = process.env.COOKIE_E;
 
-// cookie keys
-const cookie_s = process.env.COOKIE_S
-const cookie_e = process.env.COOKIE_E
-
-// Close the server if the cookies do not exist
-if(!cookie_e || !cookie_s){
-    throw error("Cookie keys are missing")
+if (!cookieKeyPrimary) {
+  throw new Error("Primary cookie key is missing");
 }
 
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
+app.use(morgan("dev"));
 
-// cookies-session
-app.use(cookieSession({
+// Configure cookie session before CORS
+app.use(
+  cookieSession({
     name: "session",
-    maxAge: 7 * 24 * 60 * 60 * 1000,  // one week of duration
-    keys: [
-        cookie_s,
-        cookie_e
-    ]
-}))
+    keys: cookieKeySecondary ? [cookieKeyPrimary, cookieKeySecondary] : [cookieKeyPrimary],
+    maxAge: Number.parseInt(process.env.COOKIE_MAX_AGE || "86400000"),
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: "lax",
+  }),
+);
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    credentials: true,
+  }),
+);
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
+// CORS preflight
+app.options("*", cors());
 
 // Routes
-app.use("/user",userRouter)
-// Fallback
-app.use((req: Request, res: Response)=>{
-    res.status(404).json({message: "Inexistent Route"})
-})
+app.use("/api/users", userRouter);
+app.use("/api/quizzes", quizRouter);
 
-// start the server
-const PORT = process.env.PORT || 3000
-app.listen(PORT,()=>{
-    console.log(`Server is running in ${PORT}`)
-})
+// 404 handler
+app.use((_, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Resource not found",
+  });
+});
 
+// Start server
+app.listen(PORT, () => {
+  // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+  console.log(`Server running on port ${PORT}`);
+});
 
-
+export default app;
