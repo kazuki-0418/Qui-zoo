@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Roles for users
+enum Role {
+  TEACHER
+  STUDENT
+  ADMIN
+}
+
+// Category for quiz
+enum Category {
+  PROGRAMMING
+  SCIENCE
+  HISTORY
+  MATHEMATICS
+  LANGUAGE
+  GENERAL
+  OTHER
+}
+
+// User model
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 統計情報（集計値） User quiz info
+  correctAnswers      Int @default(0)
+  wrongAnswers        Int @default(0)
+  totalParticipations Int @default(0)
+
+  // 日別統計 Sessions
+  activityLogs UserActivityLog[]
+
+  // 作成したクイズ Created quizzes add relation later
+}
+
+// Logs structure
+model UserActivityLog {
+  id                String   @id @default(uuid())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String
+  date              DateTime @db.Date
+  questionsAnswered Int      @default(0)
+  correctAnswers    Int      @default(0)
+  sessionsJoined    Int      @default(0)
+
+  @@unique([userId, date])
+}

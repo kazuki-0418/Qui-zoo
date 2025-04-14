@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
+import userRouter from "./routes/user.routes";
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +14,13 @@ dotenv.config();
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const cookieKeyPrimary = process.env.COOKIE_S || process.env.SESSION_SECRET;
+const cookieKeySecondary = process.env.COOKIE_E;
+
+if (!cookieKeyPrimary) {
+  throw new Error("Primary cookie key is missing");
+}
 
 // Middleware
 app.use(express.json());
@@ -24,7 +32,7 @@ app.use(morgan("dev"));
 app.use(
   cookieSession({
     name: "session",
-    keys: [process.env.SESSION_SECRET || "secret-key"],
+    keys: cookieKeySecondary ? [cookieKeyPrimary, cookieKeySecondary] : [cookieKeyPrimary],
     maxAge: Number.parseInt(process.env.COOKIE_MAX_AGE || "86400000"),
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
@@ -51,6 +59,7 @@ app.use(
 app.options("*", cors());
 
 // Routes
+app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
 
