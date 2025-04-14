@@ -1,5 +1,5 @@
-import { Card, Badge } from 'flowbite-react';
-import Link from 'next/link';
+import { Badge, Card } from "flowbite-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -34,7 +34,9 @@ export default function Home() {
               </svg>
             </Badge>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Quizzes</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Completed Quizzes
+              </p>
               <p className="text-2xl font-semibold">24</p>
             </div>
           </div>
@@ -60,19 +62,25 @@ export default function Home() {
         <Card>
           <h2 className="text-xl font-bold mb-4">Continue Learning</h2>
           <div className="space-y-4">
-            <Link href="/quiz/linear-equations" className="block p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+            <Link
+              href="/quiz/linear-equations"
+              className="block p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
               <h3 className="font-semibold">Linear Equations</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">Progress: 60%</p>
               <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '60%' }}></div>
+                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: "60%" }}></div>
               </div>
             </Link>
 
-            <Link href="/quiz/rational-numbers" className="block p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+            <Link
+              href="/quiz/rational-numbers"
+              className="block p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
               <h3 className="font-semibold">Rational Numbers</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">Progress: 30%</p>
               <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '30%' }}></div>
+                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: "30%" }}></div>
               </div>
             </Link>
           </div>
@@ -89,7 +97,9 @@ export default function Home() {
               </div>
               <div className="ml-4">
                 <p className="font-medium">Perfect Score!</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Completed Basic Algebra with 100%</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Completed Basic Algebra with 100%
+                </p>
               </div>
             </div>
             <div className="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
