@@ -4,7 +4,7 @@ import userModels from "../models/user.models";
 import { UserActivityLog } from "../models/userActivityLog.model";
 import { userActivityLog } from "../types/userActivityLog";
 
-const userActivityLog = new UserActivityLog();
+const userLogController = new UserActivityLog();
 
 class userActivityLogController {
   async createUserActivityLog(req: Request<{ userId: string }>, res: Response) {
@@ -14,7 +14,7 @@ class userActivityLogController {
         id,
         user: req.params.userId,
       };
-      const userLog = await userActivityLog.createActivityLog(newlog);
+      const userLog = await userLogController.createActivityLog(newlog);
       res.status(201).json(userLog);
     } catch (error) {
       console.error("Error creating userLog", error);
@@ -34,7 +34,7 @@ class userActivityLogController {
         questionsAnswered: user?.correctAnswers + user?.wrongAnswers,
         correctAnswers: user.correctAnswers,
       };
-      const _logUpdated = await userActivityLog.updateActivityLog(id, data);
+      const _logUpdated = await userLogController.updateActivityLog(id, data);
     } catch (error) {
       console.error("Error updating user log", error);
       res.status(500).json({ error: "Error updating user Log" });
@@ -44,7 +44,7 @@ class userActivityLogController {
   async getLogById(req: Request<{ id: string }>, res: Response) {
     try {
       const { id } = req.params;
-      const userLog = await userActivityLog.getLogById(id);
+      const userLog = await userLogController.getLogById(id);
       res.status(200).json(userLog);
     } catch (error) {
       console.error("Error updating user log", error);
