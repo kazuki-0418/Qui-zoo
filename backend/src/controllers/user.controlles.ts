@@ -32,7 +32,7 @@ const addNewUser =  async (req: Request<{},{},Omit<User,'id'>>, res: Response)=>
         wrongAnswers: 0,
         totalParticipations: 0
     }
-    const user = userModels.addUser(newUser)
+    const user = await userModels.addUser(newUser)
     if(!user){
         res.status(500).json({message: 'Failed to create user'})
     }
@@ -45,7 +45,7 @@ const getUserById = async(req: Request<{id: string}>, res: Response)=>{
         res.status(500).json({message: "Unable to fetch user"})
         return
     }
-    const user = userModels.getUserById(req.params.id)
+    const user = await userModels.getUserById(req.params.id)
     if(!user){
         res.status(500).json({message:'Unable to find user'})
         return

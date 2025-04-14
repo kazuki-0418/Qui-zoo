@@ -41,7 +41,7 @@ const addNewUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         wrongAnswers: 0,
         totalParticipations: 0
     };
-    const user = user_models_1.default.addUser(newUser);
+    const user = yield user_models_1.default.addUser(newUser);
     if (!user) {
         res.status(500).json({ message: 'Failed to create user' });
     }
@@ -53,7 +53,7 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(500).json({ message: "Unable to fetch user" });
         return;
     }
-    const user = user_models_1.default.getUserById(req.params.id);
+    const user = yield user_models_1.default.getUserById(req.params.id);
     if (!user) {
         res.status(500).json({ message: 'Unable to find user' });
         return;
