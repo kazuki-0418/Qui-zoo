@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
 import userRouter from "./routes/user.routes";
 
@@ -60,6 +61,7 @@ app.options("*", cors());
 // Routes
 app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
+app.use("/api/questions", questionRouter);
 
 // 404 handler
 app.use((_, res) => {
