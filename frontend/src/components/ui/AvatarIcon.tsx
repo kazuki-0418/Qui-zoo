@@ -2,6 +2,7 @@ import { Avatar } from "flowbite-react";
 
 interface AvatarIconProps {
     image: string;
+    size?: string;
     onImageChange?: (imageId: string) => void;
 }
 
@@ -24,6 +25,7 @@ const getImagePath = (imageId: string) => {
 
 export const AvatarIcon = ({
     image,
+    size,
     onImageChange,
 }: AvatarIconProps) => {
     return (
@@ -31,7 +33,7 @@ export const AvatarIcon = ({
             <Avatar
                 img={getImagePath(image)}
                 rounded
-                size="lg"
+                size={size ? size : "sm"}
             />
             {onImageChange && (
                 <div className="flex gap-2 flex-wrap justify-center">
