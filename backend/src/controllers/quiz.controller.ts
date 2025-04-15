@@ -5,7 +5,7 @@ import { Quiz } from "../types/quiz";
 const quizModel = new QuizModel();
 
 class QuizController {
-  async createQuiz(req: Request<{ null: null }, { null: null }, Quiz>, res: Response) {
+  async createQuiz(req: Request<null, null, Quiz>, res: Response) {
     const quiz = req.body;
     try {
       const newQuiz = await quizModel.createQuiz(quiz);
