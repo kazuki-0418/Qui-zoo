@@ -20,7 +20,7 @@ export class SessionModel {
       // Create Room Code
       const roomCode = generateUniqueCode();
 
-      // セッション作成
+      // create session
       const sessionRef = rtdb.ref("sessions").push();
       await sessionRef.set({
         id: sessionRef.key,
@@ -36,7 +36,7 @@ export class SessionModel {
 
       // generate QR code
       const qrCodeDataUrl = await QRCode.toDataURL(joinUrl);
-      // ルーム情報を返す
+
       return {
         roomId: roomId,
         roomCode,
@@ -48,33 +48,4 @@ export class SessionModel {
       throw new Error(`Error creating room ${error}`);
     }
   }
-  //   async updateRoom(id: string, room: UpdateRoom) {
-  //     try {
-  //
-  //       });
-  //       return updatedRoom;
-  //     } catch (error) {
-  //       throw new Error(`Error updating room ${error}`);
-  //     }
-  //   }
-  //   }
-
-  async getRoomById() {
-    try {
-      const roomsRef = rtdb.ref("rooms");
-      const snapshot = await roomsRef.once("value");
-      if (snapshot.exists()) {
-        const rooms = snapshot.val();
-        return rooms;
-      }
-    } catch (error) {
-      throw new Error(`Error fetching room ${error}`);
-    }
-  }
-  //   async deleteQuestion(id: string) {
-  //     try {
-  //     } catch (error) {
-  //       throw new Error(`Error deleting room ${error}`);
-  //     }
-  //   }
 }
