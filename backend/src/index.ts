@@ -8,7 +8,7 @@ import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
 import roomRouter from "./routes/room.route";
 import userRouter from "./routes/user.routes";
-
+import activityLogRouter from "./routes/userActivityLog.routes";
 // Load environment variables
 dotenv.config();
 
@@ -64,6 +64,7 @@ app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/rooms", roomRouter);
+app.use("/api/user_activity_logs", activityLogRouter);
 
 // 404 handler
 app.use((_, res) => {

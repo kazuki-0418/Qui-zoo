@@ -13,6 +13,7 @@ export class QuestionModel {
           options: question.options,
           correctOption: question.correctOption,
           points: question.points,
+          picture: question.picture,
         },
       });
       return newQuestion;
@@ -30,6 +31,7 @@ export class QuestionModel {
           options: question.options,
           correctOption: question.correctOption,
           points: question.points,
+          picture: question.picture,
         },
       });
       return updatedQuestion;
