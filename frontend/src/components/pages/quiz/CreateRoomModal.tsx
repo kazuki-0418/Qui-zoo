@@ -8,7 +8,7 @@ interface CreateRoomModalProps {
   onClose: () => void;
   onCreateRoom: (roomData: RoomData) => void;
   availableQuizzes?: Array<{ quizId: string; title: string }>;
-  selectedQuizId?: string;
+  selectedQuizId?: string | null;
 }
 
 interface RoomData {
@@ -43,7 +43,7 @@ export function CreateRoomModal({
       <div className="p-5 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* quiz */}
-          {availableQuizzes && (
+          {availableQuizzes && !selectedQuizId ? (
             <div>
               <Label htmlFor="quizSelect" className="block mb-2 text-sm font-medium text-gray-500">
                 Select a Quiz
@@ -63,7 +63,11 @@ export function CreateRoomModal({
                 ))}
               </Select>
             </div>
-          )}
+          ) : availableQuizzes ? (
+            <h2 className="text-lg font-bold">
+              {availableQuizzes.find((quiz) => quiz.quizId === selectedQuizId)?.title}
+            </h2>
+          ) : null}
 
           {/* people limit */}
           <div>

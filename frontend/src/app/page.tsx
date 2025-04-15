@@ -69,6 +69,7 @@ export default function Home() {
       <QuizBanner
         onCreateRoom={() => {
           if (role === "teacher") {
+            setPlayQuizId(null);
             setShowCreateRoomModal(true);
           } else {
             router.push("/quiz/");
@@ -97,8 +98,8 @@ export default function Home() {
           isOpen={showCreateRoomModal}
           onClose={() => setShowCreateRoomModal(false)}
           onCreateRoom={handleCreateRoom}
-          selectedQuizId={playQuizId ? playQuizId : undefined}
-          availableQuizzes={playQuizId ? availableQuizzes : undefined}
+          selectedQuizId={playQuizId}
+          availableQuizzes={availableQuizzes}
         />
       )}
     </div>
