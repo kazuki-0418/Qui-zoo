@@ -14,7 +14,7 @@ class UserActivityLog {
                             id: activityLog.userId,
                         },
                     },
-                    lastActivityDate: new Date().toISOString().split('T')[0],
+                    lastActivityDate: new Date().toISOString().split("T")[0],
                     questionsAnswered: 0,
                     correctAnswers: 0,
                     sessionsJoined: 0,
@@ -46,8 +46,8 @@ class UserActivityLog {
         try {
             const log = await prisma.userActivityLog.findUnique({
                 where: {
-                    userId
-                }
+                    userId,
+                },
             });
             return log;
         }

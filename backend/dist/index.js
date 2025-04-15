@@ -9,6 +9,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
+const firebase_RTDB_config_1 = require("./infrastructure/firebase_RTDB.config");
 const question_route_1 = __importDefault(require("./routes/question.route"));
 const quiz_route_1 = __importDefault(require("./routes/quiz.route"));
 const user_routes_1 = __importDefault(require("./routes/user.routes"));
@@ -53,6 +54,23 @@ app.use("/api/users", user_routes_1.default);
 app.use("/api/quizzes", quiz_route_1.default);
 app.use("/api/questions", question_route_1.default);
 app.use("/api/user_activity_logs", userActivityLog_routes_1.default);
+app.use("/api/rooms", (_, res) => {
+    const roomsRef = firebase_RTDB_config_1.rtdb.ref("rooms");
+    roomsRef
+        .once("value")
+        .then((snapshot) => {
+        if (snapshot.exists()) {
+            res.json(snapshot.val());
+        }
+        else {
+            res.status(404).json({ message: "No data available" });
+        }
+    })
+        .catch((error) => {
+        console.error(error);
+        res.status(500).json({ error: "Error fetching data" });
+    });
+});
 // 404 handler
 app.use((_, res) => {
     res.status(404).json({
