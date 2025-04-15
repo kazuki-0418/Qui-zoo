@@ -40,7 +40,7 @@ export function CreateRoomModal({
 
   return (
     <Modal show={isOpen} onClose={onClose} size="lg">
-      <div className="p-5 md:p-10">
+      <div className="p-5 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* quiz */}
           {availableQuizzes && (

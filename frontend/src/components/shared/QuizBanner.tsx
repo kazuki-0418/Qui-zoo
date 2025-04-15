@@ -10,13 +10,6 @@ interface QuizBannerProps {
 export function QuizBanner({ buttonText, onCreateRoom }: QuizBannerProps) {
   return (
     <div className="relative rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-      {/* <Image
-        src="/assets/images/star.jpg"
-        alt=""
-        fill
-        className="object-cover opacity-100 mix-blend-overlay"
-        priority
-      /> */}
       <div className="relative z-10 p-6 md:p-10 flex flex-row items-center justify-between">
         <div className="mb-2 z-10">
           <span className="text-xs text-gray-300 tracking-widest">GET STARTED</span>

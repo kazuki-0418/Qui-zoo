@@ -4,7 +4,7 @@ type PushButtonProps = {
   color?: "primary" | "secondly" | "warning" | "cancel";
   size?: "sm" | "md" | "lg";
   rounded?: "md" | "lg" | "full";
-  width?: string;
+  width?: "fit" | "full";
   onClick?: (() => void) | ((event: React.MouseEvent<HTMLButtonElement>) => void);
   disabled?: boolean;
   className?: string;
@@ -48,16 +48,17 @@ export function PushButton({
     "relative",
   ].join(" ");
 
-  const combinedClass = `${baseClass} ${sizeClasses[size]} w-${width} rounded-${rounded} ${bgColorMap[color]} ${className}`;
+  const divClass = `relative ${width === "fit" ? "w-fit" : "w-full"} rounded-${rounded} ${disabled ? "opacity-80" : ""}`;
+  const buttonClass = `${baseClass} ${sizeClasses[size]} ${width === "fit" ? "w-fit" : "w-full"} rounded-${rounded} ${bgColorMap[color]} ${className}`;
 
   return (
     <div
-      className={`relative w-${width} rounded-${rounded} ${disabled ? "opacity-80" : ""}`}
+      className={divClass}
       style={{
         boxShadow: `0 4px 0 0 ${shadowColorMap[color]}`,
       }}
     >
-      <button onClick={onClick} className={combinedClass} disabled={disabled}>
+      <button onClick={onClick} className={buttonClass} disabled={disabled}>
         {children}
       </button>
     </div>

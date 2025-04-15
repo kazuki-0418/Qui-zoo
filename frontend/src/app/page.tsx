@@ -22,7 +22,6 @@ export default function Home() {
     participantLimit: number;
   }) => {
     // TODO: logic
-    console.log("Creating room with data:", roomData);
   };
 
   // TODO demo
@@ -56,6 +55,14 @@ export default function Home() {
     },
   ];
 
+  const availableQuizzes = [
+    { quizId: "1", title: "Basic Algebra" },
+    { quizId: "2", title: "Geometry Basics" },
+    { quizId: "3", title: "Introduction to Calculus" },
+    { quizId: "4", title: "Statistics 101" },
+    { quizId: "5", title: "Physics Fundamentals" },
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-6">🎉 Hello username!</h1>
@@ -85,18 +92,13 @@ export default function Home() {
           </div>
         </div>
       )}
-      {/* <CreateRoomModal
-        isOpen={true}
-        onClose={() => setShowCreateRoomModal(false)}
-        onCreateRoom={handleCreateRoom}
-        selectedQuizId={"1"}
-      /> */}
-      {showCreateRoomModal && (
+      {showCreateRoomModal && role === "teacher" && (
         <CreateRoomModal
           isOpen={showCreateRoomModal}
           onClose={() => setShowCreateRoomModal(false)}
           onCreateRoom={handleCreateRoom}
-          selectedQuizId={playQuizId || "1"}
+          selectedQuizId={playQuizId ? playQuizId : undefined}
+          availableQuizzes={playQuizId ? availableQuizzes : undefined}
         />
       )}
     </div>
