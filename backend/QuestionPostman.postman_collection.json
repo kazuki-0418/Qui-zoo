@@ -78,7 +78,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"quizId\": \"{{quizId}}\",\n    \"questionText\": \"What is the chemical symbol for water?\",\n    \"options\": [\"H2O\", \"CO2\", \"NaCl\", \"O2\"],\n    \"correctOption\": \"H2O\",\n    \"points\": 10\n}",
+          "raw": "{\n    \"quizId\": \"{{quizId}}\",\n    \"questionText\": \"What is the chemical symbol for water?\",\n    \"options\": [\"H2O\", \"CO2\", \"NaCl\", \"O2\"],\n    \"correctOption\": \"H2O\",\n    \"points\": 10,\n  \"picture\": \"bc65565c-2af9-42c3-a128-78730a8c296\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -106,7 +106,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"questionText\": \"Updated: What is the chemical formula for water?\",\n    \"options\": [\"H2O\", \"CO2\", \"NaCl\", \"O2\"],\n    \"correctOption\": \"H2O\",\n    \"points\": 15\n}",
+          "raw": "{\n    \"questionText\": \"Updated: What is the chemical formula for water?\",\n    \"options\": [\"H2O\", \"CO2\", \"NaCl\", \"O2\"],\n    \"correctOption\": \"H2O\",\n    \"points\": 15,\n  \"picture\": \"https://cdn.britannica.com/31/150831-050-8B046AEB/molecule-molecules-beads-droplets-water-form-surface.jpg\" \n}",
           "options": {
             "raw": {
               "language": "json"
