@@ -7,9 +7,9 @@ const activityLogRouter = Router();
 activityLogRouter.post("/create", LogController.createUserActivityLog);
 
 // get user log
-activityLogRouter.get("/", LogController.getLogById);
+activityLogRouter.get("/", LogController.getUserActivityLogById);
 
 // update user log
-activityLogRouter.put("/update", LogController.updateActivityLog);
+activityLogRouter.put("/update", LogController.updateUserActivityLog);
 
 export default activityLogRouter;

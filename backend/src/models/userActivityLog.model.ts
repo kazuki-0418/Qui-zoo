@@ -14,7 +14,7 @@ export class UserActivityLog {
               id: activityLog.userId,
             },
           },
-          date: new Date(),
+          lastActivityDate: new Date().toISOString().split("T")[0],
           questionsAnswered: 0,
           correctAnswers: 0,
           sessionsJoined: 0,
@@ -31,7 +31,6 @@ export class UserActivityLog {
       const updateLog = await prisma.userActivityLog.update({
         where: { id },
         data: {
-          date: new Date(),
           questionsAnswered: data.questionsAnswered,
           correctAnswers: data.correctAnswers,
           sessionsJoined: data.sesionsJoined,
@@ -47,10 +46,7 @@ export class UserActivityLog {
     try {
       const log = await prisma.userActivityLog.findUnique({
         where: {
-          userId_date: {
-            userId,
-            date: new Date(),
-          },
+          userId,
         },
       });
       return log;

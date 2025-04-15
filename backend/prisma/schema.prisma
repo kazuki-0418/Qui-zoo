@@ -56,12 +56,13 @@ model UserActivityLog {
     id               String    @id @default(uuid())
     user             User      @relation(fields: [userId], references: [id])
     userId           String
-    date             DateTime  @db.Date
+    lastActivityDate String
     questionsAnswered Int      @default(0)
     correctAnswers   Int       @default(0)
     sessionsJoined   Int       @default(0)
     
-    @@unique([userId, date])
+    @@unique([userId])
+    @@unique([lastActivityDate])
 }
 
 model Quiz {
@@ -85,4 +86,5 @@ model Question {
     options       String[]
     correctOption String   // correct answer
     points        Int      @default(10)
+    picture       String   @default("")
 }

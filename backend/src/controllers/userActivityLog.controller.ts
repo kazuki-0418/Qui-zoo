@@ -22,7 +22,7 @@ class userActivityLogController {
     }
   }
 
-  async updateActivityLog(req: Request<{ id: string }>, res: Response) {
+  async updateUserActivityLog(req: Request<{ id: string }>, res: Response) {
     try {
       const { id } = req.params;
       const user = await userModels.getUserById(id);
@@ -41,7 +41,7 @@ class userActivityLogController {
     }
   }
 
-  async getLogById(req: Request<{ userId: string }>, res: Response) {
+  async getUserActivityLogById(req: Request<{ userId: string }>, res: Response) {
     try {
       const { userId } = req.params;
       const userLog = await userLogController.getActivityLogsByUserId(userId);
