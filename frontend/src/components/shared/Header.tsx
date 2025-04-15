@@ -3,19 +3,29 @@ import { AvatarIcon } from "@/components/ui/AvatarIcon";
 import { Navbar, NavbarBrand } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 interface HeaderProps {
   username: string;
   avatarImage: string;
-  // onLogout: () => void;
 }
 
 export function Header({ username, avatarImage }: HeaderProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleMenuItemClick = () => {
+    setIsDropdownOpen(false);
+  };
+
+  const handleLogout = () => {
+    //TODO logic
+    router.push("/login");
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -30,10 +40,6 @@ export function Header({ username, avatarImage }: HeaderProps) {
     };
   }, []);
 
-  const handleMenuItemClick = () => {
-    setIsDropdownOpen(false);
-  };
-
   return (
     <Navbar fluid className="p-3 md:p-5 md:px-8 border-b border-gray-200 bg-white">
       <div className="flex items-center justify-between w-full max-w-6xl mx-auto">
@@ -47,10 +53,10 @@ export function Header({ username, avatarImage }: HeaderProps) {
 
           {/* nav */}
           <div className="flex items-center gap-6">
-            <a href="/" className={`list-image-none ${pathname === "/" ? "" : ""}`}>
+            <a href="/" className={`list-image-none ${pathname === "/" ? "active" : ""}`}>
               Home
             </a>
-            <a href="/quiz" className="list-image-none">
+            <a href="/quiz" className={`list-image-none ${pathname === "/quiz" ? "active" : ""}`}>
               Quiz
             </a>
           </div>
@@ -85,7 +91,7 @@ export function Header({ username, avatarImage }: HeaderProps) {
               <button
                 onClick={() => {
                   handleMenuItemClick();
-                  // onLogout();
+                  handleLogout();
                 }}
                 className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
               >
