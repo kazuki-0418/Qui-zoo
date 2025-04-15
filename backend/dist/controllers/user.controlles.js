@@ -143,7 +143,8 @@ const deleteUser = async (req, res) => {
     res.status(200).json(user);
 };
 // log user in
-const logUserIn = async (req, res) => {
+const logUserIn = async (req, // Record<string, never> is the preferred way to indicate "empty object" under stricter linting rules
+res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         res.status(500).json({ message: "Password or Email missing" });
