@@ -4,10 +4,11 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { rtdb } from "./infrastructure/firebase_RTDB.config";
 import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
 import userRouter from "./routes/user.routes";
-
+import activityLogRouter from "./routes/userActivityLog.routes";
 // Load environment variables
 dotenv.config();
 
@@ -62,6 +63,24 @@ app.options("*", cors());
 app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
+app.use("/api/user_activity_logs", activityLogRouter);
+
+app.use("/api/rooms", (_, res) => {
+  const roomsRef = rtdb.ref("rooms");
+  roomsRef
+    .once("value")
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        res.json(snapshot.val());
+      } else {
+        res.status(404).json({ message: "No data available" });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ error: "Error fetching data" });
+    });
+});
 
 // 404 handler
 app.use((_, res) => {

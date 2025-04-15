@@ -13,6 +13,7 @@ export class QuestionModel {
           options: question.options,
           correctOption: question.correctOption,
           points: question.points,
+          picture: question.picture,
         },
       });
       return newQuestion;
@@ -23,16 +24,17 @@ export class QuestionModel {
 
   async updateQuestion(id: string, question: UpdateQuestion) {
     try {
-      const updatedQuiz = await prisma.question.update({
+      const updatedQuestion = await prisma.question.update({
         where: { id },
         data: {
           questionText: question.questionText,
           options: question.options,
           correctOption: question.correctOption,
           points: question.points,
+          picture: question.picture,
         },
       });
-      return updatedQuiz;
+      return updatedQuestion;
     } catch (error) {
       throw new Error(`Error updating question ${error}`);
     }
