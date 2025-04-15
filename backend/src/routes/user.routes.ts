@@ -1,8 +1,6 @@
 import { Router } from "express";
 import userController from "../controllers/user.controlles";
-import { auth } from "../middleware/auth.middleware";
-import { sessionExist } from "../middleware/auth.middleware";
-import { isLoggedOut } from "../middleware/auth.middleware";
+import { auth, isLoggedOut, sessionExist } from "../middleware/auth.middleware";
 
 // User router instance
 const userRouter = Router();
