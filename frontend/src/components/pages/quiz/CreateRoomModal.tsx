@@ -1,5 +1,14 @@
 "use client";
-import { Button, Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react";
+import {
+  Button,
+  Label,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  RangeSlider,
+  Select,
+  ToggleSwitch,
+} from "flowbite-react";
 import { useState } from "react";
 
 interface CreateRoomModalProps {
@@ -38,8 +47,11 @@ export function CreateRoomModal({
   };
 
   return (
-    <Modal show={isOpen} onClose={onClose} size="lg">
-      <div className="p-5">
+    <Modal show={isOpen} onClose={onClose} size="lg" dismissible>
+      <ModalHeader className="border-b border-gray-200 dark:border-gray-700">
+        Create New Room
+      </ModalHeader>
+      <ModalBody>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* quiz */}
           {availableQuizzes && (
@@ -132,12 +144,12 @@ export function CreateRoomModal({
             <Button color="gray" onClick={onClose} className="w-full px-6 py-2">
               Cancel
             </Button>
-            <Button type="submit" color="blue" className=" w-full px-6 py-2">
+            <Button type="submit" color="blue" className="w-full px-6 py-2">
               Create Room
             </Button>
           </div>
         </form>
-      </div>
+      </ModalBody>
     </Modal>
   );
 }

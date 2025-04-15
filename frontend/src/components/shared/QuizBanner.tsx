@@ -3,10 +3,11 @@ import { pushButton as PushButton } from "@/components/ui/PushButton";
 import Image from "next/image";
 
 interface QuizBannerProps {
+  buttonText: string;
   onCreateRoom?: () => void;
 }
 
-export function QuizBanner({ onCreateRoom }: QuizBannerProps) {
+export function QuizBanner({ buttonText, onCreateRoom }: QuizBannerProps) {
   return (
     <div className="relative rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       {/* <Image
@@ -25,7 +26,7 @@ export function QuizBanner({ onCreateRoom }: QuizBannerProps) {
           </p>
           <div className="mt-6">
             <PushButton color="blue" size="md" onClick={onCreateRoom}>
-              Create Room
+              {buttonText}
             </PushButton>
           </div>
         </div>

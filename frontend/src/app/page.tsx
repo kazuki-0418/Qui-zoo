@@ -2,9 +2,11 @@
 import { CreateRoomModal } from "@/components/pages/quiz/CreateRoomModal";
 import { QuizBanner } from "@/components/shared/QuizBanner";
 import { QuizListCard } from "@/components/shared/QuizListCard";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Home() {
+  const router = useRouter();
   const [playQuizId, setPlayQuizId] = useState<string | null>(null);
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
 
@@ -24,6 +26,8 @@ export default function Home() {
   };
 
   // TODO demo
+
+  const role = "teacher"; // or "user
   const quizzes = [
     {
       quizId: "1",
@@ -55,27 +59,44 @@ export default function Home() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-6">🎉 Hello username!</h1>
-      <QuizBanner onCreateRoom={() => setShowCreateRoomModal(true)} />
-      <div className="mt-12">
-        <h2 className="text-xl font-bold mb-4">Popular Quizzes</h2>
-        <div className="space-y-4">
-          {quizzes.map((quiz) => (
-            <QuizListCard
-              key={quiz.quizId}
-              quizId={quiz.quizId}
-              title={quiz.title}
-              description={quiz.description}
-              setPlayQuizId={handlePlayQuiz}
-            />
-          ))}
+      <QuizBanner
+        onCreateRoom={() => {
+          if (role === "teacher") {
+            setShowCreateRoomModal(true);
+          } else {
+            router.push("/quiz/");
+          }
+        }}
+        buttonText={role === "teacher" ? "Create Room" : "Join Room"}
+      />
+      {role === "teacher" && (
+        <div className="mt-12">
+          <h2 className="text-xl font-bold mb-4">Popular Quizzes</h2>
+          <div className="space-y-4">
+            {quizzes.map((quiz) => (
+              <QuizListCard
+                key={quiz.quizId}
+                quizId={quiz.quizId}
+                title={quiz.title}
+                description={quiz.description}
+                setPlayQuizId={handlePlayQuiz}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-      {showCreateRoomModal && playQuizId && (
+      )}
+      {/* <CreateRoomModal
+        isOpen={true}
+        onClose={() => setShowCreateRoomModal(false)}
+        onCreateRoom={handleCreateRoom}
+        selectedQuizId={"1"}
+      /> */}
+      {showCreateRoomModal && (
         <CreateRoomModal
           isOpen={showCreateRoomModal}
           onClose={() => setShowCreateRoomModal(false)}
           onCreateRoom={handleCreateRoom}
-          selectedQuizId={playQuizId}
+          selectedQuizId={playQuizId || "1"}
         />
       )}
     </div>
