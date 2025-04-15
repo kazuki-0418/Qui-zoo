@@ -5,6 +5,7 @@ export type Question = {
   options: string[];
   correctOption: string;
   points: number;
+  picture?: string;
 };
 
 export type CreateQuestion = {
@@ -13,6 +14,7 @@ export type CreateQuestion = {
   options: string[];
   correctOption: string;
   points: number;
+  picture?: string;
 };
 
 export type UpdateQuestion = {
@@ -20,4 +22,5 @@ export type UpdateQuestion = {
   options?: string[];
   correctOption?: string;
   points?: number;
+  picture?: string;
 };

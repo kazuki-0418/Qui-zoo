@@ -82,6 +82,7 @@ model Question {
     id            String   @id @default(uuid())
     quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
     quizId        String
+    picture       String    @default("")
     questionText  String
     options       String[]
     correctOption String   // correct answer
