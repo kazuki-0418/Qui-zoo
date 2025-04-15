@@ -7,3 +7,9 @@ export type userActivityLog = {
   correctAnswers: number;
   sesionsJoined: number;
 };
+
+export type updateActivityLog = {
+  questionsAnswered?: number;
+  correctAnswers?: number;
+  sessionsJoined?: number;
+};

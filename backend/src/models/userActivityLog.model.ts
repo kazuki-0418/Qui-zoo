@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { userActivityLog } from "../types/userActivityLog";
+import { updateActivityLog, userActivityLog } from "../types/userActivityLog";
 
 const prisma = new PrismaClient();
 
@@ -26,14 +26,14 @@ export class UserActivityLog {
     }
   }
 
-  async updateActivityLog(id: string, data: Partial<userActivityLog>) {
+  async updateActivityLog(id: string, data: Partial<updateActivityLog>) {
     try {
-      const updateLog = await prisma.userActivityLog.update({
+      const updateLog: updateActivityLog = await prisma.userActivityLog.update({
         where: { id },
         data: {
           questionsAnswered: data.questionsAnswered,
           correctAnswers: data.correctAnswers,
-          sessionsJoined: data.sesionsJoined,
+          sessionsJoined: data.sessionsJoined,
         },
       });
       return updateLog;
