@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +7,7 @@ interface QuizListCardProps {
   quizId: string;
   title: string;
   description: string;
-  setPlayQuizId: (quizId: string) => void;
+  setPlayQuizId?: (quizId: string) => void;
 }
 
 export function QuizListCard({ quizId, title, description, setPlayQuizId }: QuizListCardProps) {
@@ -20,9 +21,11 @@ export function QuizListCard({ quizId, title, description, setPlayQuizId }: Quiz
             <Image src="/assets/icons/bars.svg" alt="details" width={16} height={16} />
           </Button>
         </Link>
-        <Button color="gray" size="sm" onClick={() => setPlayQuizId(quizId)}>
-          <Image src="/assets/icons/play.svg" alt="play" width={16} height={16} />
-        </Button>
+        {setPlayQuizId && (
+          <Button color="gray" size="sm" onClick={() => setPlayQuizId(quizId)}>
+            <Image src="/assets/icons/play.svg" alt="play" width={16} height={16} />
+          </Button>
+        )}{" "}
       </div>
     </div>
   );
