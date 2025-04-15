@@ -42,11 +42,12 @@ export class UserActivityLog {
     }
   }
 
-  async getActivityLogsByUserId(userId: string) {
+  async getActivityLogsByUserId(userId: string, lastActivityDate: string) {
     try {
       const log = await prisma.userActivityLog.findUnique({
         where: {
           userId,
+          lastActivityDate,
         },
       });
       return log;
