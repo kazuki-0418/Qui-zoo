@@ -34,7 +34,7 @@ export class UserActivityLog {
           date: new Date(),
           questionsAnswered: data.questionsAnswered,
           correctAnswers: data.correctAnswers,
-          // sessionsJoined: TODO
+          sessionsJoined: data.sesionsJoined,
         },
       });
       return updateLog;
@@ -43,10 +43,15 @@ export class UserActivityLog {
     }
   }
 
-  async getLogById(id: string) {
+  async getActivityLogsByUserId(userId: string) {
     try {
       const log = await prisma.userActivityLog.findUnique({
-        where: { id },
+        where: {
+          userId_date: {
+            userId,
+            date: new Date(),
+          },
+        },
       });
       return log;
     } catch (error) {

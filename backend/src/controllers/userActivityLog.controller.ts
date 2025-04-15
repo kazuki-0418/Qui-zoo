@@ -41,10 +41,10 @@ class userActivityLogController {
     }
   }
 
-  async getLogById(req: Request<{ id: string }>, res: Response) {
+  async getLogById(req: Request<{ userId: string }>, res: Response) {
     try {
-      const { id } = req.params;
-      const userLog = await userLogController.getLogById(id);
+      const { userId } = req.params;
+      const userLog = await userLogController.getActivityLogsByUserId(userId);
       res.status(200).json(userLog);
     } catch (error) {
       console.error("Error updating user log", error);

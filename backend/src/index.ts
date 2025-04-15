@@ -7,8 +7,7 @@ import morgan from "morgan";
 import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
 import userRouter from "./routes/user.routes";
-import logRouter from "./routes/userActivityLog.routes";
-
+import activityLogRouter from "./routes/userActivityLog.routes";
 // Load environment variables
 dotenv.config();
 
@@ -63,7 +62,7 @@ app.options("*", cors());
 app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
-app.use("/log", logRouter);
+app.use("/api/user_activity_logs", activityLogRouter);
 
 // 404 handler
 app.use((_, res) => {

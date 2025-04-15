@@ -61,7 +61,7 @@ model UserActivityLog {
     correctAnswers   Int       @default(0)
     sessionsJoined   Int       @default(0)
     
-    @@unique([userId, date, id])
+    @@unique([userId, date])
 }
 
 model Quiz {
