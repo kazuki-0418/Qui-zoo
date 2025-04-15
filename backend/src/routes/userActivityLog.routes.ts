@@ -3,13 +3,13 @@ import { LogController } from "../controllers/userActivityLog.controller";
 
 const activityLogRouter = Router();
 
-// create user log
+// create userActivityLog
 activityLogRouter.post("/create", LogController.createUserActivityLog);
 
-// get user log
+// get userActivityLog
 activityLogRouter.get("/", LogController.getUserActivityLogById);
 
-// update user log
+// update userActivityLog
 activityLogRouter.put("/update", LogController.updateUserActivityLog);
 
 export default activityLogRouter;
