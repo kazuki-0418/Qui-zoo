@@ -23,7 +23,7 @@ export class QuestionModel {
 
   async updateQuestion(id: string, question: UpdateQuestion) {
     try {
-      const updatedQuiz = await prisma.question.update({
+      const updatedQuestion = await prisma.question.update({
         where: { id },
         data: {
           questionText: question.questionText,
@@ -32,7 +32,7 @@ export class QuestionModel {
           points: question.points,
         },
       });
-      return updatedQuiz;
+      return updatedQuestion;
     } catch (error) {
       throw new Error(`Error updating question ${error}`);
     }
