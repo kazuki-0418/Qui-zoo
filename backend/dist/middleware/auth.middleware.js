@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isLoggedOut = exports.sessionExist = exports.auth = void 0;
-// Auth userlogged in 
+// Auth userlogged in
 const auth = (req, res, next) => {
     if (!req.session) {
         const error = {
             success: false,
             message: "Please login",
-            statusCode: 403
+            statusCode: 403,
         };
         res.json(error);
         return;
@@ -17,7 +17,7 @@ const auth = (req, res, next) => {
         const error = {
             success: false,
             message: "User is not loggedin",
-            statusCode: 400
+            statusCode: 400,
         };
         res.json(error);
         return;
@@ -31,7 +31,7 @@ const sessionExist = (req, res, next) => {
         const error = {
             success: false,
             message: "Session does not exist",
-            statusCode: 403
+            statusCode: 403,
         };
         res.json(error);
         return;
@@ -45,7 +45,7 @@ const isLoggedOut = (req, res, next) => {
         const error = {
             success: false,
             message: "Session does not exist",
-            statusCode: 403
+            statusCode: 403,
         };
         res.json(error);
         return;
@@ -54,7 +54,7 @@ const isLoggedOut = (req, res, next) => {
         const error = {
             success: false,
             message: "User is not loged in",
-            statusCode: 403
+            statusCode: 403,
         };
         res.json(error);
         return;
