@@ -21,5 +21,9 @@ export default function AuthButton({
     secondary: "bg-gray-300 text-black hover:bg-gray-400",
   };
 
-  return <button className={cn(baseStyle, variants[variant], className)}>{children}</button>;
+  return (
+    <button className={cn(baseStyle, variants[variant], className)} {...props}>
+      {children}
+    </button>
+  );
 }
