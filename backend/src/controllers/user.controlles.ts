@@ -159,7 +159,7 @@ const deleteUser = async (req: Request<{ id: string }>, res: Response) => {
 
 // log user in
 const logUserIn = async (
-  req: Request<{}, {}, { email: string; password: string }>,
+  req: Request<Record<string, never>, {}, { email: string; password: string }>,
   res: Response,
 ) => {
   const { email, password } = req.body;
