@@ -5,7 +5,7 @@ import { CreateQuestion, UpdateQuestion } from "../types/question";
 const questionModel = new QuestionModel();
 
 class QuestionController {
-  async createQuestion(req: Request<{}, {}, CreateQuestion>, res: Response) {
+  async createQuestion(req: Request<null, null, CreateQuestion>, res: Response) {
     const question = req.body;
     try {
       const newQuiz = await questionModel.createQuestion(question);
