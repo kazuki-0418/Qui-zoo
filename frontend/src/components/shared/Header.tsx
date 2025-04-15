@@ -9,10 +9,10 @@ import { useEffect, useRef, useState } from "react";
 interface HeaderProps {
   username: string;
   avatarImage: string;
-  onLogout: () => void;
+  // onLogout: () => void;
 }
 
-export const Header = ({ username, avatarImage, onLogout }: HeaderProps) => {
+export function Header({ username, avatarImage }: HeaderProps) {
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -85,7 +85,7 @@ export const Header = ({ username, avatarImage, onLogout }: HeaderProps) => {
               <button
                 onClick={() => {
                   handleMenuItemClick();
-                  onLogout();
+                  // onLogout();
                 }}
                 className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
               >
@@ -104,4 +104,4 @@ export const Header = ({ username, avatarImage, onLogout }: HeaderProps) => {
       </div>
     </Navbar>
   );
-};
+}

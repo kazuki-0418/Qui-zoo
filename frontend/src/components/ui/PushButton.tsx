@@ -12,9 +12,9 @@ type PushButtonProps = {
 };
 
 const sizeClasses = {
-  sm: "text-sm py-2 px-4",
-  md: "text-base py-3 px-6",
-  lg: "text-lg py-4 px-8",
+  sm: "text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4",
+  md: "text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6",
+  lg: "text-base sm:text-lg py-3 sm:py-4 px-6 sm:px-8",
 };
 
 const bgColorMap: Record<string, string> = {
@@ -33,7 +33,6 @@ export const pushButton = ({
   color = "blue",
   size = "md",
   rounded = "full",
-  width = "",
   onClick,
   disabled = false,
   className = "",
@@ -46,11 +45,11 @@ export const pushButton = ({
     "relative",
   ].join(" ");
 
-  const combinedClass = `${baseClass} ${sizeClasses[size]} rounded-${rounded} w-${width} ${bgColorMap[color]} ${className}`;
+  const combinedClass = `${baseClass} ${sizeClasses[size]} rounded-${rounded} ${bgColorMap[color]} ${className}`;
 
   return (
     <div
-      className={`relative rounded-${rounded} w-${width} ${disabled ? "opacity-80" : ""}`}
+      className={`relative w-fit rounded-${rounded} ${disabled ? "opacity-80" : ""}`}
       style={{
         boxShadow: `0 4px 0 0 ${shadowColorMap[color]}`,
       }}

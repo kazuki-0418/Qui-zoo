@@ -29,15 +29,15 @@ const sizeClasses = {
   lg: "w-12 h-12",
 };
 
-export const AvatarIcon = ({ avatarImage, avatarSize = "sm" }: AvatarIconProps) => {
+export function AvatarIcon({ avatarImage, avatarSize = "sm" }: AvatarIconProps) {
   return (
     <div className="flex flex-wrap gap-2 items-center">
-      <Avatar 
-        img={getImagePath(avatarImage)} 
-        size={avatarSize} 
-        rounded 
+      <Avatar
+        img={getImagePath(avatarImage)}
+        size={avatarSize}
+        rounded
         className={sizeClasses[avatarSize]}
       />
     </div>
   );
-};
+}
