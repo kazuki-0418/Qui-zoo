@@ -1,11 +1,11 @@
 import type React from "react";
 
 type PushButtonProps = {
-  color?: "blue" | "lime" | "red" | "green" | "yellow";
+  color?: "primary" | "secondly" | "warning" | "cancel";
   size?: "sm" | "md" | "lg";
   rounded?: "md" | "lg" | "full";
   width?: string;
-  onClick?: () => void;
+  onClick?: (() => void) | ((event: React.MouseEvent<HTMLButtonElement>) => void);
   disabled?: boolean;
   className?: string;
   children: React.ReactNode;
@@ -18,26 +18,29 @@ const sizeClasses = {
 };
 
 const bgColorMap: Record<string, string> = {
-  blue: "bg-blue-600",
-  red: "bg-red-600",
-  gray: "bg-gray-600",
+  primary: "bg-blue-600",
+  secondly: "bg-red-600",
+  warning: "bg-red-600",
+  cancel: "bg-gray-500",
 };
 
 const shadowColorMap: Record<string, string> = {
-  blue: "#1e40af",
-  red: "#b91c1c",
-  gray: "#374151",
+  primary: "#1e40af",
+  secondly: "#b91c1c",
+  warning: "#b91c1c",
+  cancel: "#4b5563",
 };
 
-export const pushButton = ({
-  color = "blue",
+export function PushButton({
+  color = "primary",
   size = "md",
   rounded = "full",
+  width = "fit",
   onClick,
   disabled = false,
   className = "",
   children,
-}: PushButtonProps) => {
+}: PushButtonProps) {
   const baseClass = [
     "text-white font-semibold transition duration-100 ease-in-out",
     "active:translate-y-[4px]",
@@ -45,11 +48,11 @@ export const pushButton = ({
     "relative",
   ].join(" ");
 
-  const combinedClass = `${baseClass} ${sizeClasses[size]} rounded-${rounded} ${bgColorMap[color]} ${className}`;
+  const combinedClass = `${baseClass} ${sizeClasses[size]} w-${width} rounded-${rounded} ${bgColorMap[color]} ${className}`;
 
   return (
     <div
-      className={`relative w-fit rounded-${rounded} ${disabled ? "opacity-80" : ""}`}
+      className={`relative w-${width} rounded-${rounded} ${disabled ? "opacity-80" : ""}`}
       style={{
         boxShadow: `0 4px 0 0 ${shadowColorMap[color]}`,
       }}
@@ -59,4 +62,4 @@ export const pushButton = ({
       </button>
     </div>
   );
-};
+}

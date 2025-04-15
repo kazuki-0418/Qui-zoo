@@ -1,5 +1,5 @@
 "use client";
-import { pushButton as PushButton } from "@/components/ui/PushButton";
+import { PushButton } from "@/components/ui/PushButton";
 import Image from "next/image";
 
 interface QuizBannerProps {
@@ -25,7 +25,7 @@ export function QuizBanner({ buttonText, onCreateRoom }: QuizBannerProps) {
             Create a room and invite your friends to join. Test your knowledge together!
           </p>
           <div className="mt-6">
-            <PushButton color="blue" size="md" onClick={onCreateRoom}>
+            <PushButton color="primary" size="md" onClick={onCreateRoom}>
               {buttonText}
             </PushButton>
           </div>

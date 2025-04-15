@@ -71,14 +71,14 @@ export function Header({ username, avatarImage }: HeaderProps) {
               <Link
                 href="/"
                 onClick={handleMenuItemClick}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
               >
                 <Image
                   src="/assets/icons/setting.svg"
                   alt="user setting"
                   className="mr-3"
-                  width={16}
-                  height={16}
+                  width={20}
+                  height={20}
                 />
                 Setting
               </Link>
@@ -87,14 +87,14 @@ export function Header({ username, avatarImage }: HeaderProps) {
                   handleMenuItemClick();
                   // onLogout();
                 }}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
               >
                 <Image
                   src="/assets/icons/door.svg"
                   alt="logout"
                   className="mr-3"
-                  width={16}
-                  height={16}
+                  width={20}
+                  height={20}
                 />
                 Logout
               </button>

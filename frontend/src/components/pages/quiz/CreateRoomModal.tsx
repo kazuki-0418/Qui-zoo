@@ -1,12 +1,13 @@
 "use client";
-import { Button, Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react";
+import { PushButton } from "@/components/ui/PushButton";
+import { Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react";
 import { useState } from "react";
 
 interface CreateRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreateRoom: (roomData: RoomData) => void;
-  availableQuizzes?: Array<{ id: string; title: string }>;
+  availableQuizzes?: Array<{ quizId: string; title: string }>;
   selectedQuizId?: string;
 }
 
@@ -39,7 +40,7 @@ export function CreateRoomModal({
 
   return (
     <Modal show={isOpen} onClose={onClose} size="lg">
-      <div className="p-5">
+      <div className="p-5 md:p-10">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* quiz */}
           {availableQuizzes && (
@@ -56,7 +57,7 @@ export function CreateRoomModal({
               >
                 <option value="">Please select a quiz</option>
                 {availableQuizzes.map((quiz) => (
-                  <option key={quiz.id} value={quiz.id}>
+                  <option key={quiz.quizId} value={quiz.quizId}>
                     {quiz.title}
                   </option>
                 ))}
@@ -128,13 +129,13 @@ export function CreateRoomModal({
           </div>
 
           {/* action */}
-          <div className="flex justify-end gap-4">
-            <Button color="gray" onClick={onClose} className="w-full px-6 py-2">
+          <div className="flex justify-end gap-4 mt-10">
+            <PushButton onClick={onClose} width="full" color="cancel">
               Cancel
-            </Button>
-            <Button type="submit" color="blue" className=" w-full px-6 py-2">
+            </PushButton>
+            <PushButton onClick={() => onCreateRoom(roomData)} width="full">
               Create Room
-            </Button>
+            </PushButton>
           </div>
         </form>
       </div>
