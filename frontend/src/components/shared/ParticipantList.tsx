@@ -24,7 +24,7 @@ export function ParticipantList({ participants }: ParticipantListProps) {
             <AvatarIcon avatarImage={participant.avatar} />
             <div className="flex items-center space-x-2">
               <p className="font-medium">{participant.name}</p>
-              {participant.isGuest && <Badge color="blue">Guest</Badge>}
+              {participant.isGuest && <Badge color="indigo">Guest</Badge>}
             </div>
           </div>
         </div>
