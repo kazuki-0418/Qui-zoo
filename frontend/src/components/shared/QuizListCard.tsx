@@ -1,6 +1,6 @@
 "use client";
-import { PlayButton } from "@/components/ui/PlayButton";
 import { DetailsButton } from "@/components/ui/DetailsButton";
+import { PlayButton } from "@/components/ui/PlayButton";
 import Link from "next/link";
 
 interface QuizListCardProps {
