@@ -10,7 +10,6 @@ export class UserActivityLog {
       const user = await prisma.user.findUnique({
         where: { email },
       });
-      console.log(user);
       const newActivityLog = await prisma.userActivityLog.create({
         data: {
           id: activityLog.id,

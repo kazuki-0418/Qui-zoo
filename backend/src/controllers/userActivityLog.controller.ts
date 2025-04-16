@@ -1,11 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import userModels from "../models/user.models";
 import { UserActivityLog } from "../models/userActivityLog.model";
 import { activityLogInfo } from "../types/userActivityLog";
-
-const prisma = new PrismaClient();
 
 const userLogController = new UserActivityLog();
 
