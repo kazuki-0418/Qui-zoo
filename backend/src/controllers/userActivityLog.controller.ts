@@ -10,7 +10,7 @@ class userActivityLogController {
   async createUserActivityLog(req: Request, res: Response) {
     try {
       const id = uuidv4();
-      let email;
+      let email = "";
       if (req.session) {
         email = req.session.email;
       }
