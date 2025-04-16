@@ -15,7 +15,7 @@ export function Home() {
     setShowCreateRoomModal(true);
   };
 
-  const handleCreateRoom = (roomData: {
+  const handleCreateRoom = (_rooData: {
     allowGuests: boolean;
     selectedQuizId: string;
     timeLimit: number;
