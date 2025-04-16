@@ -159,7 +159,7 @@ const deleteUser = async (req: Request<{ id: string }>, res: Response) => {
 
 // log user in
 const logUserIn = async (
-  req: Request<null, null, { email: string; password: string }>,
+  req: Request<Record<string, never>, Record<string, never>, { email: string; password: string }>, // Record<string, never> is the preferred way to indicate "empty object" under stricter linting rules
   res: Response,
 ) => {
   const { email, password } = req.body;
@@ -173,7 +173,7 @@ const logUserIn = async (
   }
   if (req.session) {
     req.session.email = email;
-    req.session.isLogin = true;
+    req.session.isLogedIn = true;
   }
   res.status(200).json({ message: "Login successfully" });
 };

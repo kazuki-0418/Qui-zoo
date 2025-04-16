@@ -1,40 +1,54 @@
 import { PrismaClient } from "@prisma/client";
-import { userActivityLog } from "../types/userActivityLog";
+import { CreateUserActivityLog, UpdateUserActivityLog } from "../types/userActivityLog";
 
 const prisma = new PrismaClient();
 
 export class UserActivityLog {
-  async createActivityLog(activityLog: Partial<userActivityLog>) {
+  async createActivityLog(userId: string, data: CreateUserActivityLog) {
+    const today = new Date().toISOString().split("T")[0];
+
     try {
-      const newActivityLog = await prisma.userActivityLog.create({
-        data: {
-          id: activityLog.id,
-          user: {
-            connect: {
-              id: activityLog.userId,
-            },
-          },
-          lastActivityDate: new Date().toISOString().split("T")[0],
-          questionsAnswered: 0,
-          correctAnswers: 0,
-          sessionsJoined: 0,
+      const existingLog = await prisma.userActivityLog.findFirst({
+        where: {
+          user: { id: userId },
+          lastActivityDate: today,
         },
       });
+
+      if (existingLog) {
+        const updatedLog = await this.updateActivityLog(existingLog.id, {
+          questionsAnswered: existingLog.questionsAnswered + data.questionsAnswered,
+          correctAnswers: existingLog.correctAnswers + data.correctAnswers,
+          sessionsJoined: existingLog.sessionsJoined + 1,
+        });
+        return updatedLog;
+      }
+
+      const newActivityLog = await prisma.userActivityLog.create({
+        data: {
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+          lastActivityDate: today,
+          questionsAnswered: data.questionsAnswered,
+          correctAnswers: data.correctAnswers,
+          sessionsJoined: 1,
+        },
+      });
+
       return newActivityLog;
     } catch (error) {
       throw new Error(`Error creating question ${error}`);
     }
   }
 
-  async updateActivityLog(id: string, data: Partial<userActivityLog>) {
+  async updateActivityLog(id: string, data: UpdateUserActivityLog) {
     try {
       const updateLog = await prisma.userActivityLog.update({
         where: { id },
-        data: {
-          questionsAnswered: data.questionsAnswered,
-          correctAnswers: data.correctAnswers,
-          sessionsJoined: data.sesionsJoined,
-        },
+        data,
       });
       return updateLog;
     } catch (error) {
@@ -42,12 +56,11 @@ export class UserActivityLog {
     }
   }
 
-  async getActivityLogsByUserId(userId: string, lastActivityDate: string) {
+  async getActivityLogsByUserId(userId: string) {
     try {
-      const log = await prisma.userActivityLog.findUnique({
+      const log = await prisma.userActivityLog.findMany({
         where: {
           userId,
-          lastActivityDate,
         },
       });
       return log;
