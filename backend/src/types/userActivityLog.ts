@@ -23,8 +23,3 @@ export type updateActivityLog = {
   correctAnswers?: number;
   sessionsJoined?: number;
 };
-
-export type activityLogInfo = {
-  id: string;
-  email: string;
-};

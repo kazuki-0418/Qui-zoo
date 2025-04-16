@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import userModels from "../models/user.models";
 import { UserActivityLog } from "../models/userActivityLog.model";
-import { activityLogInfo } from "../types/userActivityLog";
 
 const userLogController = new UserActivityLog();
 
@@ -10,15 +9,18 @@ class userActivityLogController {
   async createUserActivityLog(req: Request, res: Response) {
     try {
       const id = uuidv4();
-      let email = "";
-      if (req.session) {
-        email = req.session.email;
-      }
-      const newlog: activityLogInfo = {
-        id,
-        email: email,
+      const userId: string = req.body.userId;
+      const userActivityLogId: string = id;
+      const newlog = {
+        userId,
+        userActivityLogId,
       };
-      const userLog = await userLogController.createActivityLog(newlog);
+      const { questionsAnswered, correctAnswers } = req.params;
+      const questions = {
+        questionsAnswered: Number(questionsAnswered),
+        correctAnswers: Number(correctAnswers),
+      };
+      const userLog = await userLogController.createActivityLog(newlog, questions);
       res.status(201).json(userLog);
     } catch (error) {
       console.error("Error creating userLog", error);

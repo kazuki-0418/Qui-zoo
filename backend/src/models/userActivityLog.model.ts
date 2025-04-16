@@ -1,26 +1,26 @@
 import { PrismaClient } from "@prisma/client";
-import { activityLogInfo, updateActivityLog } from "../types/userActivityLog";
+import { updateActivityLog } from "../types/userActivityLog";
 
 const prisma = new PrismaClient();
 
 export class UserActivityLog {
-  async createActivityLog(activityLog: activityLogInfo) {
+  async createActivityLog(
+    activityLog: { userId: string; userActivityLogId: string },
+    data: { questionsAnswered: number; correctAnswers: number },
+  ) {
     try {
-      const email = activityLog.email;
-      const user = await prisma.user.findUnique({
-        where: { email },
-      });
+      const userId = activityLog.userId;
       const newActivityLog = await prisma.userActivityLog.create({
         data: {
-          id: activityLog.id,
+          id: activityLog.userActivityLogId,
           user: {
             connect: {
-              id: user?.id,
+              id: userId,
             },
           },
           lastActivityDate: new Date().toISOString().split("T")[0],
-          questionsAnswered: 0,
-          correctAnswers: 0,
+          questionsAnswered: data.questionsAnswered,
+          correctAnswers: data.correctAnswers,
           sessionsJoined: 1,
         },
       });
