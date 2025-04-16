@@ -1,20 +1,33 @@
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
-import userModels from "../models/user.models";
 import { UserActivityLog } from "../models/userActivityLog.model";
-import { userActivityLog } from "../types/userActivityLog";
+import {
+  CreateUserActivityLog,
+  UpdateUserActivityLog,
+  getUserActivityLogById,
+} from "../types/userActivityLog";
+import { UserActivityLog as UserActivityLogType } from "../types/userActivityLog";
 
-const userLogController = new UserActivityLog();
+const userActivityLogsController = new UserActivityLog();
 
 class userActivityLogController {
-  async createUserActivityLog(req: Request<{ userId: string }>, res: Response) {
+  async createUserActivityLog(
+    req: Request<{ user_id: string }, null, CreateUserActivityLog>,
+    res: Response<
+      | UserActivityLogType
+      | {
+          error: string;
+        }
+    >,
+  ) {
     try {
-      const id = uuidv4();
-      const newlog: Partial<userActivityLog> = {
-        id,
-        user: req.params.userId,
+      const userId: string = req.params.user_id;
+      const { questionsAnswered, correctAnswers } = req.body;
+      const questions = {
+        questionsAnswered,
+        correctAnswers,
       };
-      const userLog = await userLogController.createActivityLog(newlog);
+
+      const userLog = await userActivityLogsController.createActivityLog(userId, questions);
       res.status(201).json(userLog);
     } catch (error) {
       console.error("Error creating userLog", error);
@@ -22,33 +35,42 @@ class userActivityLogController {
     }
   }
 
-  async updateUserActivityLog(req: Request<{ id: string }>, res: Response) {
+  async updateUserActivityLog(
+    req: Request<{ id: string }, null, UpdateUserActivityLog>,
+    res: Response<UserActivityLogType | { error: string }>,
+  ) {
     try {
       const { id } = req.params;
-      const user = await userModels.getUserById(id);
-      if (!user) {
-        res.status(404).json({ message: "User not found" });
-        return;
-      }
+      const { questionsAnswered, correctAnswers, sessionsJoined } = req.body;
+
       const data = {
-        questionsAnswered: user?.correctAnswers + user?.wrongAnswers,
-        correctAnswers: user.correctAnswers,
+        questionsAnswered,
+        correctAnswers,
+        sessionsJoined: sessionsJoined + 1,
       };
-      const _logUpdated = await userLogController.updateActivityLog(id, data);
+      const logUpdated = await userActivityLogsController.updateActivityLog(id, data);
+      if (!logUpdated) {
+        res.status(404).json({ error: "User log not found" });
+      }
+      res.status(200).json(logUpdated);
     } catch (error) {
       console.error("Error updating user log", error);
       res.status(500).json({ error: "Error updating user Log" });
     }
   }
 
-  async getUserActivityLogsById(
-    req: Request<{ userId: string; lastActivityDate: string }>,
-    res: Response,
+  async getUserActivityLogsByUserId(
+    req: Request<{ user_id: string }, null, getUserActivityLogById>,
+    res: Response<UserActivityLogType[] | { error: string }>,
   ) {
     try {
-      const { userId, lastActivityDate } = req.params;
-      const userLog = await userLogController.getActivityLogsByUserId(userId, lastActivityDate);
-      res.status(200).json(userLog);
+      const { user_id: userId } = req.params;
+      const userActivityLogs = await userActivityLogsController.getActivityLogsByUserId(userId);
+
+      if (!userActivityLogs) {
+        return res.status(404).json({ error: "User log not found" });
+      }
+      res.status(200).json(userActivityLogs);
     } catch (error) {
       console.error("Error updating user log", error);
       res.status(500).json({ error: "Error getting user Log" });
