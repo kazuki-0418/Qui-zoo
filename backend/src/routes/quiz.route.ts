@@ -1,9 +1,11 @@
 import express from "express";
 import { quizController } from "../controllers/quiz.controller";
+import { auth } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
-// TODO All routes require authentication
+// Router authentication
+router.use(auth);
 
 // Quiz routes
 router.get("/", quizController.getAllQuizzes);

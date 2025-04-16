@@ -1,15 +1,19 @@
-import { Router } from "express";
+import express from "express";
 import { LogController } from "../controllers/userActivityLog.controller";
+import { auth } from "../middleware/auth.middleware";
 
-const activityLogRouter = Router();
+const router = express.Router();
+
+// Middleware
+router.use(auth);
 
 // create userActivityLog
-activityLogRouter.post("/create", LogController.createUserActivityLog);
+router.post("/create/:user_id", LogController.createUserActivityLog);
 
-// get userActivityLog
-activityLogRouter.get("/", LogController.getUserActivityLogById);
+// get userActivityLogs
+router.get("/:user_id", LogController.getUserActivityLogsByUserId);
 
 // update userActivityLog
-activityLogRouter.put("/update", LogController.updateUserActivityLog);
+router.put("/update/:id", LogController.updateUserActivityLog);
 
-export default activityLogRouter;
+export default router;
