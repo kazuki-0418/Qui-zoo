@@ -16,25 +16,25 @@ export default function HostPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
 
   const handleStartQuiz = () => {
-    if (participants.length < 2) {
-      return;
-    }
+    // if (participants.length < 2) {
+    //   return;
+    // }
   };
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(roomCode as string);
   };
 
-  //   // Demo data for participants
-  //   const demoParticipants: Participant[] = [
-  //     { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-  //     { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-  //   ];
+  // Demo data for participants
+  const demoParticipants: Participant[] = [
+    { id: "1", name: "Alice", avatar: "koala", isGuest: false },
+    { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
+  ];
 
   return (
     <HostWaitingRoom
       roomNumber={roomCode as string}
-      participants={participants}
+      participants={demoParticipants}
       onStartQuiz={handleStartQuiz}
       onCopyRoomCode={copyRoomCode}
     />
