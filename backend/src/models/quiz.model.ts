@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Category, PrismaClient } from "@prisma/client";
 import { CreateQuiz, UpdateQuiz } from "../types/quiz";
 
 const prisma = new PrismaClient();
@@ -6,9 +6,11 @@ const prisma = new PrismaClient();
 export class QuizModel {
   async createQuiz(quiz: CreateQuiz) {
     try {
+      const category = (quiz.category as Category) ?? "";
       const newQuiz = await prisma.quiz.create({
         data: {
           title: quiz.title,
+          category: category,
           creatorId: quiz.creatorId,
           timeLimit: quiz.timeLimit,
         },
@@ -21,11 +23,13 @@ export class QuizModel {
 
   async updateQuiz(id: string, quiz: UpdateQuiz) {
     try {
+      const category = (quiz.category as Category) ?? "";
       const updatedQuiz = await prisma.quiz.update({
         where: { id },
         data: {
           title: quiz.title,
           timeLimit: quiz.timeLimit,
+          category: category,
         },
       });
       return updatedQuiz;

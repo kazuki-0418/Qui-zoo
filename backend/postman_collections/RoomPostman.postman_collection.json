@@ -1,0 +1,33 @@
+{
+  "info": {
+    "_postman_id": "a8c12b5d-e8f7-4f6c-a3ce-9d1fc7e5dea7",
+    "name": "Rooms API - Create Room",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Room",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"quizId\": \"quiz-123\",\n    \"hostId\": \"host-456\",\n    \"allowGuests\": true,\n    \"roomId\": \"room-789\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/rooms",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "rooms"]
+        },
+        "description": "CreateRoom型に基づいてルームを作成するリクエスト"
+      }
+    }
+  ]
+}

@@ -1,34 +1,59 @@
+import * as admin from "firebase-admin";
+import { rtdb } from "../infrastructure/firebase_RTDB.config";
+import { CreateRoom } from "../types/room";
+
+const generateUniqueCode = () => {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  let code = "";
+  for (let i = 0; i < 4; i++) {
+    code += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+  }
+  for (let i = 0; i < 4; i++) {
+    code += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  return code;
+};
+
 export class RoomModel {
-  //   async createRoom(room: CreateRoom) {
-  //     try {
-  //
-  //       });
-  //       return newQuestion;
-  //     } catch (error) {
-  //       throw new Error(`Error creating room ${error}`);
-  //     }
-  //   }
-  //   async updateRoom(id: string, room: UpdateRoom) {
-  //     try {
-  //
-  //       });
-  //       return updatedRoom;
-  //     } catch (error) {
-  //       throw new Error(`Error updating room ${error}`);
-  //     }
-  //   }
-  //   }
-  //   async getRoomById(roomId: string) {
-  //     try {
-  //
-  //     } catch (error) {
-  //       throw new Error(`Error fetching room ${error}`);
-  //     }
-  //   }
-  //   async deleteQuestion(id: string) {
-  //     try {
-  //     } catch (error) {
-  //       throw new Error(`Error deleting room ${error}`);
-  //     }
-  //   }
+  async createRoom(roomConfig: CreateRoom) {
+    try {
+      const { quizId, hostId, allowGuests } = roomConfig;
+
+      // Create Room Code
+      const roomCode = generateUniqueCode();
+
+      // create room
+      const roomRef = rtdb.ref("rooms").push();
+      await roomRef.set({
+        id: roomRef.key,
+        code: roomCode,
+        quizId,
+        hostId,
+        allowGuests,
+        isActive: true,
+        createdAt: admin.database.ServerValue.TIMESTAMP,
+      });
+
+      return {
+        roomId: roomRef.key,
+        roomCode,
+      };
+    } catch (error) {
+      throw new Error(`Error creating room ${error}`);
+    }
+  }
+
+  async getRoomById() {
+    try {
+      const roomsRef = rtdb.ref("rooms");
+      const snapshot = await roomsRef.once("value");
+      if (snapshot.exists()) {
+        const rooms = snapshot.val();
+        return rooms;
+      }
+    } catch (error) {
+      throw new Error(`Error fetching room ${error}`);
+    }
+  }
 }

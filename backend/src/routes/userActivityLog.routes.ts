@@ -10,7 +10,7 @@ router.use(auth);
 // create userActivityLog
 router.post("/create/:user_id", LogController.createUserActivityLog);
 
-// get userActivityLog
+// get userActivityLogs
 router.get("/:user_id", LogController.getUserActivityLogsByUserId);
 
 // update userActivityLog
