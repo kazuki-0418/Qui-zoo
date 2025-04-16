@@ -1,25 +1,23 @@
-export type userActivityLog = {
+export type UserActivityLog = {
   id: string;
-  user: string;
   userId: string;
   lastActivityDate: string;
   questionsAnswered: number;
   correctAnswers: number;
-  sesionsJoined: number;
+  sessionsJoined: number;
 };
 
-export type createuserActivityLog = {
-  // id: string;
-  // user: string;
-  userId: string;
-  lastActivityDate: Date;
+export type CreateUserActivityLog = {
   questionsAnswered: number;
   correctAnswers: number;
-  sesionsJoined: number;
 };
 
-export type updateActivityLog = {
-  questionsAnswered?: number;
-  correctAnswers?: number;
-  sessionsJoined?: number;
+export type UpdateUserActivityLog = {
+  questionsAnswered: number;
+  correctAnswers: number;
+  sessionsJoined: number;
+};
+
+export type getUserActivityLogById = {
+  lastActivityDate: string;
 };

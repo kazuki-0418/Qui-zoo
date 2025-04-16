@@ -21,7 +21,7 @@ userRouter.put("/:id", auth, userController.updateUserById); // secure middlewar
 userRouter.delete("/:id", auth, userController.deleteUser); // secure middleware route for api
 
 // log user in
-userRouter.post("/login", userController.logUserIn); // secure middleware route for api
+userRouter.post("/login", userController.logUserIn);
 
 // log user out
 userRouter.post("/logout", auth, userController.logUserOut); // secure middleware route for api

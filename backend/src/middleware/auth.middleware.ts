@@ -7,7 +7,7 @@ interface ErrorResponse {
   statusCode: number;
 }
 
-// Auth userlogged in
+// Auth user logged in
 export const auth = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session) {
     const error: ErrorResponse = {
@@ -30,20 +30,5 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
-  next();
-};
-
-// auth user logged out
-export const isLoggedOut = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session) {
-    const error: ErrorResponse = {
-      success: false,
-      message: "Session does not exist",
-      statusCode: 403,
-    };
-    res.json(error);
-    return;
-  }
-  res.status(200).json({ message: "User is logged In" });
   next();
 };
