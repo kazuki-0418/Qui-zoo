@@ -18,7 +18,7 @@ export default function AuthButton({
 
   const variants = {
     primary: "bg-green-500 text-white hover:bg-blue-300 shadow-md/20",
-    secondary: "bg-gray-300 text-black hover:bg-gray-400",
+    secondary: "bg-gray-300 text-black hover:bg-gray-400 shadow-md/20",
   };
 
   return (

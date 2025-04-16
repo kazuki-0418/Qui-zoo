@@ -1,58 +1,19 @@
 "use client";
 import AuthButton from "@/app/components/pages/auth/button";
 import Input from "@/app/components/pages/auth/input";
+import type { CreateUser } from "@/validations/auth/User";
+import {
+  accountTypeSchema,
+  accountTypes,
+  accountUserInfoSchema,
+  avatarNames,
+  basicInfoSchema,
+} from "@/validations/auth/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const accountTypes = ["teacher", "student", "administrator"] as const;
-const avatarNames = [
-  "cat",
-  "frog",
-  "gorilla",
-  "hippopotamus",
-  "koala",
-  "owl-1",
-  "owl-2",
-  "penguin-1",
-  "penguin-2",
-] as const;
-
-const stepOneSchema = z.object({
-  accountType: z
-    .string()
-    .nullable()
-    .refine((val) => accountTypes.includes(val as (typeof accountTypes)[number]), {
-      message: "Choose an account type",
-    }),
-});
-
-const stepTwoSchema = z
-  .object({
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-const stepThreeSchema = z.object({
-  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
-  avatar: z.string()
-  .nullable()
-  .refine((val) => avatarNames.includes(val as (typeof avatarNames)[number]), {
-    message: "Please select an avatar",
-  }),
-});
-
-type StepOneFormData = z.infer<typeof stepOneSchema>;
-type StepTwoFormData = z.infer<typeof stepTwoSchema>;
-type StepThreeFormData = z.infer<typeof stepThreeSchema>;
+import type { z } from "zod";
 
 type StepperProps = {
   step: number;
@@ -114,38 +75,60 @@ function Stepper({ step }: StepperProps) {
   );
 }
 
-function Step1Section({
-  handleSubmitStep1,
-  handleStepOneSubmit,
-  registerStep1,
-  errorsStep1,
-  selectedType,
+type Role = CreateUser["role"];
+type AccountTypeFormData = z.infer<typeof accountTypeSchema>;
+
+function AccountTypeForm({
+  onNext,
 }: {
-  handleSubmitStep1: ReturnType<typeof useForm<StepOneFormData>>["handleSubmit"];
-  handleStepOneSubmit: (data: StepOneFormData) => void;
-  registerStep1: ReturnType<typeof useForm<StepOneFormData>>["register"];
-  errorsStep1: ReturnType<typeof useForm<StepOneFormData>>["formState"]["errors"];
-  selectedType: string | undefined;
+  onNext: (data: { role: Role }) => void;
 }) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<AccountTypeFormData>({
+    resolver: zodResolver(accountTypeSchema),
+    defaultValues: {
+      accountType: undefined,
+    },
+  });
+
+  const selectedType = watch("accountType");
+
+  const onSubmit = (data: AccountTypeFormData) => {
+    onNext({ role: data.accountType });
+  };
+
   return (
-    <form onSubmit={handleSubmitStep1(handleStepOneSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="flex flex-col gap-4">
-        {accountTypes.map((type) => (
-          <label
-            key={type}
-            className={`border p-4 rounded-lg cursor-pointer ${
-              selectedType === type ? "bg-blue-100 border-blue-500" : "border-gray-300"
-            }`}
-          >
-            <input type="radio" value={type} {...registerStep1("accountType")} className="hidden" />
-            <div className="text-lg capitalize">{type}</div>
-          </label>
-        ))}
+        {accountTypes.map((type) => {
+          const isSelected = selectedType === type;
+          const hasError = errors.accountType && !selectedType;
+
+          return (
+            <label
+              key={type}
+              className={`border p-4 rounded-lg cursor-pointer transition-colors
+                ${isSelected ? "bg-blue-100 border-blue-500" : ""}
+                ${hasError ? "border-red-500" : "border-gray-300"}`}
+            >
+              <input
+                type="radio"
+                value={type}
+                {...register("accountType")}
+                className="hidden peer"
+              />
+              <div className="text-lg capitalize">{type}</div>
+            </label>
+          );
+        })}
       </div>
 
-      {errorsStep1.accountType && (
-        <p className="text-red-500 text-sm">{errorsStep1.accountType.message}</p>
-      )}
+      {errors.accountType && <p className="text-red-500 text-sm">{errors.accountType.message}</p>}
+
       <div className="flex justify-end">
         <AuthButton type="submit" variant="primary">
           Next
@@ -154,47 +137,57 @@ function Step1Section({
     </form>
   );
 }
-function Step2Section({
-  handleSubmitStep2,
-  handleStepTwoSubmit,
-  registerStep2,
-  errorsStep2,
+
+type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
+function BasicUserInfoForm({
+  onNext,
   onBack,
 }: {
-  handleSubmitStep2: ReturnType<typeof useForm<StepTwoFormData>>["handleSubmit"];
-  handleStepTwoSubmit: (data: StepTwoFormData) => void;
-  registerStep2: ReturnType<typeof useForm<StepTwoFormData>>["register"];
-  errorsStep2: ReturnType<typeof useForm<StepTwoFormData>>["formState"]["errors"];
+  onNext: (data: Pick<BasicInfoFormData, "email" | "password">) => void;
   onBack: () => void;
 }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<BasicInfoFormData>({
+    resolver: zodResolver(basicInfoSchema),
+  });
+
+  const onSubmit = (data: BasicInfoFormData) => {
+    onNext({
+      email: data.email,
+      password: data.password,
+    });
+  };
   return (
-    <form onSubmit={handleSubmitStep2(handleStepTwoSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Input
         label="Email"
         type="email"
         placeholder="example@email.com"
-        {...registerStep2("email")}
-        error={errorsStep2.email}
+        {...register("email")}
+        error={errors.email}
       />
 
       <Input
         label="Password"
         type="password"
         placeholder="Enter your Password"
-        {...registerStep2("password")}
-        error={errorsStep2.password}
+        {...register("password")}
+        error={errors.password}
       />
 
       <Input
         label="Confirm Password"
         type="password"
         placeholder="Confirm your Password"
-        {...registerStep2("confirmPassword")}
-        error={errorsStep2.confirmPassword}
+        {...register("confirmPassword")}
+        error={errors.confirmPassword}
       />
 
       <div className="flex justify-between">
-        <AuthButton type="button" variant="primary" onClick={onBack}>
+        <AuthButton type="button" variant="secondary" onClick={onBack}>
           Back
         </AuthButton>
         <AuthButton type="submit" variant="primary">
@@ -205,29 +198,35 @@ function Step2Section({
   );
 }
 
-function Step3Section({
-  handleSubmitStep3,
-  handleStepThreeSubmit,
-  registerStep3,
-  errorsStep3,
-  avatarNames,
-  setStep,
+type AccountUserInfoFormData = z.infer<typeof accountUserInfoSchema>;
+function AccountUserInfoFrom({
+  onNext,
+  onBack,
 }: {
-  handleSubmitStep3: ReturnType<typeof useForm<StepThreeFormData>>["handleSubmit"];
-  handleStepThreeSubmit: (data: StepThreeFormData) => void;
-  registerStep3: ReturnType<typeof useForm<StepThreeFormData>>["register"];
-  errorsStep3: ReturnType<typeof useForm<StepThreeFormData>>["formState"]["errors"];
-  avatarNames: readonly string[];
-  setStep: (step: number) => void;
+  onNext: (data: Pick<AccountUserInfoFormData, "username" | "avatar">) => void;
+  onBack: () => void;
 }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AccountUserInfoFormData>({
+    resolver: zodResolver(accountUserInfoSchema),
+  });
+  const onSubmit = (data: AccountUserInfoFormData) => {
+    onNext({
+      username: data.username,
+      avatar: data.avatar || null,
+    });
+  };
   return (
-    <form onSubmit={handleSubmitStep3(handleStepThreeSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Input
         label="Username"
         type="text"
         placeholder="Enter your Username"
-        {...registerStep3("username")}
-        error={errorsStep3.username}
+        {...register("username")}
+        error={errors.username}
       />
 
       <div className="space-y-2">
@@ -235,34 +234,36 @@ function Step3Section({
           Choose your Avatar
         </label>
         <div className="grid grid-cols-3 gap-4 w-2/3 mx-auto">
-          {avatarNames.map((name) => {
-            const src = `/assets/avatars/${name}.png`;
+          {avatarNames.map((avatarName) => {
+            const src = `/assets/avatars/${avatarName}.png`;
             return (
               <label
-                key={name}
+                key={avatarName}
                 className="cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-500 transition"
               >
                 <input
                   type="radio"
-                  value={name}
+                  value={avatarName}
                   id="avatar"
-                  {...registerStep3("avatar")}
+                  {...register("avatar")}
                   className="hidden peer"
                 />
                 <img
                   src={src}
-                  alt={`Avatar of ${name ? name : "default avatar"}`}
+                  alt={`Avatar of ${avatarName ? avatarName : "default avatar"}`}
                   className="w-full h-auto peer-checked:ring-4 peer-checked:ring-blue-500"
                 />
               </label>
             );
           })}
         </div>
-        {errorsStep3.avatar && <p className="text-red-500 text-sm">{errorsStep3.avatar.message}</p>}
+        {errors.avatar && (
+          <p className="text-red-500 text-sm text-center">{errors.avatar.message}</p>
+        )}
       </div>
 
       <div className="flex justify-between">
-        <AuthButton type="button" variant="primary" onClick={() => setStep(2)}>
+        <AuthButton type="button" variant="secondary" onClick={onBack}>
           Back
         </AuthButton>
         <AuthButton type="submit" variant="primary">
@@ -272,28 +273,20 @@ function Step3Section({
     </form>
   );
 }
-function Step4Section({
-  formData,
-  handleFinalSubmit,
-  setStep,
-}: {
-  formData: {
-    accountType?: string;
-    email?: string;
-    password?: string;
-    username?: string;
-    avatar?: string;
-  };
-  handleFinalSubmit: () => void;
-  setStep: (step: number) => void;
-}) {
+
+type ConfirmationSectionProps = {
+  formData: Partial<CreateUser>;
+  onBack: () => void;
+  handleSubmit: () => void;
+};
+
+function ConfirmationSection({ formData, onBack, handleSubmit }: ConfirmationSectionProps) {
+  const src = `/assets/avatars/${formData.avatar}.png`;
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl pb-2 font-semibold border-b-gray-400 border-b-2 ">Confirm your information</h2>
-      
-      <ul className="space-y-2">
+    <div className="space-y-6 text-center">
+      <ul className="space-y-4 inline-block text-left">
         <li>
-          <strong>Account Type:</strong> {formData.accountType}
+          <strong>Account Type:</strong> {formData.role}
         </li>
         <li>
           <strong>Email:</strong> {formData.email}
@@ -304,21 +297,15 @@ function Step4Section({
         <li>
           <strong>Avatar:</strong>
           <br />
-          {formData.avatar && (
-            <img
-              src={`/assets/avatars/${formData.avatar}.png`}
-              alt="Avatar"
-              className="w-24 h-24"
-            />
-          )}
+          {formData.avatar && <img src={src} alt="Avatar" className="w-24 h-24 mx-auto" />}
         </li>
       </ul>
 
-      <div className="flex justify-between">
-        <AuthButton type="button" variant="primary" onClick={() => setStep(3)}>
+      <div className="flex justify-between mt-8">
+        <AuthButton type="button" variant="secondary" onClick={onBack}>
           Back
         </AuthButton>
-        <AuthButton type="button" variant="primary" onClick={handleFinalSubmit}>
+        <AuthButton type="button" variant="primary" onClick={handleSubmit}>
           Submit
         </AuthButton>
       </div>
@@ -326,90 +313,20 @@ function Step4Section({
   );
 }
 
+enum SignUpStep {
+  AccountType = 1,
+  PersonalInfo = 2,
+  AccountInfo = 3,
+  Confirmation = 4,
+}
+
 export default function Signup() {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<{
-    accountType?: string;
-    email?: string;
-    password?: string;
-    username?: string;
-    avatar?: string;
-  }>({});
-
-  useEffect(() => {
-    const saved = localStorage.getItem("signupForm");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // console.log("Loaded from localStorage", parsed);
-      setFormData(parsed);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("signupForm", JSON.stringify(formData));
-  }, [formData]);
+  const [step, setStep] = useState<SignUpStep>(SignUpStep.AccountType);
+  const [formData, setFormData] = useState<Partial<CreateUser>>({});
 
   const router = useRouter();
-
-  // Step 1 Account type selection
-  const {
-    register: registerStep1,
-    handleSubmit: handleSubmitStep1,
-    formState: { errors: errorsStep1 },
-    watch: watchStep1,
-  } = useForm<StepOneFormData>({
-    resolver: zodResolver(stepOneSchema),
-  });
-
-  // Step 2 Basic info section
-  const {
-    register: registerStep2,
-    handleSubmit: handleSubmitStep2,
-    formState: { errors: errorsStep2 },
-  } = useForm<StepTwoFormData>({
-    resolver: zodResolver(stepTwoSchema),
-  });
-
-  // Step 3 User info section
-  const {
-    register: registerStep3,
-    handleSubmit: handleSubmitStep3,
-    formState: { errors: errorsStep3 },
-  } = useForm<StepThreeFormData>({
-    resolver: zodResolver(stepThreeSchema),
-  });
-
-  const selectedType = watchStep1("accountType");
-
-  const handleStepOneSubmit = (data: StepOneFormData) => {
-    setFormData((prev) => ({ ...prev, accountType: data.accountType || undefined }));
-    setStep(2);
-  };
-
-  // const setStep2Data= useState<StepTwoFormData | null>(null);
-
-  const handleStepTwoSubmit = (data: StepTwoFormData) => {
-    setFormData((prev) => ({
-      ...prev,
-      email: data.email,
-      password: data.password,
-    }));
-    // setStep2Data(data);
-    setStep(3);
-  };
-
-  const handleStepThreeSubmit = (data: StepThreeFormData) => {
-    setFormData((prev) => ({
-      ...prev,
-      username: data.username,
-      avatar: data.avatar || undefined
-    }));
-    setStep(4);
-  };
-  const handleFinalSubmit = async () => {
+  const onSubmit = async () => {
     try {
-      // console.log("Final Submission:", formData);
-
       router.push("/dashboard");
     } catch {
       alert("Registration failed. Please try again.");
@@ -427,41 +344,47 @@ export default function Signup() {
       </div>
       <div className="mt-8 mx-30">
         {step === 1 && (
-          <Step1Section
-            handleSubmitStep1={handleSubmitStep1}
-            handleStepOneSubmit={handleStepOneSubmit}
-            registerStep1={registerStep1}
-            errorsStep1={errorsStep1}
-            selectedType={selectedType ?? undefined}
+          <AccountTypeForm
+            onNext={(data) => {
+              setFormData((prev) => ({ ...prev, role: data.role }));
+              setStep(2);
+            }}
           />
         )}
 
         {step === 2 && (
-          <Step2Section
-            handleSubmitStep2={handleSubmitStep2}
-            handleStepTwoSubmit={handleStepTwoSubmit}
-            registerStep2={registerStep2}
-            errorsStep2={errorsStep2}
+          <BasicUserInfoForm
+            onNext={(data) => {
+              setFormData((prev) => ({
+                ...prev,
+                email: data.email,
+                password: data.password,
+              }));
+              setStep(3);
+            }}
             onBack={() => setStep(1)}
           />
         )}
 
         {step === 3 && (
-          <Step3Section
-            handleSubmitStep3={handleSubmitStep3}
-            handleStepThreeSubmit={handleStepThreeSubmit}
-            registerStep3={registerStep3}
-            errorsStep3={errorsStep3}
-            avatarNames={avatarNames}
-            setStep={setStep}
+          <AccountUserInfoFrom
+            onNext={(data) => {
+              setFormData((prev) => ({
+                ...prev,
+                username: data.username,
+                avatar: data.avatar || undefined,
+              }));
+              setStep(4);
+            }}
+            onBack={() => setStep(2)}
           />
         )}
 
         {step === 4 && (
-          <Step4Section
+          <ConfirmationSection
             formData={formData}
-            handleFinalSubmit={handleFinalSubmit}
-            setStep={setStep}
+            onBack={() => setStep(3)}
+            handleSubmit={onSubmit}
           />
         )}
       </div>
