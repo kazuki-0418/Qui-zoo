@@ -1,11 +1,10 @@
 import express from "express";
 import { questionController } from "../controllers/question.controller";
-import { auth, sessionExist } from "../middleware/auth.middleware";
+import { auth } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
 // Router authentication
-router.use(sessionExist);
 router.use(auth);
 
 // Quiz routes

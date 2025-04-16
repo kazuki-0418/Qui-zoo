@@ -173,7 +173,7 @@ const logUserIn = async (
   }
   if (req.session) {
     req.session.email = email;
-    req.session.isLogin = true;
+    req.session.isLogedIn = true;
   }
   res.status(200).json({ message: "Login successfully" });
 };

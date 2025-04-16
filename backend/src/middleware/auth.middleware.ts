@@ -12,16 +12,15 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session) {
     const error: ErrorResponse = {
       success: false,
-      message: "Please login",
+      message: "Session does not exist",
       statusCode: 403,
     };
     res.json(error);
     return;
   }
-
   const { isLogedIn } = req.session.isLogedIn;
 
-  if (!isLogedIn) {
+  if (isLogedIn === false) {
     const error: ErrorResponse = {
       success: false,
       message: "User is not loggedin",
@@ -34,35 +33,12 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// session auth
-export const sessionExist = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.session) {
-    const error: ErrorResponse = {
-      success: false,
-      message: "Session does not exist",
-      statusCode: 403,
-    };
-    res.json(error);
-    return;
-  }
-  next();
-};
-
 // auth user logged out
 export const isLoggedOut = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session) {
     const error: ErrorResponse = {
       success: false,
       message: "Session does not exist",
-      statusCode: 403,
-    };
-    res.json(error);
-    return;
-  }
-  if (!req.session.isLogedin) {
-    const error: ErrorResponse = {
-      success: false,
-      message: "User is not loged in",
       statusCode: 403,
     };
     res.json(error);

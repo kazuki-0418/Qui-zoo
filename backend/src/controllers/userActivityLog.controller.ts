@@ -1,18 +1,25 @@
+import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import userModels from "../models/user.models";
 import { UserActivityLog } from "../models/userActivityLog.model";
-import { userActivityLog } from "../types/userActivityLog";
+import { activityLogInfo } from "../types/userActivityLog";
+
+const prisma = new PrismaClient();
 
 const userLogController = new UserActivityLog();
 
 class userActivityLogController {
-  async createUserActivityLog(req: Request<{ userId: string }>, res: Response) {
+  async createUserActivityLog(req: Request, res: Response) {
     try {
       const id = uuidv4();
-      const newlog: Partial<userActivityLog> = {
+      let email;
+      if (req.session) {
+        email = req.session.email;
+      }
+      const newlog: activityLogInfo = {
         id,
-        user: req.params.userId,
+        email: email,
       };
       const userLog = await userLogController.createActivityLog(newlog);
       res.status(201).json(userLog);
