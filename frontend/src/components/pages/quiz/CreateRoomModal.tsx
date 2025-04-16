@@ -98,7 +98,7 @@ export function CreateRoomModal({
           {/* time limit */}
           <div>
             <Label htmlFor="timeLimit" className="block mb-2 text-sm font-medium text-gray-500">
-              Time Limit
+              Time Per Question
             </Label>
             <div className="w-full text-center text-xs text-gray-500 font-bold">
               {roomData.timeLimit}min
