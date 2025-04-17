@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import QRCode from "qrcode";
 import { rtdb } from "../infrastructure/firebase_RTDB.config";
-import { CreateSession } from "../types/session";
+import { CreateSession, Session } from "../types/session";
 
 const generateUniqueCode = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -46,6 +46,24 @@ export class SessionModel {
       };
     } catch (error) {
       throw new Error(`Error creating room ${error}`);
+    }
+  }
+
+  async getSessionByRoomId(roomId: string) {
+    try {
+      const sessionsRef = rtdb.ref("sessions");
+      const sessionSnapshot = await sessionsRef
+        .orderByChild("roomId")
+        .equalTo(roomId)
+        .once("value");
+
+      if (sessionSnapshot.exists()) {
+        return sessionSnapshot.val() as Session;
+      }
+
+      return null;
+    } catch (error) {
+      throw new Error(`Error fetching session ${error}`);
     }
   }
 }

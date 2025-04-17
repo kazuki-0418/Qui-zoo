@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { rtdb } from "../infrastructure/firebase_RTDB.config";
 import { RoomModel } from "../models/room.model";
 import { SessionModel } from "../models/session.model";
 import { CreateRoom } from "../types/room";
+import { Session } from "../types/session";
 
 const roomModel = new RoomModel();
 const sessionModel = new SessionModel();
@@ -32,68 +32,64 @@ class RoomController {
     }
   }
 
+  async getRooms(_: Request, res: Response) {
+    try {
+      const rooms = await roomModel.getRooms();
+      res.status(200).json(rooms);
+    } catch (error) {
+      console.error("Error fetching rooms", error);
+      res.status(500).json({ error: "Error fetching rooms" });
+    }
+  }
+
   async validateRoomCode(req: Request, res: Response) {
     try {
-      const { code } = req.params;
+      const { room_code } = req.params;
 
-      const roomsRef = rtdb.ref("rooms");
-      const snapshot = await roomsRef.orderByChild("code").equalTo(code).once("value");
-
-      if (!snapshot.exists()) {
-        return res.status(404).json({
+      const availableRooms = await roomModel.getRoomByCode(room_code);
+      if (availableRooms.length === 0) {
+        res.status(404).json({
           success: false,
-          message: "Room not found",
+          message: "Room not found or inactive",
         });
       }
 
-      let roomData = null;
-      let roomId = null;
-
-      for (const childSnapshot of snapshot.val()) {
-        if (!roomData && childSnapshot.val().isActive) {
-          roomData = childSnapshot.val();
-          roomId = childSnapshot.key;
-        }
-      }
-
-      if (!roomData) {
-        return res.status(404).json({
+      const availableSession = await sessionModel.getSessionByRoomId(availableRooms[0].id);
+      if (!availableSession) {
+        res.status(404).json({
           success: false,
-          message: "Room is not active",
+          message: "Session not found",
         });
       }
 
-      const sessionsRef = rtdb.ref("sessions");
-      const sessionSnapshot = await sessionsRef
-        .orderByChild("roomId")
-        .equalTo(roomId)
-        .once("value");
-      let sessionId = null;
+      const sessionValues = Object.values(availableSession ?? {}) as unknown as Session[];
 
-      for (const childSnapshot of sessionSnapshot.val()) {
-        const sessionData = childSnapshot.val();
-        if (sessionData.status === "waiting") {
-          sessionId = childSnapshot.key;
-        }
+      if (!sessionValues[0]) {
+        res.status(404).json({
+          success: false,
+          message: "Session not found",
+        });
       }
 
-      if (!sessionId) {
-        return res.status(404).json({
+      const sessionObj: Session = sessionValues[0];
+
+      if (sessionObj.status !== "waiting") {
+        res.status(400).json({
           success: false,
-          message: "No active waiting session found for this room",
+          message: "Session is not in waiting status",
         });
       }
 
       res.status(200).json({
+        currentQuestionIndex: sessionValues[0].currentQuestionIndex,
         success: true,
-        roomId,
-        sessionId,
-        allowGuests: roomData.allowGuests,
-        quizId: roomData.quizId,
+        roomId: availableRooms[0].id,
+        allowGuests: availableRooms[0].allowGuests,
+        quizId: availableRooms[0].quizId,
+        sessionId: sessionObj.id || null,
       });
     } catch (error) {
-      console.error("Error validating room code:", error);
-      res.status(500).json({ success: false, message: "Server error" });
+      res.status(500).json({ success: false, message: error });
     }
   }
 }
