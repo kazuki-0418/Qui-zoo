@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/app/lib/utils";
+import { BaseButton } from "@/components/ui/BaseButton";
 import type { ButtonHTMLAttributes } from "react";
 
 type AuthButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -22,8 +23,8 @@ export default function AuthButton({
   };
 
   return (
-    <button className={cn(baseStyle, variants[variant], className)} {...props}>
+    <BaseButton className={cn(baseStyle, variants[variant], className)} {...props}>
       {children}
-    </button>
+    </BaseButton>
   );
 }

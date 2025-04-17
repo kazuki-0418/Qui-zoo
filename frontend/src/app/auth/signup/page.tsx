@@ -343,16 +343,16 @@ export default function Signup() {
       </pre> */}
       </div>
       <div className="mt-8 mx-30">
-        {step === 1 && (
+        {step === SignUpStep.AccountType && (
           <AccountTypeForm
             onNext={(data) => {
               setFormData((prev) => ({ ...prev, role: data.role }));
-              setStep(2);
+              setStep(SignUpStep.PersonalInfo);
             }}
           />
         )}
 
-        {step === 2 && (
+        {step === SignUpStep.PersonalInfo && (
           <BasicUserInfoForm
             onNext={(data) => {
               setFormData((prev) => ({
@@ -360,13 +360,13 @@ export default function Signup() {
                 email: data.email,
                 password: data.password,
               }));
-              setStep(3);
+              setStep(SignUpStep.AccountInfo);
             }}
-            onBack={() => setStep(1)}
+            onBack={() => setStep(SignUpStep.AccountType)}
           />
         )}
 
-        {step === 3 && (
+        {step === SignUpStep.AccountInfo && (
           <AccountUserInfoFrom
             onNext={(data) => {
               setFormData((prev) => ({
@@ -374,16 +374,16 @@ export default function Signup() {
                 username: data.username,
                 avatar: data.avatar || undefined,
               }));
-              setStep(4);
+              setStep(SignUpStep.Confirmation);
             }}
-            onBack={() => setStep(2)}
+            onBack={() => setStep(SignUpStep.PersonalInfo)}
           />
         )}
 
-        {step === 4 && (
+        {step === SignUpStep.Confirmation && (
           <ConfirmationSection
             formData={formData}
-            onBack={() => setStep(3)}
+            onBack={() => setStep(SignUpStep.AccountInfo)}
             handleSubmit={onSubmit}
           />
         )}
