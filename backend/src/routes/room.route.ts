@@ -9,5 +9,6 @@ const router = express.Router();
 router.post("/", roomController.createRoom);
 router.get("/", roomController.getRooms);
 router.get("/validate/:room_code", roomController.validateRoomCode);
+router.post("/join", roomController.joinRoom);
 
 export default router;

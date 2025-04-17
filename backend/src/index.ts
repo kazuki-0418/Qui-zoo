@@ -1,3 +1,4 @@
+import { createServer } from "node:http";
 import cookieSession from "cookie-session";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -10,12 +11,15 @@ import quizRouter from "./routes/quiz.route";
 import roomRouter from "./routes/room.route";
 import userRouter from "./routes/user.routes";
 import activityLogRouter from "./routes/userActivityLog.routes";
+import { initializeWebSocketServer } from "./websocket";
+
 // Load environment variables
 dotenv.config();
 
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+const server = createServer(app);
 
 const cookieKeyPrimary = process.env.COOKIE_S || process.env.SESSION_SECRET;
 const cookieKeySecondary = process.env.COOKIE_E;
@@ -80,6 +84,8 @@ app.get("/api/me", auth, (req, res) => {
     user: req.session.user,
   });
 });
+
+initializeWebSocketServer(server);
 
 // 404 handler
 app.use((_, res) => {

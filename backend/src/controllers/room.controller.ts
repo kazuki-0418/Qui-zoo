@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ParticipantModel } from "../models/participant.model";
 import { RoomModel } from "../models/room.model";
 import { SessionModel } from "../models/session.model";
 import { CreateRoom } from "../types/room";
@@ -6,6 +7,7 @@ import { Session } from "../types/session";
 
 const roomModel = new RoomModel();
 const sessionModel = new SessionModel();
+const participantModel = new ParticipantModel();
 
 class RoomController {
   async createRoom(req: Request<null, null, CreateRoom>, res: Response) {
@@ -89,6 +91,53 @@ class RoomController {
         sessionId: sessionObj.id || null,
       });
     } catch (error) {
+      res.status(500).json({ success: false, message: error });
+    }
+  }
+
+  async joinRoom(req: Request, res: Response) {
+    const { roomCode, name, isGuest, userId = null } = req.body;
+
+    // ルーム情報取得
+    const availableRooms = await roomModel.getRoomByCode(roomCode);
+    const roomData = availableRooms[0];
+    const roomId = roomData.id;
+    if (isGuest && !roomData.allowGuests) {
+      return res.status(403).json({
+        success: false,
+        message: "Guest participation is not allowed in this room",
+      });
+    }
+    const sessionData = await sessionModel.getSessionByRoomId(roomId);
+    if (!sessionData) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found",
+      });
+    }
+
+    const participantId = await participantModel.createParticipant({
+      sessionId: sessionData.id,
+      userId,
+      name,
+      isGuest,
+      roomCode,
+    });
+
+    if (!participantId) {
+      return res.status(500).json({
+        success: false,
+        message: "Error creating participant",
+      });
+    }
+  }
+
+  async leaveRoom(req: Request, res: Response) {
+    try {
+      await participantModel.updateParticipantOnlineStatus(req.body);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Error leaving room", error);
       res.status(500).json({ success: false, message: error });
     }
   }
