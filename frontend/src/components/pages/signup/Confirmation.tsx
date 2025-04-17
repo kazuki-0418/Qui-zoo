@@ -16,8 +16,8 @@ export function ConfirmationSection({
 }: ConfirmationSectionProps) {
   const src = `/assets/avatars/${formData.avatar}.png`;
   return (
-    <div className="space-y-6 text-center">
-      <ul className="space-y-6 inline-block text-left text-lg">
+    <div className="text-center">
+      <ul className="inline-block text-left text-lg">
         <li>
           <strong className="font-semibold text-gray-700">Account Type:</strong> {formData.role}
         </li>
@@ -34,7 +34,7 @@ export function ConfirmationSection({
         </li>
       </ul>
 
-      <div className="flex justify-between mt-8">
+      <div className="flex justify-between mt-8 flex-col sm:flex-row gap-6">
         <AuthButton type="button" variant="secondary" onClick={onBack}>
           Back
         </AuthButton>

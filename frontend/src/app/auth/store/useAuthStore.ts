@@ -1,12 +1,13 @@
 import { healthCheck } from "@/usecases/auth/authMe";
+import { login } from "@/usecases/auth/loginUsercase";
 import { signup } from "@/usecases/auth/signupUsecase";
 import type { CreateUser, LoginData } from "@/validations/auth/User";
-import axios from "axios";
+// import axios from "axios";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // APIのベースURL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 type User = {
   id: string;
@@ -59,7 +60,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error: unknown) {
           const errorResponse = error as ErrorResponse;
           set({
-            error: errorResponse.response?.data?.message || "サインアップに失敗しました",
+            error: errorResponse.response?.data?.message || "Failed to Sign Up",
             isLoading: false,
           });
           throw error;
@@ -70,9 +71,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true, error: null });
 
-          const response = await axios.post(`${API_URL}/auth/login`, {
-            ...loginData,
-          });
+          const response = await login(loginData);
 
           const { user } = response.data;
 
@@ -84,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error: unknown) {
           const errorResponse = error as ErrorResponse;
           set({
-            error: errorResponse.response?.data?.message || "ログインに失敗しました",
+            error: errorResponse.response?.data?.message || "Failed to Login",
             isLoading: false,
           });
           throw error;

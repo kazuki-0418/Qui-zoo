@@ -62,7 +62,7 @@ export function BasicUserInfoForm({
         error={errors.confirmPassword}
       />
 
-      <div className="flex justify-between">
+      <div className="flex justify-between flex-col sm:flex-row">
         <AuthButton type="button" variant="secondary" onClick={onBack}>
           Back
         </AuthButton>
