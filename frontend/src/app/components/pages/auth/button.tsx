@@ -18,7 +18,7 @@ export default function AuthButton({
   const baseStyle = "px-6 py-2 rounded font-medium transition-colors duration-200";
 
   const variants = {
-    primary: "bg-green-500 text-white hover:bg-blue-300 shadow-md/20",
+    primary: "bg-green-500 text-white hover:bg-green-600 shadow-md/20",
     secondary: "bg-gray-300 text-black hover:bg-gray-400 shadow-md/20",
   };
 

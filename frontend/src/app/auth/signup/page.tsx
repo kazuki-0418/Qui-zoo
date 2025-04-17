@@ -12,6 +12,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -80,20 +81,25 @@ type AccountTypeFormData = z.infer<typeof accountTypeSchema>;
 
 function AccountTypeForm({
   onNext,
+  defaultValues,
 }: {
   onNext: (data: { role: Role }) => void;
+  defaultValues: { accountType: Role | undefined };
 }) {
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
+    reset,
   } = useForm<AccountTypeFormData>({
     resolver: zodResolver(accountTypeSchema),
-    defaultValues: {
-      accountType: undefined,
-    },
+    defaultValues,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const selectedType = watch("accountType");
 
@@ -142,17 +148,25 @@ type BasicInfoFormData = z.infer<typeof basicInfoSchema>;
 function BasicUserInfoForm({
   onNext,
   onBack,
+  defaultValues,
 }: {
   onNext: (data: Pick<BasicInfoFormData, "email" | "password">) => void;
   onBack: () => void;
+  defaultValues: Partial<BasicInfoFormData>;
 }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<BasicInfoFormData>({
     resolver: zodResolver(basicInfoSchema),
+    defaultValues,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const onSubmit = (data: BasicInfoFormData) => {
     onNext({
@@ -202,17 +216,26 @@ type AccountUserInfoFormData = z.infer<typeof accountUserInfoSchema>;
 function AccountUserInfoFrom({
   onNext,
   onBack,
+  defaultValues,
 }: {
   onNext: (data: Pick<AccountUserInfoFormData, "username" | "avatar">) => void;
   onBack: () => void;
+  defaultValues: Partial<AccountUserInfoFormData>;
 }) {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<AccountUserInfoFormData>({
     resolver: zodResolver(accountUserInfoSchema),
+    defaultValues,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
   const onSubmit = (data: AccountUserInfoFormData) => {
     onNext({
       username: data.username,
@@ -233,13 +256,13 @@ function AccountUserInfoFrom({
         <label htmlFor="avatar" className="block text-sm font-medium">
           Choose your Avatar
         </label>
-        <div className="grid grid-cols-3 gap-4 w-2/3 mx-auto">
+        <div className="grid grid-cols-3 gap-4 lg:w-2/3 mx-auto">
           {avatarNames.map((avatarName) => {
             const src = `/assets/avatars/${avatarName}.png`;
             return (
               <label
                 key={avatarName}
-                className="cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-500 transition"
+                className="cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-400 transition"
               >
                 <input
                   type="radio"
@@ -251,7 +274,7 @@ function AccountUserInfoFrom({
                 <img
                   src={src}
                   alt={`Avatar of ${avatarName ? avatarName : "default avatar"}`}
-                  className="w-full h-auto peer-checked:ring-4 peer-checked:ring-blue-500"
+                  className="w-full h-auto  peer-checked:border-4 peer-checked:border-blue-400"
                 />
               </label>
             );
@@ -284,20 +307,20 @@ function ConfirmationSection({ formData, onBack, handleSubmit }: ConfirmationSec
   const src = `/assets/avatars/${formData.avatar}.png`;
   return (
     <div className="space-y-6 text-center">
-      <ul className="space-y-4 inline-block text-left">
+      <ul className="space-y-6 inline-block text-left text-lg">
         <li>
-          <strong>Account Type:</strong> {formData.role}
+          <strong className="font-semibold text-gray-700">Account Type:</strong> {formData.role}
         </li>
         <li>
-          <strong>Email:</strong> {formData.email}
+          <strong className="font-semibold text-gray-700">Email:</strong> {formData.email}
         </li>
         <li>
-          <strong>Username:</strong> {formData.username}
+          <strong className="font-semibold text-gray-700">Username:</strong> {formData.username}
         </li>
         <li>
-          <strong>Avatar:</strong>
+          <strong className="font-semibold text-gray-700 block mb-2">Avatar:</strong>
           <br />
-          {formData.avatar && <img src={src} alt="Avatar" className="w-24 h-24 mx-auto" />}
+          {formData.avatar && <img src={src} alt="Avatar" className="w-32 h-32 mx-auto" />}
         </li>
       </ul>
 
@@ -349,6 +372,7 @@ export default function Signup() {
               setFormData((prev) => ({ ...prev, role: data.role }));
               setStep(SignUpStep.PersonalInfo);
             }}
+            defaultValues={{ accountType: formData.role }}
           />
         )}
 
@@ -363,6 +387,11 @@ export default function Signup() {
               setStep(SignUpStep.AccountInfo);
             }}
             onBack={() => setStep(SignUpStep.AccountType)}
+            defaultValues={{
+              email: formData.email || "",
+              password: formData.password || "",
+              confirmPassword: "",
+            }}
           />
         )}
 
@@ -377,6 +406,10 @@ export default function Signup() {
               setStep(SignUpStep.Confirmation);
             }}
             onBack={() => setStep(SignUpStep.PersonalInfo)}
+            defaultValues={{
+              username: formData.username || "",
+              avatar: formData.avatar || null,
+            }}
           />
         )}
 
