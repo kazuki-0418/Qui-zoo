@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import { auth } from "./middleware/auth.middleware";
 import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
 import roomRouter from "./routes/room.route";
@@ -65,6 +66,20 @@ app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/user_activity_logs", activityLogRouter);
+// Health check route
+app.get("/api/me", auth, (req, res) => {
+  if (!req.session?.user) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+  res.status(200).json({
+    success: true,
+    message: "Server is running",
+    user: req.session.user,
+  });
+});
 
 // 404 handler
 app.use((_, res) => {
