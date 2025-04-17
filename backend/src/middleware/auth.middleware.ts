@@ -18,7 +18,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
     res.json(error);
     return;
   }
-  const { isLogedIn } = req.session.isLogedIn;
+  const isLogedIn = req.session.isLogedIn;
 
   if (isLogedIn === false) {
     const error: ErrorResponse = {
