@@ -1,7 +1,6 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
 import { Badge } from "flowbite-react";
 import Image from "next/image";
-import { useState } from "react";
 
 interface Participant {
   id: string;
@@ -16,7 +15,6 @@ interface ParticipantListProps {
 }
 
 export function ParticipantList({ participants, onRemoveParticipant }: ParticipantListProps) {
-
   return (
     <div className="space-y-2">
       {participants.map((participant) => (
