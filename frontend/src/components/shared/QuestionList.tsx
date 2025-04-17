@@ -1,12 +1,4 @@
-interface Question {
-  id: string;
-  text: string;
-  options: string[];
-  correctOption: string;
-  points: number;
-  timeLimit: number;
-  status: "waiting" | "active" | "timeout" | "completed";
-}
+import type { Question } from "@/types/Question";
 
 interface QuestionListProps {
   questions: Question[];
@@ -33,16 +25,12 @@ export function QuestionList({ questions }: QuestionListProps) {
               <div
                 key={option}
                 className={`flex items-center gap-2 text-sm ${
-                  option === question.correctOption
-                    ? "text-green-600"
-                    : "text-gray-600"
+                  option === question.correctOption ? "text-green-600" : "text-gray-600"
                 }`}
               >
                 <span
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    option === question.correctOption
-                      ? "border-green-600"
-                      : "border-gray-400"
+                    option === question.correctOption ? "border-green-600" : "border-gray-400"
                   }`}
                 >
                   {option === question.correctOption && (
@@ -57,4 +45,4 @@ export function QuestionList({ questions }: QuestionListProps) {
       ))}
     </div>
   );
-} 
+}

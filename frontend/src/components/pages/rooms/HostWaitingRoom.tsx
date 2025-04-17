@@ -2,29 +2,10 @@ import { ParticipantList } from "@/components/shared/ParticipantList";
 import { QuestionList } from "@/components/shared/QuestionList";
 import { PushButton } from "@/components/ui/PushButton";
 import { TabNavigation } from "@/components/ui/Tabs";
+import type { Participant } from "@/types/Participant";
+import type { Question } from "@/types/Question";
 import Image from "next/image";
-import { useParams } from "next/navigation";
 import { useState } from "react";
-
-interface Participant {
-  id: string;
-  name: string;
-  avatar: string;
-  isGuest: boolean;
-}
-
-interface Question {
-  id: string;
-  text: string;
-  options: string[];
-  correctOption: string;
-  points: number;
-  timeLimit: number;
-  status: "waiting" | "active" | "timeout" | "completed";
-}
-
-// TODO : Demo URL
-const roomUrl = "/test";
 
 // TODO : Demo data for participants
 const demoParticipants: Participant[] = [
@@ -81,7 +62,6 @@ const tabs = [
 ];
 
 export function HostWaitingRoom() {
-  const { roomCode } = useParams();
   const [isCopied, setIsCopied] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
   // const [questions, setQuestions] = useState<Question[]>(demoQuestions);
@@ -89,6 +69,8 @@ export function HostWaitingRoom() {
 
   //TODO demo
   const questions = demoQuestions;
+  const roomCode = "123456";
+  const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 
   const handleStartQuiz = () => {
     if (participants.length < 2) {
@@ -101,7 +83,7 @@ export function HostWaitingRoom() {
   };
 
   const onCopyRoomCode = () => {
-    navigator.clipboard.writeText(roomCode as string);
+    navigator.clipboard.writeText(roomUrl as string);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
