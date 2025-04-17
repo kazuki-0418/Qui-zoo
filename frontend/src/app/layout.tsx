@@ -3,6 +3,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/shared/Header";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +25,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const path = usePathname();
+  const isAuthPage = path.startsWith("/auth");
+
   return (
     <html lang="en">
       <body
@@ -31,8 +35,14 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         {/* TODO username avatar */}
-        <Header username="username" avatarImage="koala" />
-        <div className="bg-gray-50 min-h-screen">{children}</div>
+        {isAuthPage ? (
+          <div className="bg-gray-50 min-h-screen">{children}</div>
+        ) : (
+          <>
+            <Header username="username" avatarImage="koala" />
+            <div className="bg-gray-50 min-h-screen">{children}</div>
+          </>
+        )}
       </body>
     </html>
   );
