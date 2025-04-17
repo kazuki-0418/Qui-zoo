@@ -18,7 +18,7 @@ class AuthAdapters {
   }
 
   async loginAdapter(data: LoginData) {
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/login`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/users/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
