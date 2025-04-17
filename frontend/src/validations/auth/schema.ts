@@ -1,6 +1,5 @@
 import { z } from "zod";
-
-export const accountTypes = ["teacher", "student", "administrator"] as const;
+import { accountTypes } from "./User";
 
 export const avatarNames = [
   "cat",
@@ -33,10 +32,7 @@ export const basicInfoSchema = z
 
 export const accountUserInfoSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters" }),
-  avatar: z
-    .string()
-    .nullable()
-    .refine((val) => avatarNames.includes(val as (typeof avatarNames)[number]), {
-      message: "Please select an avatar",
-    }),
+  avatar: z.string().refine((val) => avatarNames.includes(val as (typeof avatarNames)[number]), {
+    message: "Please select an avatar",
+  }),
 });

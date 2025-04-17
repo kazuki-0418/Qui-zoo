@@ -1,4 +1,4 @@
-export const accountTypes = ["teacher", "student", "administrator"] as const;
+export const accountTypes = ["TEACHER", "STUDENT"] as const;
 
 export type Role = (typeof accountTypes)[number];
 
@@ -8,4 +8,9 @@ export type CreateUser = {
   password: string;
   role: Role;
   avatar: string;
+};
+
+export type LoginData = {
+  email: string;
+  password: string;
 };
