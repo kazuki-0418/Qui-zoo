@@ -1,9 +1,9 @@
+"use client";
 import { ParticipantList } from "@/components/shared/ParticipantList";
 import { QuestionList } from "@/components/shared/QuestionList";
+import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
 import { TabNavigation } from "@/components/ui/Tabs";
-import Image from "next/image";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 
 interface Participant {
@@ -22,9 +22,6 @@ interface Question {
   timeLimit: number;
   status: "waiting" | "active" | "timeout" | "completed";
 }
-
-// TODO : Demo URL
-const roomUrl = "/test";
 
 // TODO : Demo data for participants
 const demoParticipants: Participant[] = [
@@ -81,14 +78,16 @@ const tabs = [
 ];
 
 export function HostWaitingRoom() {
-  const { roomCode } = useParams();
-  const [isCopied, setIsCopied] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
   // const [questions, setQuestions] = useState<Question[]>(demoQuestions);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
   //TODO demo
   const questions = demoQuestions;
+
+  // TODO : Demo URL
+  const roomCode = "123456";
+  const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 
   const handleStartQuiz = () => {
     if (participants.length < 2) {
@@ -100,43 +99,17 @@ export function HostWaitingRoom() {
     // TODO : Cancel room
   };
 
-  const onCopyRoomCode = () => {
-    navigator.clipboard.writeText(roomCode as string);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
   const handleRemoveParticipant = (id: string) => {
     setParticipants(participants.filter((p) => p.id !== id));
   };
 
   return (
     <div className="h-full flex flex-col text-center gap-2">
-      <div className="flex items-center justify-center gap-2">
-        <h2 className="text-2xl font-bold">Ready to Start the Quiz</h2>
-        <div className="flex items-center gap-1 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-          <span className="font-medium">{participants.length}</span>
-          <span>/</span>
-          <span>{participantsLimit}</span>
-        </div>
-      </div>
-      <div className="flex align-center items-center justify-center relative space-x-2">
-        <p className="text-gray-600">Room URL: {roomUrl}</p>
-        <button
-          onClick={onCopyRoomCode}
-          className="flex gap-1 align-center text-gray-500 hover:text-gray-700 transition-all duration-300 p-1 rounded-full"
-          title="Copy room code"
-        >
-          <Image
-            src={isCopied ? "/assets/icons/check.svg" : "/assets/icons/link.svg"}
-            alt={isCopied ? "copied" : "copy"}
-            width={20}
-            height={20}
-            className={`transition-all duration-300 ${isCopied ? "text-green-500" : ""}`}
-          />
-          <span className="text-sm font-bold">Copy Link</span>
-        </button>
-      </div>
+      <WaitingRoomHeader
+        participantsCount={participants.length}
+        participantsLimit={participantsLimit}
+        roomUrl={roomUrl}
+      />
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} tabs={tabs} />
       <div className="grow bg-gray-50 border border-gray-50 rounded-lg p-4 overflow-y-auto">
         {activeTab === "participants" ? (
