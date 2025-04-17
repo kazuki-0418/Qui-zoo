@@ -1,6 +1,7 @@
 "use client";
 import { PushButton } from "@/components/ui/PushButton";
 import { Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface CreateRoomModalProps {
@@ -25,6 +26,8 @@ export function CreateRoomModal({
   availableQuizzes,
   selectedQuizId,
 }: CreateRoomModalProps) {
+  const router = useRouter();
+
   const [roomData, setRoomData] = useState<RoomData>({
     allowGuests: true,
     selectedQuizId: selectedQuizId ? selectedQuizId : "",
@@ -33,9 +36,11 @@ export function CreateRoomModal({
   });
 
   const handleSubmit = (e: React.FormEvent) => {
+    // TODO logic
     e.preventDefault();
     onCreateRoom(roomData);
-    onClose();
+    const roomCode = "test";
+    router.push(`/rooms/${roomCode}/host/`);
   };
 
   return (

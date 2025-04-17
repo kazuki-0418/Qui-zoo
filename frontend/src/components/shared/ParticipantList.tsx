@@ -1,5 +1,7 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
 import { Badge } from "flowbite-react";
+import Image from "next/image";
+import { useState } from "react";
 
 interface Participant {
   id: string;
@@ -10,23 +12,42 @@ interface Participant {
 
 interface ParticipantListProps {
   participants: Participant[];
+  onRemoveParticipant?: (id: string) => void;
 }
 
-export function ParticipantList({ participants }: ParticipantListProps) {
+export function ParticipantList({ participants, onRemoveParticipant }: ParticipantListProps) {
+
   return (
     <div className="space-y-2">
       {participants.map((participant) => (
         <div
           key={participant.id}
-          className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm"
+          className="flex items-center justify-between p-2 px-5 bg-white rounded-lg shadow-sm"
         >
-          <div className="flex items-center space-x-3">
-            <AvatarIcon avatarImage={participant.avatar} />
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
+            <AvatarIcon avatarImage={participant.avatar} avatarSize="sm" />
+            <div className="flex items-center space-x-3">
               <p className="font-medium">{participant.name}</p>
-              {participant.isGuest && <Badge color="indigo">Guest</Badge>}
+              {participant.isGuest && (
+                <Badge color="purple" size="sm">
+                  Guest
+                </Badge>
+              )}
             </div>
           </div>
+          <button
+            className="p-1.5 rounded-full hover:bg-gray-50 transition-colors"
+            title="Remove participant"
+            onClick={() => onRemoveParticipant?.(participant.id)}
+          >
+            <Image
+              src="/assets/icons/close.svg"
+              alt="remove"
+              width={16}
+              height={16}
+              className="transition-transform hover:scale-110"
+            />
+          </button>
         </div>
       ))}
       {participants.length === 0 && (

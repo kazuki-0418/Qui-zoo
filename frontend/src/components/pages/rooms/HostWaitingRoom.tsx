@@ -1,8 +1,10 @@
 import { PushButton } from "@/components/ui/PushButton";
-import { Card } from "flowbite-react";
+import { Tabs } from "@/components/ui/Tabs";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { ParticipantList } from "../../shared/ParticipantList";
+import { QuestionList } from "./QuestionList";
 
 interface Participant {
   id: string;
@@ -11,62 +13,168 @@ interface Participant {
   isGuest: boolean;
 }
 
+interface Question {
+  id: string;
+  text: string;
+  options: string[];
+  correctOption: string;
+  points: number;
+  timeLimit: number;
+  status: "waiting" | "active" | "timeout" | "completed";
+}
+
+// TODO : Demo URL
+const roomUrl = "/test";
+
+// TODO : Demo data for participants
+const demoParticipants: Participant[] = [
+  { id: "1", name: "Alice", avatar: "koala", isGuest: false },
+  { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
+];
+
+// TODO : Demo data for questions
+const demoQuestions: Question[] = [
+  {
+    id: "1",
+    text: "What is the capital of Japan?",
+    options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
+    correctOption: "Tokyo",
+    points: 10,
+    timeLimit: 30,
+    status: "waiting",
+  },
+  {
+    id: "2",
+    text: "Which planet is known as the Red Planet?",
+    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+    correctOption: "Mars",
+    points: 15,
+    timeLimit: 45,
+    status: "waiting",
+  },
+  {
+    id: "3",
+    text: "What is the capital of Japan?",
+    options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
+    correctOption: "Tokyo",
+    points: 10,
+    timeLimit: 30,
+    status: "waiting",
+  },
+  {
+    id: "4",
+    text: "Which planet is known as the Red Planet?",
+    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+    correctOption: "Mars",
+    points: 15,
+    timeLimit: 45,
+    status: "waiting",
+  },
+];
+
+// TODO : Demo data
+const participantsLimit = 10;
+
+const tabs = [
+  { id: "participants", label: "Participants" },
+  { id: "questions", label: "Questions" },
+];
+
 export function HostWaitingRoom() {
   const { roomCode } = useParams();
-  // const [participants, setParticipants] = useState<Participant[]>([]);
-
-  // TODO : Demo URL
-  const roomUrl = "/test";
-
-  // TODO : Demo data for participants
-  const demoParticipants: Participant[] = [
-    { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-    { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-  ];
+  const [isCopied, setIsCopied] = useState(false);
+  const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
+  const [questions, setQuestions] = useState<Question[]>(demoQuestions);
+  const [activeTab, setActiveTab] = useState(tabs[0].id);
 
   const handleStartQuiz = () => {
-    // if (participants.length < 2) {
-    //   return;
-    // }
+    if (participants.length < 2) {
+      return;
+    }
+  };
+
+  const handleCancelRoom = () => {
+    // TODO : Cancel room
   };
 
   const onCopyRoomCode = () => {
     navigator.clipboard.writeText(roomCode as string);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleRemoveParticipant = (id: string) => {
+    setParticipants(participants.filter((p) => p.id !== id));
+  };
+
+  const handleAddQuestion = () => {
+    // TODO: Implement add question
+  };
+
+  const handleEditQuestion = (id: string) => {
+    // TODO: Implement edit question
+  };
+
+  const handleDeleteQuestion = (id: string) => {
+    setQuestions(questions.filter((q) => q.id !== id));
   };
 
   return (
-    <div className="container h-full mx-auto px-4 py-8">
-      <Card className="max-w-2xl mx-auto">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold mb-2">Ready to Start the Quiz</h2>
-          <div className="flex items-center justify-center space-x-2">
-            <p className="text-gray-600">Room URL: {roomUrl}</p>
-            <button
-              onClick={onCopyRoomCode}
-              className="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full active:bg-gray-100"
-              title="Copy room code"
-            >
-              <Image src="/assets/icons/fileLine.svg" alt="copy" width={22} height={22} />
-            </button>
+    <>
+      <div className="h-full flex flex-col text-center gap-2">
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="text-2xl font-bold">Ready to Start the Quiz</h2>
+          <div className="flex items-center gap-1 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            <span className="font-medium">{participants.length}</span>
+            <span>/</span>
+            <span>{participantsLimit}</span>
           </div>
         </div>
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-4 text-center">Participants</h3>
-          <div className="bg-gray-50 rounded-lg p-4">
-            <ParticipantList participants={demoParticipants} />
-          </div>
-        </div>
-        <div className="flex justify-center">
-          <PushButton
-            color="primary"
-            size="md"
-            onClick={handleStartQuiz}
-            // disabled={participants.length < 2}
+        <div className="flex align-center items-center justify-center relative space-x-2 mb-2">
+          <p className="text-gray-600">Room URL: {roomUrl}</p>
+          <button
+            onClick={onCopyRoomCode}
+            className="flex gap-1 align-center text-gray-500 hover:text-gray-700 transition-all duration-300 p-1 rounded-full"
+            title="Copy room code"
           >
-            Start Quiz
-          </PushButton>
+            <Image
+              src={isCopied ? "/assets/icons/check.svg" : "/assets/icons/link.svg"}
+              alt={isCopied ? "copied" : "copy"}
+              width={20}
+              height={20}
+              className={`transition-all duration-300 ${isCopied ? "text-green-500" : ""}`}
+            />
+            <span className="text-sm font-bold">Copy Link</span>
+          </button>
         </div>
-      </Card>
-    </div>
+        <Tabs activeTab={activeTab} onTabChange={setActiveTab} tabs={tabs} />
+        <div className="grow bg-gray-50 rounded-lg p-4 overflow-y-auto">
+          {activeTab === "participants" ? (
+            <ParticipantList
+              participants={participants}
+              onRemoveParticipant={handleRemoveParticipant}
+            />
+          ) : (
+            <QuestionList
+              questions={questions}
+            />
+          )}
+        </div>
+      </div>
+      <div className="flex gap-2 md:gap-4 mt-4">
+        <PushButton color="cancel" size="md" width="full" onClick={handleCancelRoom}>
+          Close Room
+        </PushButton>
+        <PushButton
+          color="primary"
+          size="md"
+          width="full"
+          onClick={handleStartQuiz}
+          disabled={2 < participants.length && participants.length <= participantsLimit}
+        >
+          Start Quiz
+        </PushButton>
+      </div>
+    </>
   );
 }
