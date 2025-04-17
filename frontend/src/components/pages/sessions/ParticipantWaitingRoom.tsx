@@ -38,6 +38,7 @@ export function ParticipantWaitingRoom() {
   return (
     <div className="h-full flex flex-col text-center gap-2">
       <WaitingRoomHeader
+        isHost={false}
         participantsCount={participants.length}
         participantsLimit={participantsLimit}
         roomUrl={roomUrl}

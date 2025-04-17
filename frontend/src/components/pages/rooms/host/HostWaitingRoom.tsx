@@ -106,6 +106,7 @@ export function HostWaitingRoom() {
   return (
     <div className="h-full flex flex-col text-center gap-2">
       <WaitingRoomHeader
+        isHost={true}
         participantsCount={participants.length}
         participantsLimit={participantsLimit}
         roomUrl={roomUrl}
