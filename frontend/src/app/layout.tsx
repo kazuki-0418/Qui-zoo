@@ -2,9 +2,9 @@
 // import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/shared/Header";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { ProtectedRoute } from "./auth/hooks/ProtectedRoute";
 import { useAuthStore } from "./auth/store/useAuthStore";
 
 const geistSans = Geist({
@@ -43,8 +43,6 @@ export default function RootLayout({
 }>) {
   const path = usePathname();
   const isAuthPage = path.startsWith("/auth");
-  const isSessionPage = path.startsWith("/sessions");
-  const isRoomsPage = path.startsWith("/rooms");
 
   return (
     <html lang="en">
@@ -53,20 +51,13 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         {/* TODO username avatar */}
-        {/* {isAuthPage ? (
+        {isAuthPage ? (
           <div className="bg-gray-50 min-h-screen">{children}</div>
         ) : (
           <AuthProvider>
-            <ProtectedRoute> */}
-        <div className="bg-gray-50 min-h-screen">
-          {!isSessionPage && !isRoomsPage ? (
-            <Header username="username" avatarImage="koala" />
-          ) : null}
-          {children}
-        </div>
-        {/* </ProtectedRoute>
+            <ProtectedRoute>{children}</ProtectedRoute>
           </AuthProvider>
-        )} */}
+        )}
       </body>
     </html>
   );
