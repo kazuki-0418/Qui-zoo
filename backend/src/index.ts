@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import { auth } from "./middleware/auth.middleware";
 import questionRouter from "./routes/question.route";
 import quizRouter from "./routes/quiz.route";
 import roomRouter from "./routes/room.route";
@@ -17,8 +16,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const cookieKeyPrimary = process.env.COOKIE_S || process.env.SESSION_SECRET;
-const cookieKeySecondary = process.env.COOKIE_E;
+const cookieKeyPrimary = process.env.SESSION_SECRET || process.env.COOKIE_S;
+const cookieKeySecondary = process.env.COOKIE_E || "defaultKey";
 
 if (!cookieKeyPrimary) {
   throw new Error("Primary cookie key is missing");
@@ -27,29 +26,8 @@ if (!cookieKeyPrimary) {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(morgan("dev"));
-
-// Configure cookie session before CORS
-app.use(
-  cookieSession({
-    name: "session",
-    keys: cookieKeySecondary ? [cookieKeyPrimary, cookieKeySecondary] : [cookieKeyPrimary],
-    maxAge: Number.parseInt(process.env.COOKIE_MAX_AGE || "86400000"),
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax",
-  }),
-);
-
-app.use(
-  cors({
-    origin: ["http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-    credentials: true,
-  }),
-);
 
 app.use(
   helmet({
@@ -60,26 +38,35 @@ app.use(
 // CORS preflight
 app.options("*", cors());
 
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+    exposedHeaders: ["set-cookie"],
+  }),
+);
+
+app.use(
+  cookieSession({
+    name: "session",
+    keys: [cookieKeyPrimary, cookieKeySecondary],
+    maxAge: Number.parseInt(process.env.COOKIE_MAX_AGE || "86400000"), // 24時間
+    secure: process.env.NODE_ENV === "production", // HTTPSの場合はtrue
+    httpOnly: true,
+    sameSite: "lax",
+    domain: process.env.NODE_ENV === "production" ? ".yourdomain.com" : "localhost", // ドメイン設定
+    path: "/", // 追加
+  }),
+);
+
 // Routes
 app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/user_activity_logs", activityLogRouter);
-// Health check route
-app.get("/api/me", auth, (req, res) => {
-  if (!req.session?.user) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-    });
-  }
-  res.status(200).json({
-    success: true,
-    message: "Server is running",
-    user: req.session.user,
-  });
-});
 
 // 404 handler
 app.use((_, res) => {

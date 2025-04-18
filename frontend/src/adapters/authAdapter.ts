@@ -4,6 +4,7 @@ class AuthAdapters {
   async signupAdapter(data: CreateUser) {
     const response = await fetch(`${process.env.BACKEND_URL}/users`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -20,6 +21,7 @@ class AuthAdapters {
   async loginAdapter(data: LoginData) {
     const response = await fetch(`${process.env.BACKEND_URL}/users/login`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -51,6 +53,7 @@ class AuthAdapters {
   async checkAuthAdapter() {
     const response = await fetch(`${process.env.BACKEND_URL}/me`, {
       method: "GET",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

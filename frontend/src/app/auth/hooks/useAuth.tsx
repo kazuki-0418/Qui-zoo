@@ -11,18 +11,8 @@ export const useAuth = (options: UseAuthOptions = {}) => {
   const router = useRouter();
   const { redirectTo, redirectIfFound } = options;
 
-  const {
-    user,
-    token,
-    isLoading,
-    error,
-    isAuthenticated,
-    signUp,
-    login,
-    logout,
-    checkAuth,
-    clearError,
-  } = useAuthStore();
+  const { user, isLoading, error, isAuthenticated, signUp, login, logout, checkAuth, clearError } =
+    useAuthStore();
 
   useEffect(() => {
     // Authentication check
@@ -47,7 +37,6 @@ export const useAuth = (options: UseAuthOptions = {}) => {
 
   return {
     user,
-    token,
     isLoading,
     error,
     isAuthenticated,
