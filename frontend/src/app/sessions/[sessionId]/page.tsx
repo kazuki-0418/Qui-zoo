@@ -3,7 +3,7 @@ import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 
 export default function ParticipantWaitingRoomPage() {
   return (
-    <FullHeightCardLayout>
+    <FullHeightCardLayout useWithHeader={false}>
       <ParticipantWaitingRoom />
     </FullHeightCardLayout>
   );

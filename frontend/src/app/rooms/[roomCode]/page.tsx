@@ -5,7 +5,7 @@ import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 export default function RoomsHostPage() {
   const allowGuests = true; // TODO: Replace with actual logic to check if the user is a guest
   return (
-    <FullHeightCardLayout>
+    <FullHeightCardLayout useWithHeader={false}>
       <UserAccessOptions allowGuests={allowGuests} />
     </FullHeightCardLayout>
   );

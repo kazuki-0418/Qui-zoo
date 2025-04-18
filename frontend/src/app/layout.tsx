@@ -43,6 +43,8 @@ export default function RootLayout({
 }>) {
   const path = usePathname();
   const isAuthPage = path.startsWith("/auth");
+  const isSessionPage = path.startsWith("/sessions");
+  const isRoomsPage = path.startsWith("/rooms");
 
   return (
     <html lang="en">
@@ -57,7 +59,9 @@ export default function RootLayout({
           <AuthProvider>
             <ProtectedRoute> */}
         <div className="bg-gray-50 min-h-screen">
-          <Header username="username" avatarImage="koala" />
+          {!isSessionPage && !isRoomsPage ? (
+            <Header username="username" avatarImage="koala" />
+          ) : null}
           {children}
         </div>
         {/* </ProtectedRoute>

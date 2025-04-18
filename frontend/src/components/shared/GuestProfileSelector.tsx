@@ -1,17 +1,6 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
+import { avatarOptions } from "@/constants/Avatar";
 import { TextInput } from "flowbite-react";
-
-const avatarOptions = [
-  "penguin-1",
-  "penguin-2",
-  "owl-1",
-  "owl-2",
-  "koala",
-  "hippopotamus",
-  "gorilla",
-  "frog",
-  "cat",
-];
 
 interface GuestProfileSelectorProps {
   avatarImage: string;
@@ -34,16 +23,16 @@ export function GuestProfileSelector({
     <div className="w-full max-w-md mx-auto space-y-4">
       {/* Avatar Selection */}
       <div className="flex flex-wrap justify-center gap-2">
-        {avatarOptions.map((id) => (
+        {avatarOptions.map((avatar) => (
           <button
-            key={id}
+            key={avatar}
             type="button"
-            onClick={() => handleAvatarClick(id)}
+            onClick={() => handleAvatarClick(avatar)}
             className={`p-1 rounded-full border-2 transition-all ${
-              avatarImage === id ? "border-blue-500" : "border-transparent"
+              avatarImage === avatar ? "border-blue-500" : "border-transparent"
             } hover:border-blue-300`}
           >
-            <AvatarIcon avatarImage={id} avatarSize="md" />
+            <AvatarIcon avatarImage={avatar} avatarSize="md" />
           </button>
         ))}
       </div>

@@ -1,19 +1,8 @@
 import { GuestProfileSelector } from "@/components/shared/GuestProfileSelector";
 import { PushButton } from "@/components/ui/PushButton";
+import { avatarOptions } from "@/constants/Avatar";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
-const avatarOptions = [
-  "penguin-1",
-  "penguin-2",
-  "owl-1",
-  "owl-2",
-  "koala",
-  "hippopotamus",
-  "gorilla",
-  "frog",
-  "cat",
-];
 
 interface UserAccessOptionsProps {
   allowGuests: boolean;
