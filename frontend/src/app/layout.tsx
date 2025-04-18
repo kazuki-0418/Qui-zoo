@@ -2,7 +2,6 @@
 // import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/shared/Header";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { ProtectedRoute } from "./auth/hooks/ProtectedRoute";
@@ -56,10 +55,7 @@ export default function RootLayout({
           <div className="bg-gray-50 min-h-screen">{children}</div>
         ) : (
           <AuthProvider>
-            <ProtectedRoute>
-              <Header username="username" avatarImage="koala" />
-              <div className="bg-gray-50 min-h-screen">{children}</div>
-            </ProtectedRoute>
+            <ProtectedRoute>{children}</ProtectedRoute>
           </AuthProvider>
         )}
       </body>

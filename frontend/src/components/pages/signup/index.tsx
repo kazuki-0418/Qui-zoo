@@ -43,11 +43,11 @@ export default function Signup() {
   };
 
   return (
-    <div className="p-6  w-full mx-auto ">
+    <div className="p-6 w-full max-w-4xl">
       <div>
         <Stepper step={step} />
       </div>
-      <div className="mt-8 mx-30">
+      <div className="mt-8 w-[60%] mx-auto">
         {step === SignUpStep.AccountType && (
           <AccountTypeForm
             onNext={(data) => {

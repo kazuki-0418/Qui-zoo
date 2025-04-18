@@ -2,10 +2,10 @@
 import { Button } from "flowbite-react";
 import Image from "next/image";
 
-interface DetailsButtonProps {
+type DetailsButtonProps = {
   onClick?: () => void;
   className?: string;
-}
+};
 
 export function DetailsButton({ onClick, className = "" }: DetailsButtonProps) {
   return (

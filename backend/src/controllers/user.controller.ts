@@ -163,17 +163,22 @@ const logUserIn = async (
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(500).json({ message: "Password or Email missing" });
+    return;
   }
   const userLogin = await userModels.userLogin(email, password);
   if (!userLogin) {
     res.status(500).json({ mesasge: "Email or Password are incorrect" });
     return;
   }
-  if (req.session) {
-    req.session.email = email;
-    req.session.isLogedIn = true;
-  }
-  res.status(200).json({ message: "Login successfully" });
+
+  req.session = {};
+  req.session.email = email;
+  req.session.isLogedIn = true;
+
+  res.status(200).json({
+    message: "User logged in",
+    isLogin: req.session.isLogedIn,
+  });
 };
 
 // log user out

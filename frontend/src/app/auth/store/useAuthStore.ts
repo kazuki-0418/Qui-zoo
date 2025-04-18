@@ -1,12 +1,12 @@
-import { healthCheck } from "@/usecases/auth/authMe";
+import { login } from "@/usecases/auth/loginUsercase";
 import { signup } from "@/usecases/auth/signupUsecase";
 import type { CreateUser, LoginData } from "@/validations/auth/User";
-import axios from "axios";
+// import axios from "axios";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // APIのベースURL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 type User = {
   id: string;
@@ -24,7 +24,6 @@ type ErrorResponse = {
 
 type AuthState = {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
@@ -40,7 +39,6 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
       isLoading: false,
       error: null,
       isAuthenticated: false,
@@ -59,7 +57,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error: unknown) {
           const errorResponse = error as ErrorResponse;
           set({
-            error: errorResponse.response?.data?.message || "サインアップに失敗しました",
+            error: errorResponse.response?.data?.message || "Failed to Sign Up",
             isLoading: false,
           });
           throw error;
@@ -70,21 +68,24 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true, error: null });
 
-          const response = await axios.post(`${API_URL}/auth/login`, {
-            ...loginData,
-          });
+          const response = await login(loginData);
 
           const { user } = response.data;
-
+          if (!user.isLogin) {
+            set({
+              error: "Invalid credentials",
+              isLoading: false,
+            });
+            return;
+          }
           set({
-            user,
-            isAuthenticated: true,
+            isAuthenticated: user.isLogin,
             isLoading: false,
           });
         } catch (error: unknown) {
           const errorResponse = error as ErrorResponse;
           set({
-            error: errorResponse.response?.data?.message || "ログインに失敗しました",
+            error: errorResponse.response?.data?.message || "Failed to Login",
             isLoading: false,
           });
           throw error;
@@ -94,7 +95,6 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         set({
           user: null,
-          token: null,
           isAuthenticated: false,
         });
       },
@@ -110,12 +110,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true });
 
-          const response = await healthCheck();
-
-          const { user } = response.data;
-
           set({
-            user,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -125,7 +120,6 @@ export const useAuthStore = create<AuthState>()(
           console.error("Error checking auth:", error);
           set({
             user: null,
-            token: null,
             isAuthenticated: false,
             isLoading: false,
           });
@@ -140,7 +134,6 @@ export const useAuthStore = create<AuthState>()(
       name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
     },

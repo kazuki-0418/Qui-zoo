@@ -101,6 +101,7 @@ const userLogin = async (email: string, password: string) => {
     if (!userFound) {
       return null;
     }
+    // console.log(userFound.password, password);
     const comparePassword: boolean = await bcrypt.compare(password, userFound.password);
     if (!comparePassword) {
       return null;

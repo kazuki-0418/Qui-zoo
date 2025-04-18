@@ -1,9 +1,10 @@
-import type { CreateUser } from "@/validations/auth/User";
+import type { CreateUser, LoginData } from "@/validations/auth/User";
 
 class AuthAdapters {
   async signupAdapter(data: CreateUser) {
     const response = await fetch(`${process.env.BACKEND_URL}/users`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -17,13 +18,14 @@ class AuthAdapters {
     return await response.json();
   }
 
-  async loginAdapter(email: string, password: string) {
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/login`, {
+  async loginAdapter(data: LoginData) {
+    const response = await fetch(`${process.env.BACKEND_URL}/users/login`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -51,6 +53,7 @@ class AuthAdapters {
   async checkAuthAdapter() {
     const response = await fetch(`${process.env.BACKEND_URL}/me`, {
       method: "GET",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

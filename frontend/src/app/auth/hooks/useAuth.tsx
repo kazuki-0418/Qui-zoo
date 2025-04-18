@@ -2,27 +2,17 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
-interface UseAuthOptions {
+type UseAuthOptions = {
   redirectTo?: string;
   redirectIfFound?: boolean;
-}
+};
 
 export const useAuth = (options: UseAuthOptions = {}) => {
   const router = useRouter();
   const { redirectTo, redirectIfFound } = options;
 
-  const {
-    user,
-    token,
-    isLoading,
-    error,
-    isAuthenticated,
-    signUp,
-    login,
-    logout,
-    checkAuth,
-    clearError,
-  } = useAuthStore();
+  const { user, isLoading, error, isAuthenticated, signUp, login, logout, checkAuth, clearError } =
+    useAuthStore();
 
   useEffect(() => {
     // Authentication check
@@ -47,7 +37,6 @@ export const useAuth = (options: UseAuthOptions = {}) => {
 
   return {
     user,
-    token,
     isLoading,
     error,
     isAuthenticated,
