@@ -9,7 +9,7 @@ const imageService = new questionImage();
 
 class QuestionController {
   async createQuestion(
-    req: Request<{}, {}, CreateQuestion>, // Correct typing for POST (no URL params)
+    req: Request<Record<string, never>, Record<string, never>, CreateQuestion>, // Correct typing for POST (no URL params)
     res: Response,
   ): Promise<void> {
     try {

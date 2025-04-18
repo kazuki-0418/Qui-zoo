@@ -32,7 +32,6 @@ export class questionImage {
         const filedId = uuidv4();
         const fileName = `${Date.now()}_${filedId}`;
         const filePath = `questions/${fileName}`;
-        console.log(filePath);
 
         // upload to suppabase storage
         const { error } = await supabase.storage
