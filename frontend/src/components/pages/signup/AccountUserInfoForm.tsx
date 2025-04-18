@@ -79,7 +79,7 @@ export function AccountUserInfoForm({
         )}
       </div>
 
-      <div className="flex justify-between flex-col sm:flex-row">
+      <div className="flex justify-between flex-col sm:flex-row  gap-6">
         <AuthButton type="button" variant="secondary" onClick={onBack}>
           Back
         </AuthButton>
