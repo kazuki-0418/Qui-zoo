@@ -65,7 +65,7 @@ export function AccountTypeForm({
 
       {errors.accountType && <p className="text-red-500 text-sm">{errors.accountType.message}</p>}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end flex-col sm:flex-row">
         <AuthButton type="submit" variant="primary">
           Next
         </AuthButton>
