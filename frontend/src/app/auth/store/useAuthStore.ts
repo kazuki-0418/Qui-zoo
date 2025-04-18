@@ -1,4 +1,3 @@
-import { healthCheck } from "@/usecases/auth/authMe";
 import { login } from "@/usecases/auth/loginUsercase";
 import { signup } from "@/usecases/auth/signupUsecase";
 import type { CreateUser, LoginData } from "@/validations/auth/User";
@@ -25,7 +24,6 @@ type ErrorResponse = {
 
 type AuthState = {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
@@ -41,7 +39,6 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
       isLoading: false,
       error: null,
       isAuthenticated: false,
@@ -74,10 +71,15 @@ export const useAuthStore = create<AuthState>()(
           const response = await login(loginData);
 
           const { user } = response.data;
-
+          if (!user.isLogin) {
+            set({
+              error: "Invalid credentials",
+              isLoading: false,
+            });
+            return;
+          }
           set({
-            user,
-            isAuthenticated: true,
+            isAuthenticated: user.isLogin,
             isLoading: false,
           });
         } catch (error: unknown) {
@@ -93,7 +95,6 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         set({
           user: null,
-          token: null,
           isAuthenticated: false,
         });
       },
@@ -109,12 +110,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true });
 
-          const response = await healthCheck();
-
-          const { user } = response.data;
-
           set({
-            user,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -124,7 +120,6 @@ export const useAuthStore = create<AuthState>()(
           console.error("Error checking auth:", error);
           set({
             user: null,
-            token: null,
             isAuthenticated: false,
             isLoading: false,
           });
@@ -139,7 +134,6 @@ export const useAuthStore = create<AuthState>()(
       name: "auth-storage",
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
     },
