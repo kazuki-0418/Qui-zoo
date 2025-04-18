@@ -9,7 +9,8 @@
       "node_modules",
       "backend/dist/**",
       "backend/src/generated/prisma/",
-      "frontend/.next/**"
+      "frontend/.next/**",
+      "frontend/src/constants/**"
     ]
   },
   "linter": {
