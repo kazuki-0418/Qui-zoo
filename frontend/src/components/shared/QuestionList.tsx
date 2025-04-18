@@ -1,8 +1,8 @@
 import type { Question } from "@/types/Question";
 
-interface QuestionListProps {
+type QuestionListProps = {
   questions: Question[];
-}
+};
 
 export function QuestionList({ questions }: QuestionListProps) {
   return (

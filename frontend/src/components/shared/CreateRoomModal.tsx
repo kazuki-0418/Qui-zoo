@@ -4,20 +4,20 @@ import { Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-interface CreateRoomModalProps {
+type CreateRoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onCreateRoom: (roomData: RoomData) => void;
   availableQuizzes?: Array<{ quizId: string; title: string }>;
   selectedQuizId?: string | null;
-}
+};
 
-interface RoomData {
+type RoomData = {
   allowGuests: boolean;
   selectedQuizId: string;
   timeLimit: number;
   participantLimit: number;
-}
+};
 
 export function CreateRoomModal({
   isOpen,

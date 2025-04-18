@@ -3,12 +3,12 @@ import { DetailsButton } from "@/components/ui/DetailsButton";
 import { PlayButton } from "@/components/ui/PlayButton";
 import Link from "next/link";
 
-interface QuizListCardProps {
+type QuizListCardProps = {
   quizId: string;
   title: string;
   description: string;
   setPlayQuizId: (quizId: string) => void;
-}
+};
 
 export function QuizListCard({ quizId, title, description, setPlayQuizId }: QuizListCardProps) {
   return (

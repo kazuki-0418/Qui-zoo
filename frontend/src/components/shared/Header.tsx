@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-interface HeaderProps {
+type HeaderProps = {
   username: string;
   avatarImage: string;
-}
+};
 
 export function Header({ username, avatarImage }: HeaderProps) {
   const router = useRouter();

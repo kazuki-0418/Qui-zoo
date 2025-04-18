@@ -1,9 +1,9 @@
 // components/ui/FullHeightCard.tsx
 import type { ReactNode } from "react";
 
-interface FullHeightCardProps {
+type FullHeightCardProps = {
   children: ReactNode;
-}
+};
 
 export function FullHeightCardLayout({ children }: FullHeightCardProps) {
   return (

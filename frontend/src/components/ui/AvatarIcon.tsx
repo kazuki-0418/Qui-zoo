@@ -1,9 +1,9 @@
 import { Avatar } from "flowbite-react";
 
-interface AvatarIconProps {
+type AvatarIconProps = {
   avatarImage: string;
   avatarSize?: "xs" | "sm" | "md" | "lg";
-}
+};
 
 const images = [
   { id: "penguin-1", path: "/assets/avatars/penguin-1.png" },

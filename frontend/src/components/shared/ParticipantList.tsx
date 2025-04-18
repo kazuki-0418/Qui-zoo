@@ -3,10 +3,10 @@ import type { Participant } from "@/types/Participant";
 import { Badge } from "flowbite-react";
 import Image from "next/image";
 
-interface ParticipantListProps {
+type ParticipantListProps = {
   participants: Participant[];
   onRemoveParticipant?: (id: string) => void;
-}
+};
 
 export function ParticipantList({ participants, onRemoveParticipant }: ParticipantListProps) {
   return (
