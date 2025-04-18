@@ -68,7 +68,7 @@ export class RoomModel {
         .map(([_, value]) => ({
           ...(value as Room),
         }))
-        .filter((room) => room.isActive === true && room.id === code);
+        .filter((room) => room.isActive === true && room.code === code);
 
       if (activeRooms.length === 0) {
         throw new Error("Room not found");

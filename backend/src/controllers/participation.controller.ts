@@ -107,15 +107,17 @@ class ParticipationController {
       };
     }
     const sessionData = await sessionModel.getSessionByRoomId(roomId);
-    if (!sessionData) {
+    if (sessionData === null || sessionData.length === 0) {
       return {
         success: false,
         message: "Session not found",
       };
     }
 
+    const session = sessionData[0];
+
     const participantId = await participantModel.createParticipant({
-      sessionId: sessionData.id,
+      sessionId: session?.id,
       userId,
       name,
       isGuest,
@@ -125,7 +127,7 @@ class ParticipationController {
     if (!participantId) {
       return {
         success: false,
-        message: "Error creating participant",
+        message: "Failed to create participant",
       };
     }
   }
