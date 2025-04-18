@@ -5,12 +5,17 @@ import { v4 as uuidv4 } from "uuid";
 import { uploadImage } from "../types/image";
 dotenv.config();
 
-const supabase = createClient(
-  "https://btxvsdoiswwlufmfghlz.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0eHZzZG9pc3d3bHVmbWZnaGx6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDQ4OTM5OCwiZXhwIjoyMDYwMDY1Mzk4fQ.YLUn33rwT9AYAGfr9NgXXcxaTfdUn9Zo1x40IcPXcuE",
-);
+const projectUrl = process.env.SUPABASE_PROJECT_URL;
+const serviceRole = process.env.SUPABASE_SERVICE_ROLE;
+const bucketName = process.env.SUPABASE_BUCKET_NAME;
 
-const bucketName = process.env.BUCKET_NAME;
+if (!projectUrl || !serviceRole || !bucketName) {
+  throw new Error(
+    "Supabase project URL, service role, or bucket name is missing in environment variables",
+  );
+}
+
+const supabase = createClient(projectUrl, serviceRole);
 
 export class questionImage {
   async uploadImage(file: uploadImage) {
