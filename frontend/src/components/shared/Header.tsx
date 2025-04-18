@@ -1,7 +1,7 @@
 "use client";
+import { AccountMenu } from "@/components/shared/AccountMenu";
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
 import { Navbar, NavbarBrand } from "flowbite-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
@@ -72,40 +72,8 @@ export function Header({ username, avatarImage }: HeaderProps) {
               <span className="hidden md:inline-block">{username}</span>
               <AvatarIcon avatarImage={avatarImage} avatarSize="sm" />
             </button>
-
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg p-2 z-50 border border-gray-200">
-                <Link
-                  href="/"
-                  onClick={handleMenuItemClick}
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
-                >
-                  <Image
-                    src="/assets/icons/setting.svg"
-                    alt="user setting"
-                    className="mr-3"
-                    width={20}
-                    height={20}
-                  />
-                  Setting
-                </Link>
-                <button
-                  onClick={() => {
-                    handleMenuItemClick();
-                    handleLogout();
-                  }}
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 w-full text-left"
-                >
-                  <Image
-                    src="/assets/icons/door.svg"
-                    alt="logout"
-                    className="mr-3"
-                    width={20}
-                    height={20}
-                  />
-                  Logout
-                </button>
-              </div>
+              <AccountMenu handleMenuItemClick={handleMenuItemClick} handleLogout={handleLogout} />
             )}
           </div>
         </div>

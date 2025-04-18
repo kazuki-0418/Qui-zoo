@@ -1,10 +1,10 @@
-interface TabProps {
+type TabButtonProps = {
   label: string;
   isActive: boolean;
   onClick: () => void;
-}
+};
 
-function TabButton({ label, isActive, onClick }: TabProps) {
+function TabButton({ label, isActive, onClick }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -17,13 +17,13 @@ function TabButton({ label, isActive, onClick }: TabProps) {
   );
 }
 
-interface TabsProps {
+type TabNavigationProps = {
   activeTab: string;
   onTabChange: (tab: string) => void;
   tabs: { id: string; label: string }[];
-}
+};
 
-export function TabNavigation({ activeTab, onTabChange, tabs }: TabsProps) {
+export function TabNavigation({ activeTab, onTabChange, tabs }: TabNavigationProps) {
   return (
     <div className="flex gap-1 justify-center">
       {tabs.map((tab) => (

@@ -1,13 +1,7 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
+import type { Participant } from "@/types/Participant";
 import { Badge } from "flowbite-react";
 import Image from "next/image";
-
-interface Participant {
-  id: string;
-  name: string;
-  avatar: string;
-  isGuest?: boolean;
-}
 
 interface ParticipantListProps {
   participants: Participant[];

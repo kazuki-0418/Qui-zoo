@@ -4,24 +4,9 @@ import { QuestionList } from "@/components/shared/QuestionList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
 import { TabNavigation } from "@/components/ui/Tabs";
+import type { Participant } from "@/types/Participant";
+import type { Question } from "@/types/Question";
 import { useState } from "react";
-
-interface Participant {
-  id: string;
-  name: string;
-  avatar: string;
-  isGuest: boolean;
-}
-
-interface Question {
-  id: string;
-  text: string;
-  options: string[];
-  correctOption: string;
-  points: number;
-  timeLimit: number;
-  status: "waiting" | "active" | "timeout" | "completed";
-}
 
 // TODO : Demo data for participants
 const demoParticipants: Participant[] = [
@@ -84,8 +69,6 @@ export function HostWaitingRoom() {
 
   //TODO demo
   const questions = demoQuestions;
-
-  // TODO : Demo URL
   const roomCode = "123456";
   const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 

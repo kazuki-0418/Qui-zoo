@@ -1,8 +1,7 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
 import userModels from "../models/user.models";
-import { CreateUser, UpdateUser, User } from "../types/user";
+import { CreateUser, UpdateUser } from "../types/user";
 
 const hashPassword = async (password: string) => {
   try {
@@ -62,26 +61,25 @@ const addNewUser = async (req: Request<null, null, CreateUser>, res: Response) =
     return;
   }
 
-  const newId = uuidv4();
   const hashpassword = await hashPassword(password);
-  const newUser: User = {
-    id: newId,
+  const newUser: CreateUser = {
     username: username,
     password: hashpassword,
     email: email,
     role: role,
     avatar: avatar,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    correctAnswers: 0,
-    wrongAnswers: 0,
-    totalParticipations: 0,
   };
 
   const user = await userModels.addUser(newUser);
   if (!user) {
     res.status(500).json({ message: "Failed to create user" });
   }
+
+  if (req.session) {
+    req.session.email = email;
+    req.session.isLogedIn = true;
+  }
+
   res.status(201).json(user);
 };
 
@@ -159,23 +157,28 @@ const deleteUser = async (req: Request<{ id: string }>, res: Response) => {
 
 // log user in
 const logUserIn = async (
-  req: Request<null, null, { email: string; password: string }>,
+  req: Request<Record<string, never>, Record<string, never>, { email: string; password: string }>, // Record<string, never> is the preferred way to indicate "empty object" under stricter linting rules
   res: Response,
 ) => {
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(500).json({ message: "Password or Email missing" });
+    return;
   }
   const userLogin = await userModels.userLogin(email, password);
   if (!userLogin) {
     res.status(500).json({ mesasge: "Email or Password are incorrect" });
     return;
   }
-  if (req.session) {
-    req.session.email = email;
-    req.session.isLogin = true;
-  }
-  res.status(200).json({ message: "Login successfully" });
+
+  req.session = {};
+  req.session.email = email;
+  req.session.isLogedIn = true;
+
+  res.status(200).json({
+    message: "User logged in",
+    isLogin: req.session.isLogedIn,
+  });
 };
 
 // log user out

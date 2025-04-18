@@ -1,0 +1,108 @@
+{
+  "info": {
+    "_postman_id": "c5d47fea-8b65-41d3-a229-9e4f2d8a7b3c",
+    "name": "User Activity Logs API",
+    "description": "A collection for testing the User Activity Logs API endpoints with CRUD operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create User Activity Log",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"questionsAnswered\": 10,\n    \"correctAnswers\": 7\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user_activity_logs/create/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user_activity_logs", "create", "{{userId}}"]
+        },
+        "description": "Creates a new activity log for a specific user"
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Activity Log",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/user_activity_logs/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user_activity_logs", "{{userId}}"]
+        },
+        "description": "Retrieves the activity log for a specific user"
+      },
+      "response": []
+    },
+    {
+      "name": "Update User Activity Log",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"questionsAnswered\": 15,\n    \"correctAnswers\": 12,\n    \"sessionsJoined\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user_activity_logs/update/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user_activity_logs", "update", "{{userId}}"]
+        },
+        "description": "Updates an existing activity log for a specific user"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "user-id-here",
+      "type": "string"
+    }
+  ]
+}

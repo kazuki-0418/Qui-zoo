@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { User } from "../types/user";
+import { CreateUser, User } from "../types/user";
 
 const prisma = new PrismaClient();
 
@@ -15,9 +15,21 @@ const getAllUsers = async () => {
 };
 
 // add user
-const addUser = async (data: User) => {
+const addUser = async (data: CreateUser) => {
   try {
-    return await prisma.user.create({ data }); // add an user
+    const user = await prisma.user.create({
+      data,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    }); // add an user
+    return user;
   } catch (error) {
     throw new Error(`Error checking if user exists: ${error}`);
   }
@@ -89,6 +101,7 @@ const userLogin = async (email: string, password: string) => {
     if (!userFound) {
       return null;
     }
+    // console.log(userFound.password, password);
     const comparePassword: boolean = await bcrypt.compare(password, userFound.password);
     if (!comparePassword) {
       return null;
