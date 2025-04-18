@@ -5,7 +5,7 @@ const router = express.Router();
 
 // TODO All routes require authentication
 
-// Quiz routes
+// Room routes
 router.post("/", roomController.createRoom);
 
 export default router;

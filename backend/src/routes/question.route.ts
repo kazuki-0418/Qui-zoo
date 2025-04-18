@@ -7,7 +7,7 @@ const router = express.Router();
 // Router authentication
 router.use(auth);
 
-// Quiz routes
+// Question routes
 router.get("/quiz/:quiz_id", questionController.getAllQuestionsByQuizId);
 router.get("/:id", questionController.getQuestionById);
 router.post("/", questionController.createQuestion);
