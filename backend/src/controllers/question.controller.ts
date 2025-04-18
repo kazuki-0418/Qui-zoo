@@ -39,7 +39,7 @@ class QuestionController {
   async updateQuestion(req: Request<{ id: string }, null, UpdateQuestion>, res: Response) {
     const id = req.params.id;
     const question = req.body;
-    let newImageUrl;
+    let newImageUrl = " ";
     try {
       if (req.file) {
         const imageInfo: uploadImage = {
@@ -47,7 +47,9 @@ class QuestionController {
           mimeType: req.file?.mimetype,
         };
         const uploadImage = await imageService.uploadImage(imageInfo);
-        newImageUrl = uploadImage?.imageUrl;
+        if (uploadImage) {
+          newImageUrl = uploadImage.imageUrl;
+        }
         const existingQuestion = await questionModel.getQuestionById(id);
         // delete the old image
         if (existingQuestion) {
