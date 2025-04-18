@@ -1,6 +1,7 @@
 "use client";
 import { AccountMenu } from "@/components/shared/AccountMenu";
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
+import type { AvatarOption } from "@/constants/Avatar";
 import { Navbar, NavbarBrand } from "flowbite-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 
 type HeaderProps = {
   username: string;
-  avatarImage: string;
+  avatarImage: AvatarOption;
 };
 
 export function Header({ username, avatarImage }: HeaderProps) {
@@ -42,8 +43,11 @@ export function Header({ username, avatarImage }: HeaderProps) {
 
   return (
     <header>
-      <Navbar fluid className="h-[3rem] md:h-[4rem] px-3 md:px-8 border-b border-gray-200 bg-white">
-        <div className="h-full flex items-center justify-between w-full max-w-6xl mx-auto">
+      <Navbar
+        fluid
+        className="h-[3rem] md:h-[4rem] px-3 md:px-8 border-b border-gray-200 bg-white [&>div]:h-full"
+      >
+        <div className="flex items-center justify-between w-full max-w-6xl mx-auto">
           {/* logo */}
           <div className="flex items-center gap-10">
             <NavbarBrand as={Link} href="/">

@@ -1,7 +1,8 @@
+import type { AvatarOption } from "@/constants/Avatar";
 import { Avatar } from "flowbite-react";
 
 type AvatarIconProps = {
-  avatarImage: string;
+  avatarImage: AvatarOption;
   avatarSize?: "xs" | "sm" | "md" | "lg";
 };
 
@@ -31,7 +32,7 @@ const sizeClasses = {
 
 export function AvatarIcon({ avatarImage, avatarSize = "sm" }: AvatarIconProps) {
   return (
-    <div className="flex flex-wrap gap-2 items-center">
+    <div className="flex flex-wrap items-center">
       <Avatar
         img={getImagePath(avatarImage)}
         size={avatarSize}

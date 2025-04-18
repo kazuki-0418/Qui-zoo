@@ -27,19 +27,21 @@ export function ParticipantList({ participants, onRemoveParticipant }: Participa
               )}
             </div>
           </div>
-          <button
-            className="p-1.5 rounded-full hover:bg-gray-50 transition-colors"
-            title="Remove participant"
-            onClick={() => onRemoveParticipant?.(participant.id)}
-          >
-            <Image
-              src="/assets/icons/close.svg"
-              alt="remove"
-              width={16}
-              height={16}
-              className="transition-transform hover:scale-110"
-            />
-          </button>
+          {onRemoveParticipant && (
+            <button
+              className="p-1.5 rounded-full hover:bg-gray-50 transition-colors"
+              title="Remove participant"
+              onClick={() => onRemoveParticipant?.(participant.id)}
+            >
+              <Image
+                src="/assets/icons/close.svg"
+                alt="remove"
+                width={16}
+                height={16}
+                className="transition-transform hover:scale-110"
+              />
+            </button>
+          )}
         </div>
       ))}
       {participants.length === 0 && (
