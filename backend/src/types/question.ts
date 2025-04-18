@@ -5,7 +5,7 @@ export type Question = {
   options: string[];
   correctOption: string;
   points: number;
-  picture?: string;
+  picture?: File;
 };
 
 export type CreateQuestion = {
