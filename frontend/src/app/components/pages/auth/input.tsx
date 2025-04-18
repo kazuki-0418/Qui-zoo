@@ -4,10 +4,10 @@ import { cn } from "@/app/lib/utils";
 import { type InputHTMLAttributes, forwardRef } from "react";
 import type { FieldError } from "react-hook-form";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
   error?: FieldError;
-}
+};
 
 const input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className, ...props }, ref) => {

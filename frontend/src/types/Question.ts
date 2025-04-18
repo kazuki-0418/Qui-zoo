@@ -1,4 +1,4 @@
-export interface Question {
+export type Question = {
   id: string;
   text: string;
   options: string[];
@@ -6,6 +6,6 @@ export interface Question {
   points: number;
   timeLimit: number;
   status: QuestionStatus;
-}
+};
 
 export type QuestionStatus = "waiting" | "active" | "timeout" | "completed";
