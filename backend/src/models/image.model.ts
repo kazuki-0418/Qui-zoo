@@ -58,7 +58,7 @@ export class questionImage {
         };
       }
     } catch (error) {
-      throw new Error("Error creating Url");
+      throw new Error(`Error creating Url: ${error}`);
     }
   }
   async deleteImage(imageUrl: string) {
@@ -73,7 +73,7 @@ export class questionImage {
 
       // Delete from Supabase Storage
       if (bucketName) {
-        const { data, error } = await supabase.storage.from(bucketName).remove([path]);
+        const { error } = await supabase.storage.from(bucketName).remove([path]);
 
         if (error) {
           console.error("Storage deletion error:", error);
