@@ -5,7 +5,6 @@ import "./globals.css";
 import { Header } from "@/components/shared/Header";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { ProtectedRoute } from "./auth/hooks/ProtectedRoute";
 import { useAuthStore } from "./auth/store/useAuthStore";
 
 const geistSans = Geist({
@@ -52,16 +51,18 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         {/* TODO username avatar */}
-        {isAuthPage ? (
+        {/* {isAuthPage ? (
           <div className="bg-gray-50 min-h-screen">{children}</div>
         ) : (
           <AuthProvider>
-            <ProtectedRoute>
-              <Header username="username" avatarImage="koala" />
-              <div className="bg-gray-50 min-h-screen">{children}</div>
-            </ProtectedRoute>
+            <ProtectedRoute> */}
+        <div className="bg-gray-50 min-h-screen">
+          <Header username="username" avatarImage="koala" />
+          {children}
+        </div>
+        {/* </ProtectedRoute>
           </AuthProvider>
-        )}
+        )} */}
       </body>
     </html>
   );
