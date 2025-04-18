@@ -2,10 +2,10 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
-interface UseAuthOptions {
+type UseAuthOptions = {
   redirectTo?: string;
   redirectIfFound?: boolean;
-}
+};
 
 export const useAuth = (options: UseAuthOptions = {}) => {
   const router = useRouter();

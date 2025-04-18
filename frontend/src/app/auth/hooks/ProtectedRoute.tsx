@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation"; // next/router ではなく next/na
 import { type ReactNode, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
-interface ProtectedRouteProps {
+type ProtectedRouteProps = {
   children: ReactNode;
   redirectTo?: string;
-}
+};
 
 export function ProtectedRoute({ children, redirectTo = "/auth/login" }: ProtectedRouteProps) {
   const router = useRouter();
