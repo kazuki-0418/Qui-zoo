@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
-import { PrismaClient } from "../generated/prisma";
 import { uploadImage } from "../types/image";
 dotenv.config();
 
@@ -13,13 +12,10 @@ const supabase = createClient(
 
 const bucketName = process.env.BUCKET_NAME;
 
-const prisma = new PrismaClient();
-
 export class questionImage {
   async uploadImage(file: uploadImage) {
     try {
       //console.log(file)
-      console.log(bucketName);
       if (bucketName) {
         const { fileBuffer, mimeType } = file;
         const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -39,7 +35,7 @@ export class questionImage {
         console.log(filePath);
 
         // upload to suppabase storage
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from(bucketName)
           .upload(filePath, optimizedBuffer, {
             contentType: "image/jpeg",
@@ -50,7 +46,6 @@ export class questionImage {
           console.error("Storage upload error:", error);
           throw new Error(`Upload failed: ${error.message}`);
         }
-        console.log(filePath);
         // generate public url
         const { data: urlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
 
@@ -64,7 +59,7 @@ export class questionImage {
         };
       }
     } catch (error) {
-      throw new Error(`Error creating Url`);
+      throw new Error("Error creating Url");
     }
   }
   async deleteImage(imageUrl: string) {
@@ -101,7 +96,7 @@ export class questionImage {
       const regex = new RegExp(`public/${bucketName}/(.+)`);
       const match = url.match(regex);
 
-      if (match && match[1]) {
+      if (match?.[1]) {
         return match[1];
       }
 
