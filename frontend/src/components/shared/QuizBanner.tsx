@@ -2,10 +2,10 @@
 import { PushButton } from "@/components/ui/PushButton";
 import Image from "next/image";
 
-interface QuizBannerProps {
+type QuizBannerProps = {
   buttonText: string;
   onCreateRoom?: () => void;
-}
+};
 
 export function QuizBanner({ buttonText, onCreateRoom }: QuizBannerProps) {
   return (

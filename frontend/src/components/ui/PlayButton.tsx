@@ -1,9 +1,9 @@
 "use client";
 import Image from "next/image";
 
-interface PlayButtonProps {
+type PlayButtonProps = {
   onClick: () => void;
-}
+};
 
 export function PlayButton({ onClick }: PlayButtonProps) {
   return (

@@ -17,6 +17,7 @@ const router = express.Router();
 // Router authentication
 router.use(auth);
 
+// Question routes
 router.get("/quiz/:quiz_id", questionController.getAllQuestionsByQuizId);
 router.get("/:id", questionController.getQuestionById);
 router.post("/", upload.single("picture"), questionController.createQuestion);

@@ -15,18 +15,19 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
       message: "Session does not exist",
       statusCode: 403,
     };
-    res.json(error);
+    res.status(403).json(error);
     return;
   }
-  const { isLogedIn } = req.session.isLogedIn;
+
+  const isLogedIn = req.session.isLogedIn;
 
   if (isLogedIn === false) {
     const error: ErrorResponse = {
       success: false,
       message: "User is not loggedin",
-      statusCode: 400,
+      statusCode: 401,
     };
-    res.json(error);
+    res.status(401).json(error);
     return;
   }
 
