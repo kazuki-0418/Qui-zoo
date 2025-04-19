@@ -6,7 +6,7 @@ import { Session } from "../types/session";
 export class ParticipantModel {
   async createParticipant(participantConfig: CreateParticipant) {
     try {
-      const { sessionId, userId, name, isGuest } = participantConfig;
+      const { sessionId, userId, name, avatar, isGuest } = participantConfig;
 
       const isDuplicate = await this.checkDuplicateName(sessionId, name);
 
@@ -25,6 +25,7 @@ export class ParticipantModel {
         id: participantId,
         userId: userId,
         name: name,
+        avatar: avatar,
         isGuest: isGuest,
         isOnline: true,
         joinedAt: now,
@@ -34,15 +35,43 @@ export class ParticipantModel {
       await this.incrementSessionParticipantCount(sessionId);
 
       // update presence status
-      this.updateParticipantOnlineStatus({
+      await this.updateParticipantOnlineStatus({
         sessionId,
-        participantId: participantId as string,
+        participantId,
         isOnline: true,
       });
 
       return participantId;
     } catch (error) {
       throw new Error(`Error creating participant ${error}`);
+    }
+  }
+
+  async getParticipants(sessionId: string) {
+    try {
+      const participantsRef = rtdb.ref(`sessions/${sessionId}/participants`);
+      const snapshot = await participantsRef.once("value");
+
+      // 修正: snapshot.val() はオブジェクト（反復可能でない）を返す可能性があります
+      const participantsData = snapshot.val();
+
+      // null チェックを追加
+      if (!participantsData) {
+        return [];
+      }
+
+      // オブジェクトから配列に変換
+      const participants = Object.entries(participantsData).map(([key, value]) => {
+        return {
+          id: key,
+          ...(value as any),
+        };
+      });
+
+      return participants;
+    } catch (error) {
+      console.error("Error getting participants:", error);
+      throw error;
     }
   }
 

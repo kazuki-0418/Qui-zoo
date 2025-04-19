@@ -7,7 +7,7 @@ const participantModel = new ParticipantModel();
 const roomModel = new RoomModel();
 const sessionModel = new SessionModel();
 
-class ParticipationController {
+class WebSocketController {
   //   async createRoom(req: Request<null, null, CreateRoom>, res: Response) {
   //     const roomConfig = req.body;
   //     try {
@@ -93,25 +93,39 @@ class ParticipationController {
   //     }
   //   }
 
+  async getParticipants(sessionId: string) {
+    try {
+      const participants = await participantModel.getParticipants(sessionId);
+      return participants;
+    } catch (error) {
+      console.error("Error getting participants:", error);
+      throw error;
+    }
+  }
+
+  async getSessionState(sessionId: string) {
+    try {
+      const sessionState = await sessionModel.getSessionState(sessionId);
+      return sessionState;
+    } catch (error) {
+      console.error("Error getting session state:", error);
+      throw error;
+    }
+  }
+
   async joinRoom(participantConfig: CreateParticipant) {
-    const { roomCode, name, isGuest, userId = null } = participantConfig;
+    const { roomCode, name, avatar, isGuest, userId = null } = participantConfig;
 
     // ルーム情報取得
     const availableRooms = await roomModel.getRoomByCode(roomCode);
     const roomData = availableRooms[0];
     const roomId = roomData.id;
     if (isGuest && !roomData.allowGuests) {
-      return {
-        success: false,
-        message: "Guests are not allowed in this room",
-      };
+      throw new Error("Guests are not allowed in this room");
     }
     const sessionData = await sessionModel.getSessionByRoomId(roomId);
     if (sessionData === null || sessionData.length === 0) {
-      return {
-        success: false,
-        message: "Session not found",
-      };
+      throw new Error("Session not found");
     }
 
     const session = sessionData[0];
@@ -120,16 +134,15 @@ class ParticipationController {
       sessionId: session?.id,
       userId,
       name,
+      avatar,
       isGuest,
       roomCode,
     });
 
     if (!participantId) {
-      return {
-        success: false,
-        message: "Failed to create participant",
-      };
+      throw new Error("Failed to create participant");
     }
+    return participantId;
   }
 
   async leaveRoom(participantState: {
@@ -149,4 +162,4 @@ class ParticipationController {
   }
 }
 
-export const participationController = new ParticipationController();
+export const websocketController = new WebSocketController();

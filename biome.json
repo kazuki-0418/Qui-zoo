@@ -10,7 +10,8 @@
       "backend/dist/**",
       "backend/src/generated/prisma/",
       "frontend/.next/**",
-      "frontend/src/constants/**"
+      "frontend/src/constants/**",
+      "frontend/src/contexts/QuizContext.tsx"
     ]
   },
   "linter": {

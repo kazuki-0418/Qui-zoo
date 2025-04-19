@@ -1,6 +1,8 @@
+"use client";
 import { GuestProfileSelector } from "@/components/shared/GuestProfileSelector";
 import { PushButton } from "@/components/ui/PushButton";
-import { avatarOptions } from "@/constants/Avatar";
+import { useQuiz } from "@/contexts/QuizContext";
+import { useWebSocket } from "@/contexts/WebSocketContext";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -9,20 +11,42 @@ interface UserAccessOptionsProps {
 }
 
 export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
+  const { joinSession } = useWebSocket();
+  const { participants } = useQuiz();
+
+  useEffect(() => {
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log("Participants in waiting room:", participants);
+  }, [participants]);
+
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleLogin = () => {
     // Add your login logic here
   };
 
-  const handleGuest = () => {
-    // Add your guest logic here
-  };
-
   useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * avatarOptions.length);
-    setAvatar(avatarOptions[randomIndex]);
+    // TODO fetch roomData by room code from the server
   }, []);
+
+  const handleGuest = () => {
+    if (!avatar || !name) {
+      alert("Please select an avatar and enter your name.");
+      return;
+    }
+    setIsSubmitting(true);
+    joinSession({
+      // TODO: fetch sessionId and userId from the server
+      userId: "d82f3df0-a54d-48eb-b345-2c0ecf81cc5a",
+      sessionId: "-OOBvsX7Xvx3QLMqFBxm",
+      name,
+      avatar,
+      isGuest: true,
+      roomCode: "EFWG7493",
+    });
+    setIsSubmitting(false);
+  };
 
   return (
     <div className="h-full flex flex-col justify-center text-center gap-2">
@@ -46,7 +70,9 @@ export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
             onNameChange={setName}
           />
           <div className="mt-2">
-            <PushButton onClick={handleGuest}>Join as Guest</PushButton>
+            <PushButton onClick={handleGuest} disabled={isSubmitting}>
+              Join as Guest
+            </PushButton>
           </div>
         </div>
       )}

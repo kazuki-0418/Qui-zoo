@@ -1,17 +1,17 @@
 import { Server, Socket } from "socket.io";
-import { WebSocketEvents } from "./constants/websocket-events";
+import { webSocketCoreEvents } from "./constants/websocket-events";
 
 /**
  * WebSocketコアハンドラー登録
  * @param {Server} io - Socket.ioサーバーインスタンス
  */
 export function registerCoreHandlers(io: Server): void {
-  io.on(WebSocketEvents.CONNECT, (socket: Socket) => {
+  io.on(webSocketCoreEvents.CONNECT, (socket: Socket) => {
     // biome-ignore lint/suspicious/noConsoleLog:
     console.log(`Client connected: ${socket.id}`);
 
     // ルーム参加ハンドラー
-    socket.on("joinRoom", async (roomId: string) => {
+    socket.on(webSocketCoreEvents.JOIN_ROOM, async (roomId: string) => {
       try {
         // 既存の全てのルームから退出
         for (const room of socket.rooms) {
@@ -30,12 +30,14 @@ export function registerCoreHandlers(io: Server): void {
         io.to(roomId).emit("roomParticipantCount", { count: roomSize });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        socket.emit(WebSocketEvents.ERROR, { message: `Failed to join room: ${errorMessage}` });
+        socket.emit(webSocketCoreEvents.ERROR, {
+          message: `Failed to join room: ${errorMessage}`,
+        });
       }
     });
 
     // ルーム退出ハンドラー
-    socket.on("leaveRoom", (roomId: string) => {
+    socket.on(webSocketCoreEvents.LEAVE_ROOM, (roomId: string) => {
       socket.leave(roomId);
       // biome-ignore lint/suspicious/noConsoleLog: <explanation>
       console.log(`Client ${socket.id} left room: ${roomId}`);
@@ -46,7 +48,7 @@ export function registerCoreHandlers(io: Server): void {
     });
 
     // 切断ハンドラー
-    socket.on(WebSocketEvents.DISCONNECT, (reason: string) => {
+    socket.on(webSocketCoreEvents.DISCONNECT, (reason: string) => {
       // biome-ignore lint/suspicious/noConsoleLog: <explanation>
       console.log(`Client disconnected: ${socket.id}, reason: ${reason}`);
 

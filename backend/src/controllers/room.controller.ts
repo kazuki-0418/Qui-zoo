@@ -131,7 +131,7 @@ class RoomController {
   }
 
   async joinRoom(req: Request, res: Response) {
-    const { roomCode, name, isGuest, userId = null } = req.body;
+    const { roomCode, name, avatar, isGuest, userId = null } = req.body;
 
     // ルーム情報取得
     const availableRooms = await roomModel.getRoomByCode(roomCode);
@@ -157,6 +157,7 @@ class RoomController {
       sessionId: session?.id,
       userId,
       name,
+      avatar,
       isGuest,
       roomCode,
     });

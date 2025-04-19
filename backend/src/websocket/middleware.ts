@@ -23,13 +23,20 @@ export function applyMiddleware(io: Server): void {
       const token = socket.handshake.auth.token;
 
       if (!token) {
-        return next(new Error("Authentication token is required"));
+        const guestId = `guest_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        (socket as AuthenticatedSocket).userId = guestId;
+        (socket as AuthenticatedSocket).user = {
+          id: guestId,
+          email: null,
+          name: socket.handshake.auth.name || "Guest",
+        };
+
+        console.log(`Guest user connected: ${guestId}`);
+        return next();
       }
 
-      // Firebaseトークン検証
+      // 認証済みユーザー処理（既存のコード）
       const decodedToken = await admin.auth().verifyIdToken(token);
-
-      // ユーザー情報をソケットに保存
       (socket as AuthenticatedSocket).userId = decodedToken.uid;
       (socket as AuthenticatedSocket).user = {
         id: decodedToken.uid,
@@ -39,7 +46,6 @@ export function applyMiddleware(io: Server): void {
 
       next();
     } catch (error) {
-      // ゲストモードが有効な場合は許可するロジックを追加可能
       console.error(
         "Authentication error:",
         error instanceof Error ? error.message : String(error),

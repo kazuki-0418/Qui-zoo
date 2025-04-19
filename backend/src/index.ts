@@ -18,7 +18,6 @@ dotenv.config();
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
-const server = createServer(app);
 
 const cookieKeyPrimary = process.env.SESSION_SECRET || process.env.COOKIE_S;
 const cookieKeySecondary = process.env.COOKIE_E || "defaultKey";
@@ -59,14 +58,15 @@ app.use(
   }),
 );
 
+const server = createServer(app);
+initializeWebSocketServer(server);
+
 // Routes
 app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/user_activity_logs", activityLogRouter);
-
-initializeWebSocketServer(server);
 
 // 404 handler
 app.use((_, res) => {
@@ -77,7 +77,7 @@ app.use((_, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   // biome-ignore lint/suspicious/noConsoleLog: <explanation>
   console.log(`Server running on port ${PORT}`);
 });

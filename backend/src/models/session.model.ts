@@ -54,6 +54,18 @@ export class SessionModel {
     }
   }
 
+  async getSessionState(sessionId: string) {
+    try {
+      // セッションの現在の状態を取得
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      const snapshot = await sessionRef.once("value");
+      return snapshot.val()?.status || "waiting";
+    } catch (error) {
+      console.error("Error getting session state:", error);
+      return "waiting";
+    }
+  }
+
   async getSessionByRoomId(roomId: string) {
     try {
       const sessionsRef = rtdb.ref("sessions");

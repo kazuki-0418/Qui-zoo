@@ -2,29 +2,35 @@
 import { ParticipantList } from "@/components/shared/ParticipantList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
+import { useQuiz } from "@/contexts/QuizContext";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-interface Participant {
-  id: string;
-  name: string;
-  avatar: string;
-  isGuest: boolean;
-}
+// interface Participant {
+//   id: string;
+//   name: string;
+//   avatar: string;
+//   isGuest: boolean;
+// }
 
 // TODO : Demo data for participants
-const demoParticipants: Participant[] = [
-  { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-  { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-];
+// const demoParticipants: Participant[] = [
+//   { id: "1", name: "Alice", avatar: "koala", isGuest: false },
+//   { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
+// ];
 
 // TODO : Demo data
 const participantsLimit = 10;
 
 export function ParticipantWaitingRoom() {
   const router = useRouter();
-  //   const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
+  const { participants } = useQuiz();
+  // const participants = demoParticipants;
 
-  const participants = demoParticipants;
+  useEffect(() => {
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log("Participants in waiting room:", participants);
+  }, [participants]);
 
   // TODO : Demo URL
   const roomCode = "123456";

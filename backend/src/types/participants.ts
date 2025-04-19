@@ -11,6 +11,7 @@ export type CreateParticipant = {
   sessionId: string;
   userId: string | null;
   name: string;
+  avatar: string;
   isGuest: boolean;
 };
 
