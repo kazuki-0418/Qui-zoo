@@ -21,16 +21,17 @@ export function AnswerButtons({
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
 
   const showResults = status === "completed";
+  const isDisabled = isAnswered || selectedOptionId !== null;
 
   const handleOptionClick = (text: string) => {
-    if (!isAnswered && !selectedOptionId) {
+    if (!isDisabled && !showResults) {
       setSelectedOptionId(text);
       onAnswer(text);
     }
   };
 
   return (
-    <div className="w-full grid grid-cols-2 gap-x-6 gap-y-6">
+    <div className="w-full grid grid-cols-2 gap-x-2 gap-y-3">
       {question.options.map((text, index) => {
         const isSelected = selectedOptionId === text;
         const isCorrect = question.correctOption === text;
@@ -42,7 +43,7 @@ export function AnswerButtons({
             index={index}
             text={text}
             onClick={() => handleOptionClick(text)}
-            disabled={isAnswered || selectedOptionId !== null}
+            disabled={isDisabled}
             isSelected={isSelected}
             showResults={showResults}
             isCorrect={isCorrect}

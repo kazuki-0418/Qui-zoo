@@ -58,11 +58,11 @@ export function AnswerPushButton({
     "h-24 w-full flex items-center justify-center text-white font-semibold text-base sm:text-lg rounded-lg p-3 transition duration-100 ease-in-out",
     "relative",
   ].join(" ");
-  const divClass = `h-24 relative rounded-lg ${disabled ? "opacity-80" : ""}`;
+  const divClass = `h-24 relative rounded-lg ${disabled && !showResults ? "opacity-80" : ""}`;
   const buttonClass = `${baseClass} ${getColorClass(selectedColor)} ${isSelected ? "translate-y-[4px]" : ""}`;
 
   return (
-    <div className="w-full h-24 relative mb-[1rem]">
+    <div className="w-full h-24 relative">
       <div
         className={divClass}
         style={{
@@ -71,10 +71,11 @@ export function AnswerPushButton({
       >
         <button
           onClick={onClick}
-          className={`${buttonClass} relative overflow-hidden`} // ← 追加ポイント
+          className={`${buttonClass} relative overflow-hidden flex items-center justify-center text-center px-4`}
           disabled={disabled}
           style={{ cursor: disabled ? "not-allowed" : "" }}
         >
+          {/* SVG背景 */}
           {showResults && (
             <svg
               viewBox="0 0 100 100"
@@ -92,14 +93,18 @@ export function AnswerPushButton({
               )}
             </svg>
           )}
-          <span className="break-words break-all relative z-10">{text}</span>
+
+          <span className="relative z-10 text-base sm:text-lg font-semibold text-white text-center">
+            {text}
+          </span>
+
+          {showResults && (
+            <span className="absolute bottom-1 left-0 w-full text-center text-sm text-white opacity-80 z-10">
+              {distributionCount} people
+            </span>
+          )}
         </button>
       </div>
-      {showResults && (
-        <span className="absolute h-[1rem] w-full mt-3 text-center text-sm text-gray-600">
-          {distributionCount} people
-        </span>
-      )}
     </div>
   );
 }
