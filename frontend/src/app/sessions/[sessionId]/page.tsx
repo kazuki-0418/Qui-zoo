@@ -1,12 +1,10 @@
 "use client";
-import { QuestionDisplay } from "@/components/pages/sessions/QuestionDisplay";
-import { ResultsDisplay } from "@/components/pages/sessions/ResultsDisplay";
+import { ParticipantWaitingRoom } from "@/components/pages/sessions/ParticipantWaitingRoom";
 import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 import type { Participant } from "@/types/Participant";
-import type { Question } from "@/types/Question";
+import type { Question, QuestionStatus } from "@/types/Question";
+import type { Result } from "@/types/Result";
 import { useEffect, useState } from "react";
-
-type RoomState = "waiting" | "quiz" | "results";
 
 // TODO demo
 const sampleQuestion: Question = {
@@ -24,14 +22,16 @@ const demoParticipants: Participant[] = [
   {
     id: "user123",
     name: "Alice Smith",
-    avatar: "https://example.com/avatars/alice.jpg",
+    avatar: "penguin-1",
   },
   {
     id: "user456",
     name: "Bob Johnson",
-    avatar: "https://example.com/avatars/bob.png",
+    avatar: "penguin-2",
   },
 ];
+
+const demoParticipantsLimit = 10; // TODO: Replace with actual limit
 const demoResults: Result = {
   participantRanking: [
     {
@@ -61,23 +61,22 @@ const demoResults: Result = {
   },
 };
 
+const sessionId = "12345"; // TODO: Replace with actual session ID from URL or contexts
+
 export default function SessionPage() {
-  const [roomState, setRoomState] = useState<RoomState>("waiting");
+  const [roomState, setRoomState] = useState<QuestionStatus>("waiting");
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [participantsLimit, setParticipantsLimit] = useState<number>(10);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [results, setResults] = useState<QuizResult[] | null>(null);
+  const [results, setResults] = useState<Result[] | null>(null);
 
   useEffect(() => {
-    if (!roomId) return;
+    if (!sessionId) return;
     // TODO demo
     setCurrentQuestion(sampleQuestion);
     setParticipants(demoParticipants);
-  }, [roomId]);
-
-  const startQuiz = () => {
-    // TODO: Implement quiz start logic
-    setRoomState("quiz");
-  };
+    setParticipantsLimit(demoParticipantsLimit);
+  }, [sessionId]);
 
   const handleAnswer = (optionId: string) => {
     // TODO: Implement answer submission logic
@@ -85,29 +84,24 @@ export default function SessionPage() {
 
   return (
     <FullHeightCardLayout useWithHeader={false}>
-      {roomState === "waiting" ? (
-        <WaitingRoom
-          roomNumber={roomId as string}
-          participants={participants}
-          isHost={true}
-          onStartQuiz={handleStartQuiz}
-        />
-      ) : roomState === "quiz" ? (
-        <QuestionDisplay
-          question={currentQuestion?.text}
-          options={currentQuestion?.options}
-          timeLimit={currentQuestion?.timeLimit}
-          onAnswer={handleAnswer}
-          isAnswered={currentQuestion?.isAnswered}
-          correctOptionId={currentQuestion?.correctOptionId}
-          showResults={currentQuestion?.showResults}
-          answerDistribution={currentQuestion?.answerDistribution}
-        />
-      ) : (
-        <ResultsDisplay
-          results={results as QuizResult[]}
-          currentPlayerId="current-user-id" // TODO: Replace with actual user ID
-        />
+      {roomState === "waiting" && (
+        <ParticipantWaitingRoom participants={participants} participantsLimit={participantsLimit} />
+        // ) : roomState === "active" ? (
+        // <QuestionDisplay
+        //   question={currentQuestion?.text}
+        //   options={currentQuestion?.options}
+        //   timeLimit={currentQuestion?.timeLimit}
+        //   onAnswer={handleAnswer}
+        //   isAnswered={currentQuestion?.isAnswered}
+        //   correctOptionId={currentQuestion?.correctOptionId}
+        //   showResults={currentQuestion?.showResults}
+        //   answerDistribution={currentQuestion?.answerDistribution}
+        // />
+        // ) : (
+        // <ResultsDisplay
+        //   results={results as QuizResult[]}
+        //   currentPlayerId="current-user-id" // TODO: Replace with actual user ID
+        // />
       )}
     </FullHeightCardLayout>
   );
