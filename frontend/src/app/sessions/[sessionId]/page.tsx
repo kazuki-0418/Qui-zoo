@@ -1,5 +1,6 @@
 "use client";
 import { ParticipantWaitingRoom } from "@/components/pages/sessions/ParticipantWaitingRoom";
+import { QuestionDisplay } from "@/components/pages/sessions/QuestionDisplay";
 import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 import type { Participant } from "@/types/Participant";
 import type { Question, QuestionStatus } from "@/types/Question";
@@ -7,17 +8,27 @@ import type { Result } from "@/types/Result";
 import { useEffect, useState } from "react";
 
 // TODO demo
-const sampleQuestion: Question = {
-  id: "q1",
-  text: "What is the capital of France?",
-  options: ["London", "Paris", "Berlin", "Madrid"],
-  correctOption: "Paris",
-  points: 10,
-  timeLimit: 30, // seconds
-  status: "waiting", // Assuming "unanswered" is a valid QuestionStatus
-};
+const sampleQuestion: Question[] = [
+  {
+    id: "q1",
+    text: "What is the capital of France?",
+    options: ["London", "Paris", "Berlin", "Madrid"],
+    correctOption: "Paris",
+    points: 10,
+    timeLimit: 30,
+    status: "waiting",
+  },
+  {
+    id: "q2",
+    text: "What is the largest planet in our solar system?",
+    options: ["Earth", "Mars", "Jupiter", "Saturn"],
+    correctOption: "Jupiter",
+    points: 10,
+    timeLimit: 30,
+    status: "waiting",
+  },
+];
 
-//TODO demo
 const demoParticipants: Participant[] = [
   {
     id: "user123",
@@ -31,7 +42,8 @@ const demoParticipants: Participant[] = [
   },
 ];
 
-const demoParticipantsLimit = 10; // TODO: Replace with actual limit
+const demoParticipantsLimit = 10;
+
 const demoResults: Result = {
   participantRanking: [
     {
@@ -61,47 +73,77 @@ const demoResults: Result = {
   },
 };
 
-const sessionId = "12345"; // TODO: Replace with actual session ID from URL or contexts
+const sessionId = "12345";
 
 export default function SessionPage() {
   const [roomState, setRoomState] = useState<QuestionStatus>("waiting");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantsLimit, setParticipantsLimit] = useState<number>(10);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [results, setResults] = useState<Result[] | null>(null);
+  const [results, setResults] = useState<Result | null>(null);
+  const [answeredParticipants, setAnsweredParticipants] = useState<string[]>([]);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [timeExpired, setTimeExpired] = useState(false);
+  const currentQuestionId = currentQuestion?.id;
 
   useEffect(() => {
     if (!sessionId) return;
-    // TODO demo
-    setCurrentQuestion(sampleQuestion);
+
+    setCurrentQuestion(sampleQuestion[0]);
     setParticipants(demoParticipants);
     setParticipantsLimit(demoParticipantsLimit);
+    setResults(demoResults);
+    setRoomState("active");
+    // [API] Fetch initial question, participants, and session data here
+    // fetch(`/api/session/${sessionId}`)
   }, [sessionId]);
 
-  const handleAnswer = (optionId: string) => {
-    // TODO: Implement answer submission logic
+  // Handle user answer
+  const handleAnswer = (participantId: string, optionId: string) => {
+    if (answeredParticipants.includes(participantId)) return;
+
+    const updatedAnswers = [...answeredParticipants, participantId];
+    setAnsweredParticipants(updatedAnswers);
+
+    // [API] Send user's answer to the server
+    // fetch(`/api/session/${sessionId}/answer`, { method: 'POST', body: JSON.stringify({ participantId, questionId: currentQuestionId, answer: optionId }) })
+
+    // When all participants answered
+    if (updatedAnswers.length === participants.length) {
+      setShowResults(true);
+    }
   };
+
+  // When timer expires
+  const handleTimeExpire = () => {
+    setTimeExpired(true);
+    setShowResults(true);
+
+    // [API] Fetch result when time expires
+    // fetch(`/api/session/${sessionId}/results?questionId=${currentQuestionId}`)
+  };
+
+  const unansweredCount = participants.length - answeredParticipants.length;
 
   return (
     <FullHeightCardLayout useWithHeader={false}>
       {roomState === "waiting" && (
         <ParticipantWaitingRoom participants={participants} participantsLimit={participantsLimit} />
-        // ) : roomState === "active" ? (
-        // <QuestionDisplay
-        //   question={currentQuestion?.text}
-        //   options={currentQuestion?.options}
-        //   timeLimit={currentQuestion?.timeLimit}
-        //   onAnswer={handleAnswer}
-        //   isAnswered={currentQuestion?.isAnswered}
-        //   correctOptionId={currentQuestion?.correctOptionId}
-        //   showResults={currentQuestion?.showResults}
-        //   answerDistribution={currentQuestion?.answerDistribution}
-        // />
-        // ) : (
-        // <ResultsDisplay
-        //   results={results as QuizResult[]}
-        //   currentPlayerId="current-user-id" // TODO: Replace with actual user ID
-        // />
+      )}
+
+      {roomState === "active" && currentQuestion && (
+        <QuestionDisplay
+          question={currentQuestion}
+          results={results}
+          onAnswer={(optionId) => handleAnswer("user123", optionId)} // TODO: Replace with actual participant ID
+          isAnswered={answeredParticipants.includes("user123")} // TODO: Replace with actual participant ID
+          showResults={showResults}
+          answerDistribution={results?.questionResults[currentQuestion.id]?.optionDistribution}
+          questionIndex={currentQuestionIndex}
+          onTimeExpire={handleTimeExpire}
+          unansweredCount={unansweredCount}
+        />
       )}
     </FullHeightCardLayout>
   );
