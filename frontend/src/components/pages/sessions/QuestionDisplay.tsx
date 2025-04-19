@@ -45,7 +45,7 @@ export function QuestionDisplay({
     <div className="flex flex-col items-center justify-center h-full">
       <div className="w-full mt-2 mb-6">
         <Timer
-          isResult={showResults}
+          showResults={showResults}
           duration={question.timeLimit}
           onExpire={onTimeExpire}
           questionIndex={questionIndex}

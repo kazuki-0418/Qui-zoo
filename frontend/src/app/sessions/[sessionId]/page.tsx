@@ -5,7 +5,7 @@ import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 import type { Participant } from "@/types/Participant";
 import type { Question, QuestionStatus } from "@/types/Question";
 import type { Result } from "@/types/Result";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // TODO demo
 const sampleQuestion: Question[] = [
@@ -116,13 +116,11 @@ export default function SessionPage() {
   };
 
   // When timer expires
-  const handleTimeExpire = () => {
+  const handleTimeExpire = useCallback(() => {
     setTimeExpired(true);
     setShowResults(true);
-
-    // [API] Fetch result when time expires
-    // fetch(`/api/session/${sessionId}/results?questionId=${currentQuestionId}`)
-  };
+    // API call etc.
+  }, []);
 
   const unansweredCount = participants.length - answeredParticipants.length;
 

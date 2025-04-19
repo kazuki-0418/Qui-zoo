@@ -2,25 +2,20 @@ import { Progress } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 
 interface TimerProps {
-  isResult: boolean;
+  showResults: boolean;
   duration: number; // seconds
   onExpire: () => void;
   questionIndex: number;
 }
 
-export function Timer({ isResult, duration, onExpire, questionIndex }: TimerProps) {
+export function Timer({ showResults, duration, onExpire, questionIndex }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration);
   const requestRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  // useEffect(() => {
-  //   setTimeLeft(duration);
-  //   startTimeRef.current = performance.now();
-  // }, [questionIndex]);
-
   useEffect(() => {
-    if (isResult) {
-      setTimeLeft(0);
+    if (showResults) {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
       return;
     }
     startTimeRef.current = performance.now();
@@ -43,7 +38,7 @@ export function Timer({ isResult, duration, onExpire, questionIndex }: TimerProp
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [duration, onExpire, isResult]);
+  }, [duration, onExpire, showResults]);
 
   const progress = (timeLeft / duration) * 100;
 
