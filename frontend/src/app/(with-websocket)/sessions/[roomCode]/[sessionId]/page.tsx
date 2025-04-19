@@ -1,4 +1,5 @@
 "use client";
+import { HostWaitingRoom } from "@/components/pages/rooms/host/HostWaitingRoom";
 import { ParticipantWaitingRoom } from "@/components/pages/sessions/ParticipantWaitingRoom";
 import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 import { useQuiz } from "@/contexts/QuizContext";
@@ -13,6 +14,16 @@ export default function SessionPage() {
     selectedAnswer,
     questionResults,
   } = useQuiz();
+
+  const isHost = false; // TODO: fetch from server
+
+  if (isHost) {
+    return (
+      <FullHeightCardLayout>
+        <HostWaitingRoom />
+      </FullHeightCardLayout>
+    );
+  }
 
   return (
     <FullHeightCardLayout useWithHeader={false}>
