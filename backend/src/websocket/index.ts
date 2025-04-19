@@ -13,7 +13,7 @@ let io: Server | null = null;
 export function initializeWebSocketServer(httpServer: http.Server) {
   io = new Server(httpServer, {
     path: "/socket.io/",
-    transports: ["websocket", "polling"],
+    transports: ["polling", "websocket"],
     cors: {
       origin: process.env.FRONTEND_URL || "*",
       methods: ["GET", "POST"],

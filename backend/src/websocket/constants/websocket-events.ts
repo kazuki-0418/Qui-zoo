@@ -26,6 +26,8 @@ export const webSocketAppEvents = {
   SESSION_JOIN_REQUEST: "session:join:request",
   SESSION_LEAVE_REQUEST: "session:leave:request",
 
+  EXIT_REQUEST: "exit:request",
+
   SESSION_JOIN_SUCCESS: "session:join:success",
   SESSION_LEAVE_SUCCESS: "session:leave:success",
   SESSION_DATA: "session:data",

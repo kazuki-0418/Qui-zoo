@@ -20,6 +20,7 @@ interface SessionJoinData {
 interface SessionLeaveData {
   sessionId: string;
   participantId: string;
+  isHost: boolean;
 }
 
 export function registerNotificationHandlers(io: Server): void {
@@ -70,7 +71,7 @@ export function registerNotificationHandlers(io: Server): void {
         const allParticipants = await websocketController.getParticipants(sessionId);
 
         // 参加成功を自分に通知（全参加者リストを含める）
-        socket.emit(webSocketAppEvents.SESSION_JOIN_SUCCESS, {
+        io.to(sessionId).emit(webSocketAppEvents.SESSION_JOIN_SUCCESS, {
           success: true,
           participantId,
           sessionId,
@@ -88,10 +89,19 @@ export function registerNotificationHandlers(io: Server): void {
       }
     });
 
-    // セッション退出ハンドラー
+    // セッション退出ハンドラー host 専用
     socket.on(webSocketAppEvents.SESSION_LEAVE_REQUEST, async (data: SessionLeaveData) => {
       try {
-        const { sessionId, participantId } = data;
+        const { sessionId, participantId, isHost } = data;
+
+        // セッションルームから退出
+
+        io.to(sessionId).emit(webSocketAppEvents.PARTICIPANT_LEFT, { participantId });
+
+        io.to(sessionId).emit(webSocketAppEvents.SESSION_LEAVE_SUCCESS, {
+          success: true,
+          participantId,
+        });
 
         // 参加者データをオフラインに更新
         await websocketController.leaveRoom({
@@ -99,14 +109,11 @@ export function registerNotificationHandlers(io: Server): void {
           participantId,
         });
 
-        // セッションルームから退出
-        socket.leave(sessionId);
-
-        // 他の参加者に通知
-        io.to(sessionId).emit(webSocketAppEvents.PARTICIPANT_LEFT, { participantId });
-
         // biome-ignore lint/suspicious/noConsoleLog: <explanation>
         console.log(`Participant ${participantId} left session ${sessionId}`);
+        if (!isHost) {
+          socket.leave(sessionId);
+        }
       } catch (error) {
         console.error("Error leaving session:", error);
         const errorMessage = error instanceof Error ? error.message : String(error);

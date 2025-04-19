@@ -122,6 +122,21 @@ export class ParticipantModel {
     }
   }
 
+  async decrementSessionParticipantCount(sessionId: string): Promise<boolean> {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+
+      await sessionRef.child("participantCount").transaction((currentCount) => {
+        return (currentCount || 0) - 1;
+      });
+
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error updating participant count: ${errorMessage}`);
+    }
+  }
+
   async updateParticipantOnlineStatus(participantConfig: ParticipantOnlineConfig) {
     const { sessionId, participantId, isOnline } = participantConfig;
     try {
@@ -138,6 +153,21 @@ export class ParticipantModel {
         online: isOnline,
         lastActive: now,
       });
+
+      return true;
+    } catch (error) {
+      throw new Error(`Error deleting participant: ${error}`);
+    }
+  }
+
+  async deleteParticipant(participantConfig: ParticipantOnlineConfig) {
+    const { sessionId, participantId } = participantConfig;
+    try {
+      const participantRef = rtdb.ref(`sessions/${sessionId}/participants/${participantId}`);
+      await participantRef.remove();
+
+      // 参加者数を減少させる
+      await this.decrementSessionParticipantCount(sessionId);
 
       return true;
     } catch (error) {

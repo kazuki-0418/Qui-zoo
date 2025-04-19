@@ -151,7 +151,7 @@ class WebSocketController {
   }) {
     const { sessionId, participantId } = participantState;
     try {
-      await participantModel.updateParticipantOnlineStatus({
+      await participantModel.deleteParticipant({
         sessionId,
         participantId,
         isOnline: false,
