@@ -1,7 +1,6 @@
 "use client";
 import { GuestProfileSelector } from "@/components/shared/GuestProfileSelector";
 import { PushButton } from "@/components/ui/PushButton";
-import { useQuiz } from "@/contexts/QuizContext";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -12,12 +11,6 @@ interface UserAccessOptionsProps {
 
 export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
   const { joinSession } = useWebSocket();
-  const { participants } = useQuiz();
-
-  useEffect(() => {
-    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-    console.log("Participants in waiting room:", participants);
-  }, [participants]);
 
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");

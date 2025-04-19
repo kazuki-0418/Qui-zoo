@@ -49,7 +49,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <WebSocketProvider>
-            <QuizProvider sessionId={sessionId}>
+            <QuizProvider sessionId={sessionId} isHost={false}>
               <ProtectedRoute>{children}</ProtectedRoute>
             </QuizProvider>
           </WebSocketProvider>

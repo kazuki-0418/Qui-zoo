@@ -4,20 +4,23 @@ import { QuestionList } from "@/components/shared/QuestionList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
 import { TabNavigation } from "@/components/ui/Tabs";
-import type { Participant } from "@/types/Participant";
+import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useParticipantStore } from "@/stores/participantStore";
 import type { Question } from "@/types/Question";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 
 // TODO : Demo data for participants
-const demoParticipants: Participant[] = [
-  { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-  { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-];
+// const demoParticipants: Participant[] = [
+//   { id: "1", name: "Alice", avatar: "koala", isGuest: false },
+//   { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
+// ];
 
 // TODO : Demo data for questions
 const demoQuestions: Question[] = [
   {
     id: "1",
+    quizId: "1",
     text: "What is the capital of Japan?",
     options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
     correctOption: "Tokyo",
@@ -27,6 +30,7 @@ const demoQuestions: Question[] = [
   },
   {
     id: "2",
+    quizId: "1",
     text: "Which planet is known as the Red Planet?",
     options: ["Venus", "Mars", "Jupiter", "Saturn"],
     correctOption: "Mars",
@@ -36,6 +40,7 @@ const demoQuestions: Question[] = [
   },
   {
     id: "3",
+    quizId: "3",
     text: "What is the capital of Japan?",
     options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
     correctOption: "Tokyo",
@@ -45,6 +50,7 @@ const demoQuestions: Question[] = [
   },
   {
     id: "4",
+    quizId: "4",
     text: "Which planet is known as the Red Planet?",
     options: ["Venus", "Mars", "Jupiter", "Saturn"],
     correctOption: "Mars",
@@ -63,9 +69,11 @@ const tabs = [
 ];
 
 export function HostWaitingRoom() {
-  const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
-  // const [questions, setQuestions] = useState<Question[]>(demoQuestions);
+  const { participants } = useParticipantStore();
+  const { leaveSession } = useWebSocket();
   const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const params = useParams();
+  const { sessionId } = params;
 
   //TODO demo
   const questions = demoQuestions;
@@ -83,7 +91,11 @@ export function HostWaitingRoom() {
   };
 
   const handleRemoveParticipant = (id: string) => {
-    setParticipants(participants.filter((p) => p.id !== id));
+    leaveSession({
+      participantId: id,
+      sessionId: sessionId as string,
+      isHost: true,
+    });
   };
 
   return (

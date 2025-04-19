@@ -26,6 +26,7 @@ type JoinUserInfo = {
 type LeaveUserInfo = {
   sessionId: string;
   participantId: string;
+  isHost: boolean;
 };
 
 const webSocketContext = createContext<WebSocketContextValue>({
@@ -91,7 +92,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
       });
 
       // 参加者の退出
-      socketInstance.on(webSocketAppEvents.PARTICIPANT_LEFT, (data) => {
+      socketInstance.on(webSocketAppEvents.SESSION_LEAVE_SUCCESS, (data) => {
         removeParticipant(data.participantId);
       });
 

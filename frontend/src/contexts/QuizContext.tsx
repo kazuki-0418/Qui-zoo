@@ -18,7 +18,6 @@ type QuizResult = {
 interface QuizContextValue {
   quizState: QuizState;
   currentQuestion: Question | null;
-  participants: Participant[];
   timeRemaining: number;
   myParticipantId: string | null;
   hasAnswered: boolean;
@@ -27,12 +26,12 @@ interface QuizContextValue {
   submitAnswer: (answer: string) => void;
   startQuiz: () => void; // ホストのみ
   nextQuestion: () => void; // ホストのみ
+  isHost: boolean;
 }
 
 const quizContext = createContext<QuizContextValue>({
   quizState: QUIZ_STATES.WAITING,
   currentQuestion: null,
-  participants: [],
   timeRemaining: 0,
   myParticipantId: null,
   hasAnswered: false,
@@ -41,6 +40,7 @@ const quizContext = createContext<QuizContextValue>({
   submitAnswer: () => {},
   startQuiz: () => {},
   nextQuestion: () => {},
+  isHost: false,
 });
 
 // biome-ignore lint/style/useNamingConvention: <explanation>
@@ -50,13 +50,12 @@ export const QuizProvider: React.FC<{
   isHost?: boolean;
 }> = ({ children, sessionId, isHost = false }) => {
     // Zustandストアから状態とアクションを取得
-    const { participants, myParticipantId } = useParticipantStore();
+    const {  myParticipantId } = useParticipantStore();
 
 
   const { socket } = useWebSocket();
   const [quizState, setQuizState] = useState<QuizState>(QUIZ_STATES.WAITING);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  // const [participants, setParticipants] = useState<Participant[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [hasAnswered, setHasAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -162,7 +161,6 @@ export const QuizProvider: React.FC<{
       value={{
         quizState,
         currentQuestion,
-        participants,
         timeRemaining,
         myParticipantId,
         hasAnswered,
@@ -171,6 +169,7 @@ export const QuizProvider: React.FC<{
         submitAnswer,
         startQuiz,
         nextQuestion,
+        isHost,
       }}
     >
       {children}

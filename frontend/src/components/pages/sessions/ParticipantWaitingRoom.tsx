@@ -2,8 +2,9 @@
 import { ParticipantList } from "@/components/shared/ParticipantList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
-import { useQuiz } from "@/contexts/QuizContext";
-import { useRouter } from "next/navigation";
+import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useParticipantStore } from "@/stores/participantStore";
+import { useParams } from "next/navigation";
 import { useEffect } from "react";
 
 // interface Participant {
@@ -23,9 +24,10 @@ import { useEffect } from "react";
 const participantsLimit = 10;
 
 export function ParticipantWaitingRoom() {
-  const router = useRouter();
-  const { participants } = useQuiz();
-  // const participants = demoParticipants;
+  const params = useParams();
+  const { sessionId } = params;
+  const { leaveSession } = useWebSocket();
+  const { participants, myParticipantId } = useParticipantStore();
 
   useEffect(() => {
     // biome-ignore lint/suspicious/noConsoleLog: <explanation>
@@ -33,12 +35,16 @@ export function ParticipantWaitingRoom() {
   }, [participants]);
 
   // TODO : Demo URL
-  const roomCode = "123456";
+  const roomCode = params.roomCode;
   const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 
-  const handleExitRoom = () => {
+  const handleExitRoom = (participantId: string) => {
     // TODO : Exit room
-    router.push("/"); // Redirect to home page
+    leaveSession({
+      participantId,
+      sessionId: sessionId as string,
+      isHost: false,
+    });
   };
 
   return (
@@ -53,7 +59,12 @@ export function ParticipantWaitingRoom() {
         <ParticipantList participants={participants} />
       </div>
       <div className="flex gap-2 md:gap-4 mt-2">
-        <PushButton color="cancel" size="md" width="full" onClick={handleExitRoom}>
+        <PushButton
+          color="cancel"
+          size="md"
+          width="full"
+          onClick={() => handleExitRoom(myParticipantId as string)}
+        >
           Exit Room
         </PushButton>
       </div>
