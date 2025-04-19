@@ -14,21 +14,27 @@ class QuestionController {
   ): Promise<void> {
     try {
       const question = req.body;
+      const newQuestion = await questionModel.createQuestion(question);
       if (req.file) {
-        if (req.file) {
-          const imageInfo: uploadImage = {
-            fileBuffer: req.file?.buffer,
-            mimeType: req.file?.mimetype,
+        const imageInfo: uploadImage = {
+          fileBuffer: req.file?.buffer,
+          mimeType: req.file?.mimetype,
+        };
+        const uploadImage = await imageService.uploadImage(
+          imageInfo,
+          newQuestion.quizId,
+          newQuestion.id,
+        );
+        if (uploadImage) {
+          const question = {
+            quizId: newQuestion.quizId,
+            picture: uploadImage.imageUrl,
           };
-          const uploadImage = await imageService.uploadImage(imageInfo);
-          question.picture = uploadImage?.imageUrl;
+          const questionWithImage = await questionModel.updateQuestion(newQuestion.id, question);
+          res.status(201).json(questionWithImage);
         }
-      }
-      try {
-        const newQuiz = await questionModel.createQuestion(question);
-        res.status(201).json(newQuiz);
-      } catch (error) {
-        console.error(`Error ${error}`);
+      } else {
+        res.status(201).json(newQuestion);
       }
     } catch (error) {
       console.error("Error creating question", error);
@@ -39,29 +45,26 @@ class QuestionController {
   async updateQuestion(req: Request<{ id: string }, null, UpdateQuestion>, res: Response) {
     const id = req.params.id;
     const question = req.body;
-    let newImageUrl = " ";
     try {
-      if (req.file) {
+      const existingQuestion = await questionModel.getQuestionById(id);
+      if (req.file && existingQuestion) {
+        // delete the old image
+        if (existingQuestion) {
+          if (existingQuestion.picture) {
+            await imageService.deleteImage(existingQuestion.picture);
+          }
+        }
         const imageInfo: uploadImage = {
           fileBuffer: req.file?.buffer,
           mimeType: req.file?.mimetype,
         };
-        const uploadImage = await imageService.uploadImage(imageInfo);
+        const uploadImage = await imageService.uploadImage(imageInfo, existingQuestion.quizId, id);
         if (uploadImage) {
-          newImageUrl = uploadImage.imageUrl;
+          question.picture = uploadImage.imageUrl;
         }
-        const existingQuestion = await questionModel.getQuestionById(id);
-        // delete the old image
-        if (existingQuestion) {
-          if (existingQuestion.picture !== question.picture) {
-            await imageService.deleteImage(existingQuestion.picture);
-          }
-        }
-        question.picture = newImageUrl;
       }
-
-      const updatedQuiz = await questionModel.updateQuestion(id, question);
-      res.status(200).json(updatedQuiz);
+      const updatedQuestion = await questionModel.updateQuestion(id, question);
+      res.status(200).json(updatedQuestion);
     } catch (error) {
       console.error("Error updating question", error);
       res.status(500).json({ error: "Error updating question" });

@@ -18,7 +18,7 @@ if (!projectUrl || !serviceRole || !bucketName) {
 const supabase = createClient(projectUrl, serviceRole);
 
 export class questionImage {
-  async uploadImage(file: uploadImage) {
+  async uploadImage(file: uploadImage, quizId: string, questionId: string) {
     try {
       //console.log(file)
       if (bucketName) {
@@ -36,14 +36,14 @@ export class questionImage {
         // Generate file name
         const filedId = uuidv4();
         const fileName = `${Date.now()}_${filedId}`;
-        const filePath = `questions/${fileName}`;
+        const filePath = `questions/${quizId}/${questionId}/${fileName}`;
 
         // upload to suppabase storage
         const { error } = await supabase.storage
           .from(bucketName)
           .upload(filePath, optimizedBuffer, {
             contentType: "image/jpeg",
-            upsert: false,
+            upsert: true,
           });
 
         if (error) {
