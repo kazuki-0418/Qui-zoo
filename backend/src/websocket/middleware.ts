@@ -31,7 +31,6 @@ export function applyMiddleware(io: Server): void {
           name: socket.handshake.auth.name || "Guest",
         };
 
-        console.log(`Guest user connected: ${guestId}`);
         return next();
       }
 

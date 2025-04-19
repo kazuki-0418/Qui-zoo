@@ -27,7 +27,6 @@ export function registerNotificationHandlers(io: Server): void {
     socket.on(webSocketAppEvents.SESSION_DATA, async (data: { sessionId: string }) => {
       try {
         const { sessionId } = data;
-        console.log(`Client ${socket.id} requested session data for ${sessionId}`);
 
         // セッション内の全参加者情報を取得
         const participantsList = await websocketController.getParticipants(sessionId);

@@ -1,6 +1,6 @@
 import * as admin from "firebase-admin";
 import { rtdb } from "../infrastructure/firebase_RTDB.config";
-import { CreateParticipant, ParticipantOnlineConfig } from "../types/participants";
+import { CreateParticipant, Participant, ParticipantOnlineConfig } from "../types/participants";
 import { Session } from "../types/session";
 
 export class ParticipantModel {
@@ -61,10 +61,9 @@ export class ParticipantModel {
       }
 
       // オブジェクトから配列に変換
-      const participants = Object.entries(participantsData).map(([key, value]) => {
+      const participants = Object.entries(participantsData).map(([_, value]) => {
         return {
-          id: key,
-          ...(value as any),
+          ...(value as Participant),
         };
       });
 
