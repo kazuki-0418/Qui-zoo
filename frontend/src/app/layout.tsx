@@ -2,6 +2,10 @@
 // import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { ProtectedRoute } from "./auth/hooks/ProtectedRoute";
+import { useAuthStore } from "./auth/store/useAuthStore";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +27,11 @@ function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // const { checkAuth } = useAuthStore();
+  const { checkAuth } = useAuthStore();
 
-  // useEffect(() => {
-  //   checkAuth();
-  // }, [checkAuth]);
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   return <>{children}</>;
 }
@@ -37,8 +41,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const path = usePathname();
-  // const isAuthPage = path.startsWith("/auth");
+  const path = usePathname();
+  const isAuthPage = path.startsWith("/auth");
 
   return (
     <html lang="en">
@@ -46,15 +50,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* {isAuthPage ? (
+        {/* TODO username avatar */}
+        {isAuthPage ? (
           <div className="bg-gray-50 min-h-screen">{children}</div>
-        ) : ( */}
-        {/* <AuthProvider> */}
-        {/* <ProtectedRoute> */}
-        {children}
-        {/* </ProtectedRoute> */}
-        {/* </AuthProvider> */}
-        {/* )} */}
+        ) : (
+          <AuthProvider>
+            <ProtectedRoute>{children}</ProtectedRoute>
+          </AuthProvider>
+        )}
       </body>
     </html>
   );
