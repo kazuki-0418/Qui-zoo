@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthStore } from "@/app/auth/store/useAuthStore";
+import { useAuthStore } from "@/app/(no-websocket)/auth/store/useAuthStore";
 import AuthButton from "@/app/components/pages/auth/button";
 import Input from "@/app/components/pages/auth/input";
 import { zodResolver } from "@hookform/resolvers/zod";

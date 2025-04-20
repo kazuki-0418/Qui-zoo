@@ -1,6 +1,6 @@
 import * as admin from "firebase-admin";
 import { rtdb } from "../infrastructure/firebase_RTDB.config";
-import { CreateRoom } from "../types/room";
+import { CreateRoom, Room } from "../types/room";
 
 const generateUniqueCode = () => {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -44,7 +44,7 @@ export class RoomModel {
     }
   }
 
-  async getRoomById() {
+  async getRooms() {
     try {
       const roomsRef = rtdb.ref("rooms");
       const snapshot = await roomsRef.once("value");
@@ -52,6 +52,29 @@ export class RoomModel {
         const rooms = snapshot.val();
         return rooms;
       }
+    } catch (error) {
+      throw new Error(`Error fetching room ${error}`);
+    }
+  }
+
+  async getRoomByCode(code: string) {
+    try {
+      const roomsObject = await this.getRooms();
+      if (!roomsObject) {
+        throw new Error("No rooms found");
+      }
+
+      const activeRooms = Object.entries(roomsObject)
+        .map(([_, value]) => ({
+          ...(value as Room),
+        }))
+        .filter((room) => room.isActive === true && room.code === code);
+
+      if (activeRooms.length === 0) {
+        throw new Error("Room not found");
+      }
+
+      return activeRooms;
     } catch (error) {
       throw new Error(`Error fetching room ${error}`);
     }

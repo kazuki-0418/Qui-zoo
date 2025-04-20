@@ -1,28 +1,43 @@
+"use client";
 import { GuestProfileSelector } from "@/components/shared/GuestProfileSelector";
 import { PushButton } from "@/components/ui/PushButton";
-import { avatarOptions } from "@/constants/Avatar";
+import { useWebSocket } from "@/contexts/WebSocketContext";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 
 interface UserAccessOptionsProps {
   allowGuests: boolean;
 }
 
 export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
+  const { joinSession } = useWebSocket();
+
+  const param = useParams();
+  const roomCode = param.roomCode as string;
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleLogin = () => {
     // Add your login logic here
   };
 
   const handleGuest = () => {
-    // Add your guest logic here
+    if (!avatar || !name) {
+      alert("Please select an avatar and enter your name.");
+      return;
+    }
+    setIsSubmitting(true);
+    joinSession({
+      // TODO: fetch sessionId and userId from the server
+      userId: "d82f3df0-a54d-48eb-b345-2c0ecf81cc5a",
+      name,
+      avatar,
+      isGuest: true,
+      roomCode,
+    });
+    setIsSubmitting(false);
   };
-
-  useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * avatarOptions.length);
-    setAvatar(avatarOptions[randomIndex]);
-  }, []);
 
   return (
     <div className="h-full flex flex-col justify-center text-center gap-2">
@@ -46,7 +61,9 @@ export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
             onNameChange={setName}
           />
           <div className="mt-2">
-            <PushButton onClick={handleGuest}>Join as Guest</PushButton>
+            <PushButton onClick={handleGuest} disabled={isSubmitting}>
+              Join as Guest
+            </PushButton>
           </div>
         </div>
       )}

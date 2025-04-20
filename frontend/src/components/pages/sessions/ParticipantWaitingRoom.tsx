@@ -2,43 +2,48 @@
 import { ParticipantList } from "@/components/shared/ParticipantList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
-import { useRouter } from "next/navigation";
+import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useParticipantStore } from "@/stores/participantStore";
 
-interface Participant {
-  id: string;
-  name: string;
-  avatar: string;
-  isGuest: boolean;
-}
+import type { Participant } from "@/types/Participant";
+import { useParams } from "next/navigation";
 
-// TODO : Demo data for participants
-const demoParticipants: Participant[] = [
-  { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-  { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-];
+type ParticipantWaitingRoomProps = {
+  participants: Participant[];
+  participantsLimit: number;
+  isHost?: boolean;
+  roomUrl?: string;
+};
 
-// TODO : Demo data
-const participantsLimit = 10;
+// const participantsLimit = 10;
 
-export function ParticipantWaitingRoom() {
-  const router = useRouter();
-  //   const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
+export function ParticipantWaitingRoom({
+  participants,
+  participantsLimit,
+  isHost = false,
+  // roomUrl = "",
+}: ParticipantWaitingRoomProps) {
+  const params = useParams();
+  const { sessionId } = params;
+  const { leaveSession } = useWebSocket();
+  const { myParticipantId } = useParticipantStore();
 
-  const participants = demoParticipants;
-
-  // TODO : Demo URL
-  const roomCode = "123456";
+  const roomCode = params.roomCode;
   const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 
-  const handleExitRoom = () => {
+  const handleExitRoom = (participantId: string) => {
     // TODO : Exit room
-    router.push("/"); // Redirect to home page
+    leaveSession({
+      participantId,
+      sessionId: sessionId as string,
+      isHost: false,
+    });
   };
 
   return (
     <div className="h-full flex flex-col text-center gap-2">
       <WaitingRoomHeader
-        isHost={false}
+        isHost={isHost}
         participantsCount={participants.length}
         participantsLimit={participantsLimit}
         roomUrl={roomUrl}
@@ -47,7 +52,12 @@ export function ParticipantWaitingRoom() {
         <ParticipantList participants={participants} />
       </div>
       <div className="flex gap-2 md:gap-4 mt-2">
-        <PushButton color="cancel" size="md" width="full" onClick={handleExitRoom}>
+        <PushButton
+          color="cancel"
+          size="md"
+          width="full"
+          onClick={() => handleExitRoom(myParticipantId as string)}
+        >
           Exit Room
         </PushButton>
       </div>
