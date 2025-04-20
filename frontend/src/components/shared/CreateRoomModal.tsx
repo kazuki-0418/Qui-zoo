@@ -97,11 +97,21 @@ export function CreateRoomModal({
                 })
               }
             >
-              <option value="5">Up to 5</option>
-              <option value="10">Up to 10</option>
-              <option value="20">Up to 20</option>
-              <option value="30">Up to 30</option>
-              <option value="50">Up to 50</option>
+              <option key={5} value="5">
+                Up to 5
+              </option>
+              <option key={10} value="10">
+                Up to 10
+              </option>
+              <option key={15} value="20">
+                Up to 20
+              </option>
+              <option key={20} value="30">
+                Up to 30
+              </option>
+              <option key={30} value="50">
+                Up to 50
+              </option>
             </Select>
           </div>
 
@@ -111,7 +121,7 @@ export function CreateRoomModal({
               Time Per Question
             </Label>
             <div className="w-full text-center text-xs text-gray-500 font-bold">
-              {roomData.timeLimit}min
+              {roomData.timeLimit} sec
             </div>
             <div className="flex justify-between gap-3 text-xs text-gray-500 mt-1">
               <span>10</span>

@@ -77,13 +77,13 @@ export function Home() {
   //   },
   // ]; //useeffect
 
-  // const availableQuizzes = [
-  //   { quizId: "1", title: "Basic Algebra" },
-  //   { quizId: "2", title: "Geometry Basics" },
-  //   { quizId: "3", title: "Introduction to Calculus" },
-  //   { quizId: "4", title: "Statistics 101" },
-  //   { quizId: "5", title: "Physics Fundamentals" },
-  // ];
+  const availableQuizzes = [
+    { id: "1", title: "Basic Algebra" },
+    { id: "2", title: "Geometry Basics" },
+    { id: "3", title: "Introduction to Calculus" },
+    { id: "4", title: "Statistics 101" },
+    { id: "5", title: "Physics Fundamentals" },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -130,7 +130,7 @@ export function Home() {
           onClose={() => setShowCreateRoomModal(false)}
           createRoom={handleCreateRoom}
           selectedQuizId={playQuizId}
-          // availableQuizzes={availableQuizzes}
+          availableQuizzes={availableQuizzes}
         />
       )}
     </div>
