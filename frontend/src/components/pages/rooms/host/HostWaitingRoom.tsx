@@ -1,4 +1,5 @@
 "use client";
+import firebaseApp from "@/app/api/firebaseClient";
 import { ParticipantList } from "@/components/shared/ParticipantList";
 import { QuestionList } from "@/components/shared/QuestionList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
@@ -7,58 +8,15 @@ import { TabNavigation } from "@/components/ui/Tabs";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import { useParticipantStore } from "@/stores/participantStore";
 import type { Question } from "@/types/Question";
+import { get, getDatabase, ref } from "firebase/database";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // TODO : Demo data for participants
 // const demoParticipants: Participant[] = [
 //   { id: "1", name: "Alice", avatar: "koala", isGuest: false },
 //   { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
 // ];
-
-// TODO : Demo data for questions
-const demoQuestions: Question[] = [
-  {
-    id: "1",
-    quizId: "1",
-    text: "What is the capital of Japan?",
-    options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
-    correctOption: "Tokyo",
-    points: 10,
-    timeLimit: 30,
-    status: "waiting",
-  },
-  {
-    id: "2",
-    quizId: "1",
-    text: "Which planet is known as the Red Planet?",
-    options: ["Venus", "Mars", "Jupiter", "Saturn"],
-    correctOption: "Mars",
-    points: 15,
-    timeLimit: 45,
-    status: "waiting",
-  },
-  {
-    id: "3",
-    quizId: "3",
-    text: "What is the capital of Japan?",
-    options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
-    correctOption: "Tokyo",
-    points: 10,
-    timeLimit: 30,
-    status: "waiting",
-  },
-  {
-    id: "4",
-    quizId: "4",
-    text: "Which planet is known as the Red Planet?",
-    options: ["Venus", "Mars", "Jupiter", "Saturn"],
-    correctOption: "Mars",
-    points: 15,
-    timeLimit: 45,
-    status: "waiting",
-  },
-];
 
 // TODO : Demo data
 const participantsLimit = 10;
@@ -70,15 +28,29 @@ const tabs = [
 
 export function HostWaitingRoom() {
   const { participants } = useParticipantStore();
-  const { leaveSession } = useWebSocket();
+  const { leaveSession, closeSession } = useWebSocket();
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const params = useParams();
-  const { sessionId } = params;
+  const { sessionId, roomCode } = params as { sessionId: string; roomCode: string };
 
   //TODO demo
-  const questions = demoQuestions;
-  const roomCode = "123456";
-  const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
+  const roomUrl = `http://localhost:3000/rooms/${roomCode}`;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const database = getDatabase(firebaseApp);
+      const messagesRef = ref(database, `sessions/${sessionId}/questions`);
+      const snapshot = await get(messagesRef);
+      const data = snapshot.val();
+      if (data) {
+        const questionsArray: Question[] = Object.values(data);
+        setQuestions(questionsArray);
+      }
+    };
+    fetchQuestions();
+  }, []);
 
   const handleStartQuiz = () => {
     if (participants.length < 2) {
@@ -86,8 +58,8 @@ export function HostWaitingRoom() {
     }
   };
 
-  const handleCancelRoom = () => {
-    // TODO : Cancel room
+  const handleCloseRoom = () => {
+    closeSession(sessionId);
   };
 
   const handleRemoveParticipant = (id: string) => {
@@ -97,6 +69,9 @@ export function HostWaitingRoom() {
       isHost: true,
     });
   };
+
+  // it's disabled when there are 0 or 1 participants
+  const isDisabledStartButton = 2 > participants.length;
 
   return (
     <div className="h-full flex flex-col text-center gap-2">
@@ -118,7 +93,7 @@ export function HostWaitingRoom() {
         )}
       </div>
       <div className="flex gap-2 md:gap-4 mt-2">
-        <PushButton color="cancel" size="md" width="full" onClick={handleCancelRoom}>
+        <PushButton color="cancel" size="md" width="full" onClick={handleCloseRoom}>
           Close Room
         </PushButton>
         <PushButton
@@ -126,7 +101,7 @@ export function HostWaitingRoom() {
           size="md"
           width="full"
           onClick={handleStartQuiz}
-          disabled={2 < participants.length && participants.length <= participantsLimit}
+          disabled={isDisabledStartButton}
         >
           Start Quiz
         </PushButton>

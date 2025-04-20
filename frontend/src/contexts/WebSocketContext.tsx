@@ -1,5 +1,6 @@
 "use client";
 import { useParticipantStore } from "@/stores/participantStore";
+import { useRouter } from "next/navigation";
 import type React from "react";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 import io, { type Socket } from "socket.io-client";
@@ -12,11 +13,11 @@ interface WebSocketContextValue {
   disconnect: () => void;
   joinSession: (joinUserInfo: JoinUserInfo) => void;
   leaveSession: (userInfo: LeaveUserInfo) => void;
+  closeSession: (sessionId: string) => void;
 }
 
 type JoinUserInfo = {
   userId: string;
-  sessionId: string;
   name: string;
   avatar: string;
   isGuest: boolean;
@@ -36,20 +37,16 @@ const webSocketContext = createContext<WebSocketContextValue>({
   disconnect: () => {},
   joinSession: () => {},
   leaveSession: () => {},
+  closeSession: () => {},
 });
 
 // biome-ignore lint/style/useNamingConvention: <explanation>
 export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const router = useRouter();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const {
-    setParticipants,
-    addParticipant,
-    removeParticipant,
-    setSessionId,
-    setMyParticipantId,
-    sessionId: activeSessionId,
-  } = useParticipantStore();
+  const { setParticipants, addParticipant, removeParticipant, setSessionId, setMyParticipantId } =
+    useParticipantStore();
 
   const connect = () => {
     if (typeof window !== "undefined" && !socket) {
@@ -59,9 +56,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
         setIsConnected(true);
         // biome-ignore lint/suspicious/noConsoleLog: <explanation>
         console.log("Connected to WebSocket server");
-        if (activeSessionId) {
-          socketInstance.emit(webSocketAppEvents.SESSION_DATA, { sessionId: activeSessionId });
-        }
       });
 
       socketInstance.on(webSocketAppEvents.DISCONNECT, () => {
@@ -80,20 +74,42 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
       socketInstance.on(webSocketAppEvents.SESSION_JOIN_SUCCESS, (data) => {
         setMyParticipantId(data.participantId);
         setSessionId(data.sessionId);
-
-        if (data.participants && Array.isArray(data.participants)) {
-          setParticipants(data.participants);
+        if (data.success) {
+          router.push(`/sessions/${data.sessionId}`);
         }
       });
 
       // 新しい参加者の追加
-      socketInstance.on(webSocketAppEvents.PARTICIPANT_JOINED, (participant) => {
-        addParticipant(participant);
+      socketInstance.on(webSocketAppEvents.PARTICIPANT_JOINED, (data) => {
+        addParticipant(data);
+        if (data.allParticipants && Array.isArray(data.allParticipants)) {
+          setParticipants(data.allParticipants);
+        }
       });
 
       // 参加者の退出
       socketInstance.on(webSocketAppEvents.SESSION_LEAVE_SUCCESS, (data) => {
+        if (data.success && !data.isHost) {
+          router.push("/");
+        }
+      });
+
+      socketInstance.on(webSocketAppEvents.PARTICIPANT_LEFT, (data) => {
         removeParticipant(data.participantId);
+        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+        console.log("Participant left:", data.participantId);
+      });
+
+      socketInstance.on(webSocketAppEvents.PARTICIPANT_KICKED, (data) => {
+        if (data.success && data.isHost) {
+          router.push("/");
+        }
+      });
+
+      socketInstance.on(webSocketAppEvents.SESSION_CLOSE_SUCCESS, (data) => {
+        if (data.success) {
+          router.push("/");
+        }
       });
 
       setSocket(socketInstance);
@@ -119,6 +135,15 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
+  const closeSession = (sessionId: string) => {
+    if (socket) {
+      socket.emit(webSocketAppEvents.SESSION_CLOSE_REQUEST, {
+        sessionId,
+        isHost: true,
+      });
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (socket) {
@@ -141,6 +166,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     disconnect,
     joinSession,
     leaveSession,
+    closeSession,
   };
 
   return <webSocketContext.Provider value={value}>{children}</webSocketContext.Provider>;

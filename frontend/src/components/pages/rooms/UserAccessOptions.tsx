@@ -3,7 +3,8 @@ import { GuestProfileSelector } from "@/components/shared/GuestProfileSelector";
 import { PushButton } from "@/components/ui/PushButton";
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 
 interface UserAccessOptionsProps {
   allowGuests: boolean;
@@ -12,16 +13,14 @@ interface UserAccessOptionsProps {
 export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
   const { joinSession } = useWebSocket();
 
+  const param = useParams();
+  const roomCode = param.roomCode as string;
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handleLogin = () => {
     // Add your login logic here
   };
-
-  useEffect(() => {
-    // TODO fetch roomData by room code from the server
-  }, []);
 
   const handleGuest = () => {
     if (!avatar || !name) {
@@ -32,11 +31,10 @@ export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
     joinSession({
       // TODO: fetch sessionId and userId from the server
       userId: "d82f3df0-a54d-48eb-b345-2c0ecf81cc5a",
-      sessionId: "-OOBvsX7Xvx3QLMqFBxm",
       name,
       avatar,
       isGuest: true,
-      roomCode: "EFWG7493",
+      roomCode,
     });
     setIsSubmitting(false);
   };

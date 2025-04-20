@@ -6,7 +6,7 @@ import { Session } from "../types/session";
 export class ParticipantModel {
   async createParticipant(participantConfig: CreateParticipant) {
     try {
-      const { sessionId, userId, name, avatar, isGuest } = participantConfig;
+      const { sessionId, userId, name, avatar, isGuest, socketId } = participantConfig;
 
       const isDuplicate = await this.checkDuplicateName(sessionId, name);
 
@@ -30,6 +30,7 @@ export class ParticipantModel {
         isOnline: true,
         joinedAt: now,
         score: 0,
+        socketId,
       });
 
       await this.incrementSessionParticipantCount(sessionId);

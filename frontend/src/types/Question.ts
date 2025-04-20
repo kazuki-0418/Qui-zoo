@@ -1,7 +1,7 @@
 export type Question = {
   id: string;
   quizId: string;
-  text: string;
+  questionText: string;
   options: string[];
   correctOption: string;
   points: number;

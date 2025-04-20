@@ -26,11 +26,16 @@ export const webSocketAppEvents = {
   SESSION_LEAVE_SUCCESS: "session:leave:success",
   SESSION_DATA: "session:data",
   SESSION_DATA_RESPONSE: "session:data:response",
+  SESSION_CLOSE_REQUEST: "session:close:request",
+  SESSION_CLOSE_SUCCESS: "session:close:success",
+  
+
 
   // 参加者関連
   PARTICIPANT_JOINED: "participant:joined",
   PARTICIPANT_LEFT: "participant:left",
   PARTICIPANT_UPDATE: "participant:update",
+  PARTICIPANT_KICKED: "participant:kicked",
 
   // クイズ進行関連
   QUIZ_START: "quiz:start",

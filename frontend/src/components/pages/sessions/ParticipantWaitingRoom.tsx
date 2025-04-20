@@ -7,19 +7,6 @@ import { useParticipantStore } from "@/stores/participantStore";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 
-// interface Participant {
-//   id: string;
-//   name: string;
-//   avatar: string;
-//   isGuest: boolean;
-// }
-
-// TODO : Demo data for participants
-// const demoParticipants: Participant[] = [
-//   { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-//   { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-// ];
-
 // TODO : Demo data
 const participantsLimit = 10;
 

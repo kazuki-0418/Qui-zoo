@@ -4,6 +4,7 @@ export type Participant = {
   roomId: string;
   currentQuestionIndex: number;
   status: "waiting" | "active" | "ended";
+  socketId: string;
 };
 
 export type CreateParticipant = {
@@ -13,6 +14,7 @@ export type CreateParticipant = {
   name: string;
   avatar: string;
   isGuest: boolean;
+  socketId: string;
 };
 
 export type ParticipantOnlineConfig = {

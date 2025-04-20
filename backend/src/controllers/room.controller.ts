@@ -160,6 +160,7 @@ class RoomController {
       avatar,
       isGuest,
       roomCode,
+      socketId: req.body.socketId ?? "dummySocketId",
     });
 
     if (!participantId) {

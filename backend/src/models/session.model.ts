@@ -86,4 +86,23 @@ export class SessionModel {
       throw new Error(`Error fetching session ${error}`);
     }
   }
+
+  async getSessionById(sessionId: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      const snapshot = await sessionRef.once("value");
+      return snapshot.val() as Session;
+    } catch (error) {
+      throw new Error(`Error fetching session ${error}`);
+    }
+  }
+  async closeSession(sessionId: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      await sessionRef.remove();
+    } catch (error) {
+      console.error("Error closing session:", error);
+      throw error;
+    }
+  }
 }

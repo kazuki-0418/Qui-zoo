@@ -115,8 +115,10 @@ export const QuizProvider: React.FC<{
     socket.on(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
     socket.on(webSocketAppEvents.QUIZ_END, handleQuizComplete);
 
+    if (sessionId){
     // セッションの初期データ取得
     socket.emit(webSocketAppEvents.SESSION_DATA, { sessionId });
+  }
 
     // クリーンアップ
     return () => {
