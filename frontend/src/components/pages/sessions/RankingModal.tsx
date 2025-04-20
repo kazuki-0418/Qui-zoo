@@ -13,6 +13,8 @@ type RankingModalProps = {
 export function RankingModal({ open, result, questionIndex, questionTotal }: RankingModalProps) {
   const [isVisible, setIsVisible] = useState(open);
   const [animateIn, setAnimateIn] = useState(false);
+  const [dynamicIsVertical, setDynamicIsVertical] = useState(false); // Default to true
+  const mobileQuery = "(max-width: 767px)";
 
   useEffect(() => {
     if (open) {
@@ -28,6 +30,29 @@ export function RankingModal({ open, result, questionIndex, questionTotal }: Ran
       return () => clearTimeout(timer);
     }
   }, [open]);
+
+  useEffect(() => {
+    const handleMediaQueryChange = () => {
+      if (window.matchMedia(mobileQuery).matches) {
+        setDynamicIsVertical(true);
+      } else {
+        setDynamicIsVertical(false);
+      }
+    };
+
+    // Initial check
+    handleMediaQueryChange();
+
+    // Listen for changes
+    const mobileMediaQueryList = window.matchMedia(mobileQuery);
+
+    mobileMediaQueryList.addEventListener("change", handleMediaQueryChange);
+
+    // Cleanup
+    return () => {
+      mobileMediaQueryList.removeEventListener("change", handleMediaQueryChange);
+    };
+  }, [dynamicIsVertical]); // Depend on isVertical to react to prop changes
 
   if (!isVisible) return null;
 
@@ -48,7 +73,10 @@ export function RankingModal({ open, result, questionIndex, questionTotal }: Ran
             Question {questionIndex + 1}/{questionTotal}
           </span>
         </div>
-        <RankingList participantRanking={result.participantRanking} isVertical={true} />
+        <RankingList
+          participantRanking={result.participantRanking}
+          isVertical={dynamicIsVertical}
+        />
       </div>
     </div>
   );

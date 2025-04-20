@@ -123,8 +123,11 @@ export default function SessionPage() {
   const handleTimeExpire = useCallback(() => {
     setTimeExpired(true);
     setShowResults(true);
-    // get the results
-    setShowRankingModal(true);
+
+    setTimeout(() => {
+      // get the results
+      setShowRankingModal(true);
+    }, 3000);
     // [API] Notify server about time expiration
     // fetch(`/api/session/${sessionId}/time-expired`, { method: 'POST' })
   }, []);
