@@ -7,28 +7,14 @@
   },
   "item": [
     {
-      "name": "Get All Questions",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/questions",
-          "host": ["{{baseUrl}}"],
-          "path": ["questions"]
-        },
-        "description": "Retrieves all questions from the database"
-      },
-      "response": []
-    },
-    {
       "name": "Get Questions By Quiz ID",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/questions/quiz/{{quizId}}",
+          "raw": "{{baseUrl}}/questions/quiz/{{quiz_id}}",
           "host": ["{{baseUrl}}"],
-          "path": ["questions", "quiz", "{{quizId}}"]
+          "path": ["questions", "quiz", "{{quiz_id}}"]
         },
         "description": "Retrieves all questions for a specific quiz"
       },
@@ -40,9 +26,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/questions/{{questionId}}",
+          "raw": "{{baseUrl}}/questions/{{id}}",
           "host": ["{{baseUrl}}"],
-          "path": ["questions", "{{questionId}}"]
+          "path": ["questions", "{{id}}"]
         },
         "description": "Retrieves a specific question by its ID"
       },
@@ -70,20 +56,56 @@
       ],
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [],
         "body": {
-          "mode": "raw",
-          "raw": "{\n    \"quizId\": \"{{quizId}}\",\n    \"questionText\": \"What is the chemical symbol for water?\",\n    \"options\": [\"H2O\", \"CO2\", \"NaCl\", \"O2\"],\n    \"correctOption\": \"H2O\",\n    \"points\": 10,\n  \"picture\": \"bc65565c-2af9-42c3-a128-78730a8c296\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "quizId",
+              "value": "{{quizId}}",
+              "type": "text"
+            },
+            {
+              "key": "questionText",
+              "value": "What is the chemical symbol for water?",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "H2O",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "CO2",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "NaCl",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "O2",
+              "type": "text"
+            },
+            {
+              "key": "correctOption",
+              "value": "H2O",
+              "type": "text"
+            },
+            {
+              "key": "points",
+              "value": "10",
+              "type": "text"
+            },
+            {
+              "key": "picture",
+              "value": "bc65565c-2af9-42c3-a128-78730a8c296",
+              "type": "text"
             }
-          }
+          ]
         },
         "url": {
           "raw": "{{baseUrl}}/questions",
@@ -98,25 +120,56 @@
       "name": "Update Question",
       "request": {
         "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [],
         "body": {
-          "mode": "raw",
-          "raw": "{\n    \"questionText\": \"Updated: What is the chemical formula for water?\",\n    \"options\": [\"H2O\", \"CO2\", \"NaCl\", \"O2\"],\n    \"correctOption\": \"H2O\",\n    \"points\": 15,\n  \"picture\": \"https://cdn.britannica.com/31/150831-050-8B046AEB/molecule-molecules-beads-droplets-water-form-surface.jpg\" \n}",
-          "options": {
-            "raw": {
-              "language": "json"
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "questionText",
+              "value": "Updated: What is the chemical formula for water?",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "H2O",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "CO2",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "NaCl",
+              "type": "text"
+            },
+            {
+              "key": "options",
+              "value": "O2",
+              "type": "text"
+            },
+            {
+              "key": "correctOption",
+              "value": "H2O",
+              "type": "text"
+            },
+            {
+              "key": "points",
+              "value": "15",
+              "type": "text"
+            },
+            {
+              "key": "picture",
+              "value": "https://cdn.britannica.com/31/150831-050-8B046AEB/molecule-molecules-beads-droplets-water-form-surface.jpg",
+              "type": "text"
             }
-          }
+          ]
         },
         "url": {
-          "raw": "{{baseUrl}}/questions/{{questionId}}",
+          "raw": "{{baseUrl}}/questions/{{id}}",
           "host": ["{{baseUrl}}"],
-          "path": ["questions", "{{questionId}}"]
+          "path": ["questions", "{{id}}"]
         },
         "description": "Updates an existing question by ID"
       },
@@ -128,9 +181,9 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/questions/{{questionId}}",
+          "raw": "{{baseUrl}}/questions/{{id}}",
           "host": ["{{baseUrl}}"],
-          "path": ["questions", "{{questionId}}"]
+          "path": ["questions", "{{id}}"]
         },
         "description": "Deletes a question by ID"
       },
@@ -156,17 +209,17 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000/api",
+      "value": "http://localhost:4000/api",
       "type": "string"
     },
     {
-      "key": "quizId",
-      "value": "bf165c55-dabe-4b75-bd7e-c80897e60764",
+      "key": "quiz_id",
+      "value": "27653939-0702-4c04-9174-d17a2dcf5fd2",
       "type": "string"
     },
     {
-      "key": "questionId",
-      "value": "question-id-here",
+      "key": "id",
+      "value": "068c85b1-7a09-4247-aea3-32aa6fe26cf5",
       "type": "string"
     }
   ]

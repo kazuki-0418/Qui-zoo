@@ -43,7 +43,12 @@ class QuestionController {
           const question = {
             quizId: newQuestion.quizId,
             picture: uploadImage.imageUrl,
+            questionText: newQuestion.questionText,
+            options: newQuestion.options,
+            correctOption: newQuestion.correctOption,
+            points: newQuestion.points,
           };
+
           const questionWithImage = await questionModel.updateQuestion(newQuestion.id, question);
           res.status(201).json(questionWithImage);
         }
@@ -61,6 +66,10 @@ class QuestionController {
     const question = req.body;
     try {
       const existingQuestion = await questionModel.getQuestionById(id);
+      if (!existingQuestion) {
+        res.status(404).json({ message: "Question not found" });
+        return;
+      }
       if (req.file && existingQuestion) {
         const questionImage = req.file;
         // compress the image
@@ -88,7 +97,22 @@ class QuestionController {
           question.picture = uploadImage.imageUrl;
         }
       }
-      const updatedQuestion = await questionModel.updateQuestion(id, question);
+
+      const updateBody = {
+        quizId: question.quizId,
+        questionText:
+          question.questionText !== undefined
+            ? question.questionText
+            : existingQuestion.questionText,
+        options: question.options !== undefined ? question.options : existingQuestion.options,
+        correctOption:
+          question.correctOption !== undefined
+            ? question.correctOption
+            : existingQuestion.correctOption,
+        points: question.points !== undefined ? Number(question.points) : existingQuestion.points,
+        picture: question.picture !== undefined ? question.picture : existingQuestion.picture,
+      };
+      const updatedQuestion = await questionModel.updateQuestion(id, updateBody);
       res.status(200).json(updatedQuestion);
     } catch (error) {
       console.error("Error updating question", error);

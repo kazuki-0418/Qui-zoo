@@ -31,7 +31,7 @@ export class QuestionModel {
           questionText: question.questionText,
           options: question.options,
           correctOption: question.correctOption,
-          points: question.points,
+          points: Number(question.points),
           picture: question.picture,
         },
       });
