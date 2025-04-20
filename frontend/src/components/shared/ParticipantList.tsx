@@ -13,7 +13,7 @@ export function ParticipantList({ participants, onRemoveParticipant }: Participa
     <div className="space-y-2">
       {participants.map((participant) => (
         <div
-          key={participant.id}
+          key={participant.id ?? ""}
           className="flex items-center justify-between p-2 px-5 bg-white rounded-lg shadow-sm"
         >
           <div className="flex items-center space-x-2">
@@ -27,19 +27,21 @@ export function ParticipantList({ participants, onRemoveParticipant }: Participa
               )}
             </div>
           </div>
-          <button
-            className="p-1.5 rounded-full hover:bg-gray-50 transition-colors"
-            title="Remove participant"
-            onClick={() => onRemoveParticipant?.(participant.id)}
-          >
-            <Image
-              src="/assets/icons/close.svg"
-              alt="remove"
-              width={16}
-              height={16}
-              className="transition-transform hover:scale-110"
-            />
-          </button>
+          {onRemoveParticipant && (
+            <button
+              className="p-1.5 rounded-full hover:bg-gray-50 transition-colors"
+              title="Remove participant"
+              onClick={() => onRemoveParticipant?.(participant.id)}
+            >
+              <Image
+                src="/assets/icons/close.svg"
+                alt="remove"
+                width={16}
+                height={16}
+                className="transition-transform hover:scale-110"
+              />
+            </button>
+          )}
         </div>
       ))}
       {participants.length === 0 && (

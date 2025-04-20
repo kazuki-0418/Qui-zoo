@@ -1,3 +1,4 @@
+import { createServer } from "node:http";
 import cookieSession from "cookie-session";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -9,6 +10,8 @@ import quizRouter from "./routes/quiz.route";
 import roomRouter from "./routes/room.route";
 import userRouter from "./routes/user.routes";
 import activityLogRouter from "./routes/userActivityLog.routes";
+import { initializeWebSocketServer } from "./websocket";
+
 // Load environment variables
 dotenv.config();
 
@@ -28,12 +31,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(morgan("dev"));
-
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-  }),
-);
 
 // CORS preflight
 app.options("*", cors());
@@ -61,6 +58,9 @@ app.use(
   }),
 );
 
+const server = createServer(app);
+initializeWebSocketServer(server);
+
 // Routes
 app.use("/api/users", userRouter);
 app.use("/api/quizzes", quizRouter);
@@ -77,7 +77,7 @@ app.use((_, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   // biome-ignore lint/suspicious/noConsoleLog: <explanation>
   console.log(`Server running on port ${PORT}`);
 });

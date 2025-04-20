@@ -1,7 +1,6 @@
 import { login } from "@/usecases/auth/loginUsercase";
 import { signup } from "@/usecases/auth/signupUsecase";
 import type { CreateUser, LoginData } from "@/validations/auth/User";
-// import axios from "axios";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

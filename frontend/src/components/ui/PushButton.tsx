@@ -45,20 +45,19 @@ export function PushButton({
     "text-white font-semibold transition duration-100 ease-in-out",
     "active:translate-y-[4px]",
     "disabled:cursor-not-allowed disabled:translate-y-[4px]",
+    "disabled:opacity-70",
     "relative",
   ].join(" ");
 
   const divClass = `relative ${width === "fit" ? "w-fit" : "w-full"} rounded-${rounded} ${disabled ? "opacity-80" : ""}`;
   const buttonClass = `${baseClass} ${sizeClasses[size]} ${width === "fit" ? "w-fit" : "w-full"} rounded-${rounded} ${bgColorMap[color]} ${className}`;
+  const buttonStyle = {
+    boxShadow: disabled ? "none" : `0px 4px 0px 0px ${shadowColorMap[color]}`,
+  };
 
   return (
-    <div
-      className={divClass}
-      style={{
-        boxShadow: `0 4px 0 0 ${shadowColorMap[color]}`,
-      }}
-    >
-      <button onClick={onClick} className={buttonClass} disabled={disabled}>
+    <div className={divClass}>
+      <button style={buttonStyle} onClick={onClick} className={buttonClass} disabled={disabled}>
         {children}
       </button>
     </div>

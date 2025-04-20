@@ -18,6 +18,7 @@ export type CreateQuestion = {
 };
 
 export type UpdateQuestion = {
+  quizId: string;
   questionText?: string;
   options?: string[];
   correctOption?: string;
