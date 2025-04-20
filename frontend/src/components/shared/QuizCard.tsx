@@ -22,6 +22,7 @@ export function QuizCard({ id, title, description, setPlayQuizId }: QuizCardProp
     try {
       const quiz = await getQuizById(id);
       console.log("🎯 Quiz Details:", quiz);
+      return quiz;
     } catch (error) {
       console.error("❌ クイズ取得エラー:", error);
     }
@@ -37,9 +38,7 @@ export function QuizCard({ id, title, description, setPlayQuizId }: QuizCardProp
           {/* <Link onClick={handleDetailsClick} href={`/quizzes/${id}`}>
             <DetailsButton />
           </Link> */}
-          <button onClick={handleDetailsClick}>
-            <DetailsButton />
-          </button>
+          <DetailsButton onClick={handleDetailsClick} />
           <PlayButton onClick={() => setPlayQuizId(id)} />
         </div>
       </div>

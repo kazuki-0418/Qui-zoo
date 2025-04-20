@@ -3,9 +3,11 @@ import QuizAdapters from "@/adapters/question/quizAdapter";
 import { NextResponse } from "next/server";
 
 // biome-ignore lint/style/useNamingConvention: <explanation>
-export async function GET(context: { params: { id: string } }) {
-  const { id } = context.params;
-
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (request.method !== "GET") {
+    return NextResponse.json({ message: "Method not allowed" }, { status: 405 });
+  }
+  const { id } = await params;
   try {
     const response = await QuizAdapters.getQuizByIdAdapter(id);
 
