@@ -1,17 +1,17 @@
 import { CopyRoomCode } from "@/components/ui/CopyRoomCode";
 
-interface WaitingRoomHeaderProps {
-  isHost: boolean;
+type WaitingRoomHeaderProps = {
   participantsCount: number;
   participantsLimit: number;
-  roomUrl: string;
-}
+  isHost?: boolean;
+  roomUrl?: string;
+};
 
 export function WaitingRoomHeader({
-  isHost,
   participantsCount,
   participantsLimit,
-  roomUrl,
+  isHost = false,
+  roomUrl = "",
 }: WaitingRoomHeaderProps) {
   return (
     <>

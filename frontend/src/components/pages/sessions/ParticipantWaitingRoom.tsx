@@ -2,33 +2,23 @@
 import { ParticipantList } from "@/components/shared/ParticipantList";
 import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
+import type { Participant } from "@/types/Participant";
 import { useRouter } from "next/navigation";
 
-interface Participant {
-  id: string;
-  name: string;
-  avatar: string;
-  isGuest: boolean;
-}
+type ParticipantWaitingRoomProps = {
+  participants: Participant[];
+  participantsLimit: number;
+  isHost?: boolean;
+  roomUrl?: string;
+};
 
-// TODO : Demo data for participants
-const demoParticipants: Participant[] = [
-  { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-  { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-];
-
-// TODO : Demo data
-const participantsLimit = 10;
-
-export function ParticipantWaitingRoom() {
+export function ParticipantWaitingRoom({
+  participants,
+  participantsLimit,
+  isHost = false,
+  roomUrl = "",
+}: ParticipantWaitingRoomProps) {
   const router = useRouter();
-  //   const [participants, setParticipants] = useState<Participant[]>(demoParticipants);
-
-  const participants = demoParticipants;
-
-  // TODO : Demo URL
-  const roomCode = "123456";
-  const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 
   const handleExitRoom = () => {
     // TODO : Exit room
@@ -38,7 +28,7 @@ export function ParticipantWaitingRoom() {
   return (
     <div className="h-full flex flex-col text-center gap-2">
       <WaitingRoomHeader
-        isHost={false}
+        isHost={isHost}
         participantsCount={participants.length}
         participantsLimit={participantsLimit}
         roomUrl={roomUrl}
