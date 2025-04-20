@@ -13,11 +13,11 @@ export function QuestionList({ questions }: QuestionListProps) {
           className="flex flex-col p-3 px-5 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
         >
           <div className="flex-1 text-start mb-2">
-            <p className="font-medium">{question.text}</p>
+            <p className="font-medium">{question.questionText}</p>
             <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
               <span>{question.points} points</span>
               <span>•</span>
-              <span>{question.timeLimit} seconds</span>
+              <span>{10} seconds</span>
             </div>
           </div>
           <div className="space-y-1">

@@ -1,5 +1,5 @@
 "use client";
-import { useAuthStore } from "@/app/auth/store/useAuthStore";
+import { useAuthStore } from "@/app/(no-websocket)/auth/store/useAuthStore";
 import type { CreateUser, Role } from "@/validations/auth/User";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

@@ -2,7 +2,7 @@ import { AnswerButtons } from "@/components/pages/sessions/AnswerButtons";
 import { RankingModal } from "@/components/pages/sessions/RankingModal";
 import type { Question, QuestionStatus } from "@/types/Question";
 import type { QuestionResult, Result } from "@/types/Result";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Timer } from "./Timer";
 
 type QuestionDisplayProps = {
@@ -32,19 +32,20 @@ export function QuestionDisplay({
   onTimeExpire,
   unansweredCount,
 }: QuestionDisplayProps) {
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+  // const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
 
   const handleOptionClick = (optionId: string) => {
     if (!isAnswered && !showResults) {
-      setSelectedOptionId(optionId);
+      // setSelectedOptionId(optionId);
       onAnswer(optionId);
 
       // await submitAnswer({ questionId: question.id, selectedOption: optionId });
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    setSelectedOptionId(null);
+    // setSelectedOptionId(null);
   }, [question.id]);
 
   const status: QuestionStatus = showResults ? "completed" : "active";
@@ -60,7 +61,7 @@ export function QuestionDisplay({
             questionIndex={questionIndex}
           />
         </div>
-        <h2 className="grow text-xl font-bold mt-2 mb-6 text-center">{question.text}</h2>
+        <h2 className="grow text-xl font-bold mt-2 mb-6 text-center">{question.questionText}</h2>
         <AnswerButtons
           question={question}
           onAnswer={(optionId) => {
