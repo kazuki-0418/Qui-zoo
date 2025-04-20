@@ -112,7 +112,7 @@ export function Home() {
               {quizzes.map((quiz) => (
                 <QuizCard
                   key={quiz.id}
-                  quizId={quiz.id}
+                  id={quiz.id}
                   title={quiz.title}
                   description={`Category: ${quiz.category} | Created: ${new Date(
                     quiz.createdAt,
@@ -129,7 +129,7 @@ export function Home() {
         <CreateRoomModal
           isOpen={showCreateRoomModal}
           onClose={() => setShowCreateRoomModal(false)}
-          onCreateRoom={handleCreateRoom}
+          createRoom={handleCreateRoom}
           selectedQuizId={playQuizId}
           // availableQuizzes={availableQuizzes}
         />

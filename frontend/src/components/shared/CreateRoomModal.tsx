@@ -9,8 +9,8 @@ import { useState } from "react";
 type CreateRoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onCreateRoom: (roomData: CreateRoom) => void;
-  availableQuizzes?: Array<{ quizId: string; title: string }>;
+  createRoom: (roomData: CreateRoom) => void;
+  availableQuizzes?: Array<{ id: string; title: string }>;
   selectedQuizId?: string | null;
 };
 
@@ -44,7 +44,7 @@ export function CreateRoomModal({
       const roomCode = response.data.roomCode;
       router.push(`/rooms/${roomCode}/host/`);
     } catch (err) {
-      console.error("部屋の作成に失敗しました:", err);
+      console.error("Failed to create the room:", err);
     }
   };
 
@@ -67,7 +67,7 @@ export function CreateRoomModal({
               >
                 <option value="">Please select a quiz</option>
                 {availableQuizzes.map((quiz) => (
-                  <option key={quiz.quizId} value={quiz.quizId}>
+                  <option key={quiz.id} value={quiz.id}>
                     {quiz.title}
                   </option>
                 ))}
@@ -75,7 +75,7 @@ export function CreateRoomModal({
             </div>
           ) : availableQuizzes ? (
             <h2 className="text-lg font-bold">
-              {availableQuizzes.find((quiz) => quiz.quizId === selectedQuizId)?.title}
+              {availableQuizzes.find((quiz) => quiz.id === selectedQuizId)?.title}
             </h2>
           ) : null}
 
