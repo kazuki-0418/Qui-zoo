@@ -1,5 +1,6 @@
 export type CreateRoom = {
-  quizId: string;
-  hostId: string;
   allowGuests: boolean;
+  selectedQuizId: string;
+  timeLimit: number;
+  participantLimit: number;
 };

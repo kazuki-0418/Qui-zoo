@@ -1,5 +1,7 @@
 "use client";
 import { PushButton } from "@/components/ui/PushButton";
+import type { CreateRoom } from "@/types/Room";
+import { createRoom } from "@/usecases/room/createRoomUsecase";
 import { Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -7,47 +9,50 @@ import { useState } from "react";
 type CreateRoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onCreateRoom: (roomData: RoomData) => void;
+  onCreateRoom: (roomData: CreateRoom) => void;
   availableQuizzes?: Array<{ quizId: string; title: string }>;
   selectedQuizId?: string | null;
 };
 
-type RoomData = {
-  allowGuests: boolean;
-  selectedQuizId: string;
-  timeLimit: number;
-  participantLimit: number;
-};
+// type RoomData = {
+//   allowGuests: boolean;
+//   selectedQuizId: string;
+//   timeLimit: number;
+//   participantLimit: number;
+// };
 
 export function CreateRoomModal({
   isOpen,
   onClose,
-  onCreateRoom,
+  // onCreateRoom_
   availableQuizzes,
   selectedQuizId,
 }: CreateRoomModalProps) {
   const router = useRouter();
 
-  const [roomData, setRoomData] = useState<RoomData>({
+  const [roomData, setRoomData] = useState<CreateRoom>({
     allowGuests: true,
     selectedQuizId: selectedQuizId ? selectedQuizId : "",
     timeLimit: 30,
     participantLimit: 10,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    // TODO logic
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onCreateRoom(roomData);
-    const roomCode = "test";
-    router.push(`/rooms/${roomCode}/host/`);
+    try {
+      const response = await createRoom(roomData);
+      const roomCode = response.data.roomCode;
+      router.push(`/rooms/${roomCode}/host/`);
+    } catch (err) {
+      console.error("部屋の作成に失敗しました:", err);
+    }
   };
 
   return (
     <Modal show={isOpen} onClose={onClose} size="lg">
       <div className="p-5 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* quiz */}
+          {/* Quiz選択 */}
           {availableQuizzes && !selectedQuizId ? (
             <div>
               <Label htmlFor="quizSelect" className="block mb-2 text-sm font-medium text-gray-500">
@@ -74,7 +79,7 @@ export function CreateRoomModal({
             </h2>
           ) : null}
 
-          {/* people limit */}
+          {/* 参加人数制限 */}
           <div>
             <Label
               htmlFor="participantLimit"
@@ -88,7 +93,7 @@ export function CreateRoomModal({
               onChange={(e) =>
                 setRoomData({
                   ...roomData,
-                  participantLimit: Number.parseInt(e.target.value),
+                  participantLimit: Number(e.target.value),
                 })
               }
             >
@@ -100,7 +105,7 @@ export function CreateRoomModal({
             </Select>
           </div>
 
-          {/* time limit */}
+          {/* 時間制限 */}
           <div>
             <Label htmlFor="timeLimit" className="block mb-2 text-sm font-medium text-gray-500">
               Time Per Question
@@ -117,15 +122,13 @@ export function CreateRoomModal({
                 max={180}
                 step={5}
                 value={roomData.timeLimit}
-                onChange={(e) =>
-                  setRoomData({ ...roomData, timeLimit: Number.parseInt(e.target.value) })
-                }
+                onChange={(e) => setRoomData({ ...roomData, timeLimit: Number(e.target.value) })}
               />
               <span>180</span>
             </div>
           </div>
 
-          {/* guest */}
+          {/* ゲスト参加 */}
           <div>
             <Label htmlFor="allowGuests" className="block mb-2 text-sm font-medium text-gray-500">
               Allow Guest Participation
@@ -137,12 +140,12 @@ export function CreateRoomModal({
             />
           </div>
 
-          {/* action */}
+          {/* アクションボタン */}
           <div className="flex justify-end gap-4 mt-10">
             <PushButton onClick={onClose} width="full" color="cancel">
               Cancel
             </PushButton>
-            <PushButton onClick={() => onCreateRoom(roomData)} width="full">
+            <PushButton onClick={() => createRoom(roomData)} width="full">
               Create Room
             </PushButton>
           </div>
