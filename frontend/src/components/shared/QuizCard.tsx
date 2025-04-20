@@ -23,7 +23,7 @@ export function QuizCard({ id, title, description, setPlayQuizId }: QuizCardProp
       const quiz = await getQuizById(id);
       return quiz;
     } catch (error) {
-      console.error("❌ クイズ取得エラー:", error);
+      console.error("Faile to fetch quiz:", error);
     }
   };
   return (
