@@ -4,7 +4,9 @@ import { QuizBanner } from "@/components/shared/QuizBanner";
 import { QuizCard } from "@/components/shared/QuizCard";
 import { skeletonListPlaceholder } from "@/components/ui/SkeltonListPlaceHolder";
 import type { Quiz } from "@/types/Quiz";
+import type { CreateRoom } from "@/types/Room";
 import { getAllQuizzes } from "@/usecases/question/getAllQuizUsecase";
+import { createRoom } from "@/usecases/room/createRoomUsecase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -18,20 +20,28 @@ export function Home() {
     setShowCreateRoomModal(true);
   };
 
-  const handleCreateRoom = (_rooData: {
-    allowGuests: boolean;
-    selectedQuizId: string;
-    timeLimit: number;
-    participantLimit: number;
-  }) => {
-    // TODO: logic
+  const handleCreateRoom = async (roomConfig: CreateRoom) => {
+    setIsSubmitting(true);
+    createRoom(roomConfig)
+      .then((res) => {
+        const { roomCode, sessionId } = res.data.room;
+        router.push(`/rooms/${roomCode}/${sessionId}/host/`);
+      })
+      .catch((err) => {
+        console.error("Failed to create the room:", err);
+        alert("Failed to create the room. Please try again.");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+        setShowCreateRoomModal(false);
+        setPlayQuizId(null);
+      });
   };
-
-  // TODO demo
 
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const getQuizzes = async () => {
@@ -49,41 +59,6 @@ export function Home() {
   }, []);
 
   const role = "teacher"; // or "user
-  // const quizzes = [
-  //   {
-  //     quizId: "1",
-  //     title: "Basic Algebra",
-  //     description: "Learn the fundamentals of algebra, including variables and equations.",
-  //   },
-  //   {
-  //     quizId: "2",
-  //     title: "Geometry Basics",
-  //     description: "Understand shapes, angles, and theorems in geometry.",
-  //   },
-  //   {
-  //     quizId: "3",
-  //     title: "Introduction to Calculus",
-  //     description: "Explore limits, derivatives, and integrals in calculus.",
-  //   },
-  //   {
-  //     quizId: "4",
-  //     title: "Statistics 101",
-  //     description: "Get started with data analysis, probability, and statistics.",
-  //   },
-  //   {
-  //     quizId: "5",
-  //     title: "Physics Fundamentals",
-  //     description: "Dive into the basics of motion, forces, and energy.",
-  //   },
-  // ]; //useeffect
-
-  const availableQuizzes = [
-    { id: "1", title: "Basic Algebra" },
-    { id: "2", title: "Geometry Basics" },
-    { id: "3", title: "Introduction to Calculus" },
-    { id: "4", title: "Statistics 101" },
-    { id: "5", title: "Physics Fundamentals" },
-  ];
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -128,9 +103,10 @@ export function Home() {
         <CreateRoomModal
           isOpen={showCreateRoomModal}
           onClose={() => setShowCreateRoomModal(false)}
-          createRoom={handleCreateRoom}
+          onCreateRoom={handleCreateRoom}
           selectedQuizId={playQuizId}
-          availableQuizzes={availableQuizzes}
+          availableQuizzes={quizzes}
+          isSubmitting={isSubmitting}
         />
       )}
     </div>

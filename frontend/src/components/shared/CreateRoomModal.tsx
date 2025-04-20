@@ -3,49 +3,36 @@ import { PushButton } from "@/components/ui/PushButton";
 import type { CreateRoom } from "@/types/Room";
 import { createRoom } from "@/usecases/room/createRoomUsecase";
 import { Label, Modal, RangeSlider, Select, ToggleSwitch } from "flowbite-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type CreateRoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  createRoom: (roomData: CreateRoom) => void;
+  onCreateRoom: (roomData: CreateRoom) => void;
   availableQuizzes?: Array<{ id: string; title: string }>;
   selectedQuizId?: string | null;
+  isSubmitting: boolean;
 };
-
-// type RoomData = {
-//   allowGuests: boolean;
-//   selectedQuizId: string;
-//   timeLimit: number;
-//   participantLimit: number;
-// };
 
 export function CreateRoomModal({
   isOpen,
   onClose,
-  // onCreateRoom_
+  onCreateRoom,
   availableQuizzes,
   selectedQuizId,
+  isSubmitting,
 }: CreateRoomModalProps) {
-  const router = useRouter();
-
   const [roomData, setRoomData] = useState<CreateRoom>({
     allowGuests: true,
-    selectedQuizId: selectedQuizId ? selectedQuizId : "",
+    quizId: selectedQuizId ? selectedQuizId : "",
+    hostId: "2b2691fb-440c-4e03-8f8f-fd74aa82aa87",
     timeLimit: 30,
     participantLimit: 10,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await createRoom(roomData);
-      const roomCode = response.data.roomCode;
-      router.push(`/rooms/${roomCode}/host/`);
-    } catch (err) {
-      console.error("Failed to create the room:", err);
-    }
+    onCreateRoom(roomData);
   };
 
   return (
@@ -61,8 +48,8 @@ export function CreateRoomModal({
               <Select
                 id="quizSelect"
                 required
-                value={roomData.selectedQuizId}
-                onChange={(e) => setRoomData({ ...roomData, selectedQuizId: e.target.value })}
+                value={roomData.quizId}
+                onChange={(e) => setRoomData({ ...roomData, quizId: e.target.value })}
                 className="bg-white"
               >
                 <option value="">Please select a quiz</option>
@@ -149,13 +136,21 @@ export function CreateRoomModal({
               onChange={(checked) => setRoomData({ ...roomData, allowGuests: checked })}
             />
           </div>
-
+          {isSubmitting && (
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+              <div className="flex items-center justify-center p-4 bg-transparent rounded-lg shadow-sm">
+                <div className="px-4 py-2 text-sm font-medium leading-none text-center text-blue-800 bg-blue-200 rounded-full animate-pulse">
+                  creating room...
+                </div>
+              </div>
+            </div>
+          )}
           {/* アクションボタン */}
           <div className="flex justify-end gap-4 mt-10">
             <PushButton onClick={onClose} width="full" color="cancel">
               Cancel
             </PushButton>
-            <PushButton onClick={() => createRoom(roomData)} width="full">
+            <PushButton disabled={isSubmitting} onClick={() => createRoom(roomData)} width="full">
               Create Room
             </PushButton>
           </div>

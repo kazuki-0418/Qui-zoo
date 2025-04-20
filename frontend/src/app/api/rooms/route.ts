@@ -21,6 +21,8 @@ export async function POST(request: Request) {
     const room = await RoomAdapters.createRoomAdapter({
       quizId,
       hostId,
+      timeLimit: 30,
+      participantLimit: 10,
       allowGuests,
     });
     return NextResponse.json({ message: "Room created", room }, { status: 201 });

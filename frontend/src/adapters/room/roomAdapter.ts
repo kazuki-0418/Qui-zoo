@@ -2,7 +2,7 @@ import type { CreateRoom } from "@/types/Room";
 
 class RoomAdapters {
   async createRoomAdapter(data: CreateRoom) {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/rooms`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/rooms`, {
       method: "POST",
       credentials: "include",
       headers: {
