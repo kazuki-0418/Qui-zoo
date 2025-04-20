@@ -7,7 +7,7 @@ type AnswerButtonsProps = {
   question: Question;
   onAnswer: (optionId: string) => void;
   isAnswered: boolean;
-  questionResult: QuestionResult;
+  questionResult: QuestionResult | null;
   status: QuestionStatus;
 };
 
@@ -35,7 +35,7 @@ export function AnswerButtons({
       {question.options.map((text, index) => {
         const isSelected = selectedOptionId === text;
         const isCorrect = question.correctOption === text;
-        const count = questionResult.optionDistribution[text] ?? 0;
+        const count = questionResult?.optionDistribution[text] ?? 0;
 
         return (
           <AnswerPushButton

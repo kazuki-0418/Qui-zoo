@@ -1,8 +1,7 @@
-import type { AvatarOption } from "@/constants/Avatar";
 import { Avatar } from "flowbite-react";
 
 type AvatarIconProps = {
-  avatarImage: AvatarOption;
+  avatarImage: string;
   avatarSize?: "xs" | "sm" | "md" | "lg";
 };
 

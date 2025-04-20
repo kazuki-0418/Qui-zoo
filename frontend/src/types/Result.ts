@@ -8,6 +8,7 @@ export type ParticipantRanking = {
   name: string;
   score: number;
   rank: number;
+  avatar: string;
 };
 
 export type QuestionResult = {
