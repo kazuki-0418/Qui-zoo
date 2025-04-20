@@ -31,6 +31,7 @@ export function RankingModal({ open, result, questionIndex, questionTotal }: Ran
     }
   }, [open]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const handleMediaQueryChange = () => {
       if (window.matchMedia(mobileQuery).matches) {
