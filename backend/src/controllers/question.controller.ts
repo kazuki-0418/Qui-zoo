@@ -20,6 +20,7 @@ class QuestionController {
       const newQuestion = await questionModel.createQuestion(question);
       if (req.file) {
         const questionImage = req.file;
+        // compress the image
         if (req.file.size > 1024) {
           const format = req.file.mimetype.split("/")[1] as ImageFormat;
           const newBuffer = await imageResize(questionImage.buffer, format);
@@ -62,10 +63,10 @@ class QuestionController {
       const existingQuestion = await questionModel.getQuestionById(id);
       if (req.file && existingQuestion) {
         const questionImage = req.file;
+        // compress the image
         if (req.file.size > 1024) {
           const format = req.file.mimetype.split("/")[1] as ImageFormat;
           const newBuffer = await imageResize(questionImage.buffer, format);
-          console.log(Number((newBuffer.length / (1024 * 1024)).toFixed(2)));
           if (Number((newBuffer.length / (1024 * 1024)).toFixed(2)) > 1) {
             res.status(400).json({ message: "Image its to big" });
             return;
