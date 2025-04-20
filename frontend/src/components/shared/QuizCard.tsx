@@ -3,14 +3,14 @@ import { DetailsButton } from "@/components/ui/DetailsButton";
 import { PlayButton } from "@/components/ui/PlayButton";
 import Link from "next/link";
 
-type QuizListCardProps = {
+type QuizCardProps = {
   quizId: string;
   title: string;
   description: string;
   setPlayQuizId: (quizId: string) => void;
 };
 
-export function QuizListCard({ quizId, title, description, setPlayQuizId }: QuizListCardProps) {
+export function QuizCard({ quizId, title, description, setPlayQuizId }: QuizCardProps) {
   return (
     <div className="p-4 md:p-6 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-200 shadow-sm">
       <div className="flex justify-between items-center">
