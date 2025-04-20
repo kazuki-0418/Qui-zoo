@@ -3,6 +3,7 @@ import { FinalResultDisplay } from "@/components/pages/sessions/FinalResultDispl
 import { ParticipantWaitingRoom } from "@/components/pages/sessions/ParticipantWaitingRoom";
 import { QuestionDisplay } from "@/components/pages/sessions/QuestionDisplay";
 import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
+// import { useQuiz } from "@/contexts/QuizContext";
 import type { Participant } from "@/types/Participant";
 import type { Question, QuestionStatus } from "@/types/Question";
 import type { Result } from "@/types/Result";
@@ -12,21 +13,23 @@ import { useCallback, useEffect, useState } from "react";
 const sampleQuestion: Question[] = [
   {
     id: "q1",
-    text: "What is the capital of France?",
+    questionText: "What is the capital of France?",
     options: ["London", "Paris", "Berlin", "Madrid"],
     correctOption: "Paris",
     points: 10,
     timeLimit: 30,
     status: "waiting",
+    quizId: "quiz1",
   },
   {
     id: "q2",
-    text: "What is the largest planet in our solar system?",
+    questionText: "What is the largest planet in our solar system?",
     options: ["Earth", "Mars", "Jupiter", "Saturn"],
     correctOption: "Jupiter",
     points: 10,
     timeLimit: 30,
     status: "waiting",
+    quizId: "quiz1",
   },
 ];
 
@@ -40,6 +43,7 @@ const demoParticipants: Participant[] = [
     score: 0,
     joinedAt: Date.now(),
     lastActive: Date.now(),
+    answeredQuestions: [],
   },
   {
     id: "user456",
@@ -50,6 +54,7 @@ const demoParticipants: Participant[] = [
     score: 0,
     joinedAt: Date.now(),
     lastActive: Date.now(),
+    answeredQuestions: [],
   },
 ];
 
@@ -80,6 +85,16 @@ const demoResults: Result = {
 const sessionId = "12345";
 
 export default function SessionPage() {
+  // const {
+  //   quizState,
+  //   currentQuestion,
+  //   timeRemaining,
+  //   submitAnswer,
+  //   hasAnswered,
+  //   selectedAnswer,
+  //   questionResults,
+  // } = useQuiz();
+
   const [roomState, setRoomState] = useState<QuestionStatus>("waiting");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantsLimit, setParticipantsLimit] = useState<number>(10);
@@ -88,10 +103,13 @@ export default function SessionPage() {
   const [answeredParticipants, setAnsweredParticipants] = useState<string[]>([]);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [showRankingModal, setShowRankingModal] = useState<boolean>(false);
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
   const [timeExpired, setTimeExpired] = useState(false);
   const questionTotal = sampleQuestion.length;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!sessionId) return;
 
@@ -105,6 +123,8 @@ export default function SessionPage() {
   }, [sessionId]);
 
   // Handle user answer
+  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: <explanation>
   const handleAnswer = (participantId: string, optionId: string) => {
     if (answeredParticipants.includes(participantId)) return;
 

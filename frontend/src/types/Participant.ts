@@ -1,10 +1,14 @@
+import type { AvatarOption } from "@/constants/Avatar";
+
 export type Participant = {
   id: string;
   name: string;
-  avatar: string;
+  avatar: AvatarOption;
   isGuest: boolean;
-  isOnline: boolean;
   score: number;
+  answeredQuestions: string[];
+  isOnline: boolean;
+  isHost?: boolean;
   joinedAt: number;
   lastActive: number;
 };

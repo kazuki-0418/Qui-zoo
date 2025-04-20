@@ -13,7 +13,7 @@ export function ParticipantList({ participants, onRemoveParticipant }: Participa
     <div className="space-y-2">
       {participants.map((participant) => (
         <div
-          key={participant.id}
+          key={participant.id ?? ""}
           className="flex items-center justify-between p-2 px-5 bg-white rounded-lg shadow-sm"
         >
           <div className="flex items-center space-x-2">
