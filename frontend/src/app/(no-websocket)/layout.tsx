@@ -50,7 +50,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* TODO username avatar */}
         {isAuthPage ? (
           <div className="bg-gray-50 min-h-screen">{children}</div>
         ) : (
