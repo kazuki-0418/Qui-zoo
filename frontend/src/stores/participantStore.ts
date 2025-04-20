@@ -1,7 +1,7 @@
 import type { Participant } from "@/types/Participant";
 import { create } from "zustand";
 
-interface ParticipantState {
+type ParticipantState = {
   participants: Participant[];
   sessionId: string | null;
   myParticipantId: string | null;
@@ -13,7 +13,7 @@ interface ParticipantState {
   setSessionId: (sessionId: string) => void;
   setMyParticipantId: (participantId: string) => void;
   clearAll: () => void;
-}
+};
 
 export const useParticipantStore = create<ParticipantState>((set) => ({
   participants: [],

@@ -3,7 +3,7 @@ import { FinalResultDisplay } from "@/components/pages/sessions/FinalResultDispl
 import { ParticipantWaitingRoom } from "@/components/pages/sessions/ParticipantWaitingRoom";
 import { QuestionDisplay } from "@/components/pages/sessions/QuestionDisplay";
 import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
-import { useQuiz } from "@/contexts/QuizContext";
+import { useQuiz } from "@/stores/QuizStore";
 import { useParticipantStore } from "@/stores/participantStore";
 import type { Question } from "@/types/Question";
 import type { Result } from "@/types/Result";
@@ -32,31 +32,6 @@ const sampleQuestion: Question[] = [
     quizId: "quiz1",
   },
 ];
-
-// const demoParticipants: Participant[] = [
-//   {
-//     id: "user123",
-//     name: "Alice Smith",
-//     avatar: "penguin-1",
-//     isGuest: false,
-//     isOnline: true,
-//     score: 0,
-//     joinedAt: Date.now(),
-//     lastActive: Date.now(),
-//     answeredQuestions: [],
-//   },
-//   {
-//     id: "user456",
-//     name: "Bob Johnson",
-//     avatar: "penguin-2",
-//     isGuest: false,
-//     isOnline: true,
-//     score: 0,
-//     joinedAt: Date.now(),
-//     lastActive: Date.now(),
-//     answeredQuestions: [],
-//   },
-// ];
 
 const demoParticipantsLimit = 10;
 
@@ -163,7 +138,7 @@ export default function SessionPage() {
       {quizState === "waiting" && (
         <ParticipantWaitingRoom participants={participants} participantsLimit={participantsLimit} />
       )}
-      {quizState === "active" && currentQuestion ? (
+      {quizState === "active" && currentQuestion && (
         <QuestionDisplay
           question={currentQuestion}
           results={results}
@@ -177,7 +152,9 @@ export default function SessionPage() {
           onTimeExpire={handleTimeExpire}
           unansweredCount={unansweredCount}
         />
-      ) : quizState === "completed" && results ? (
+      )}
+
+      {quizState === "completed" && results ? (
         <FinalResultDisplay results={results} myResult={myResult ? myResult : null} />
       ) : (
         <div className="flex items-center justify-center h-full">
