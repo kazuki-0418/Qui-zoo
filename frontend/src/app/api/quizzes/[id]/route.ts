@@ -14,7 +14,7 @@ export async function GET(context: { params: { id: string } }) {
     }
 
     return NextResponse.json({
-      ...response,
+      response,
     });
   } catch (error) {
     console.error("Error in get quiz by ID route:", error);

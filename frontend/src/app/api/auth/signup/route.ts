@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const response = await AuthAdapters.signupAdapter(body);
 
     return NextResponse.json({
-      ...response,
+      response,
     });
   } catch (error) {
     console.error("Error in signup route:", error);

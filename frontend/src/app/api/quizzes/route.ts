@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      ...response,
+      response,
     });
   } catch (error) {
     console.error("Error in get quiz route:", error);
