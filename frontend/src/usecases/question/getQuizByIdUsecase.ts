@@ -4,9 +4,7 @@ import axios from "axios";
 
 export const getQuizById = async (id: string): Promise<Quiz> => {
   try {
-    console.log(" Fetching quiz ID:", id);
     const response = await api.get(`/quizzes/${id}`);
-    console.log(" Quiz fetch success:", response.data, response);
     return response.data.response as Quiz;
   } catch (error) {
     console.error(" Axios error:", error);

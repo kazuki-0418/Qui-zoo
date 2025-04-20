@@ -21,7 +21,6 @@ export function QuizCard({ id, title, description, setPlayQuizId }: QuizCardProp
   const handleDetailsClick = async () => {
     try {
       const quiz = await getQuizById(id);
-      console.log("🎯 Quiz Details:", quiz);
       return quiz;
     } catch (error) {
       console.error("❌ クイズ取得エラー:", error);
