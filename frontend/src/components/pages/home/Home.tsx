@@ -114,9 +114,8 @@ export function Home() {
                   key={quiz.id}
                   id={quiz.id}
                   title={quiz.title}
-                  description={`Category: ${quiz.category} | Created: ${new Date(
-                    quiz.createdAt,
-                  ).toLocaleDateString()}`}
+                  category={quiz.category}
+                  createdAt={new Date(quiz.createdAt).toLocaleDateString()}
                   setPlayQuizId={handlePlayQuiz}
                 />
               ))}

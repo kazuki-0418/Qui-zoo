@@ -6,8 +6,9 @@ import { getQuizById } from "@/usecases/question/getQuizByIdUsecase";
 // import Link from "next/link";
 
 type QuizCardProps = Pick<Quiz, "id" | "title"> & {
-  description: string;
   setPlayQuizId: (quizId: string) => void;
+  category: string;
+  createdAt: string;
 };
 
 // type QuizCardProps = {
@@ -17,7 +18,7 @@ type QuizCardProps = Pick<Quiz, "id" | "title"> & {
 //   setPlayQuizId: (quizId: string) => void;
 // };
 
-export function QuizCard({ id, title, description, setPlayQuizId }: QuizCardProps) {
+export function QuizCard({ id, title, category, createdAt, setPlayQuizId }: QuizCardProps) {
   const handleDetailsClick = async () => {
     try {
       const quiz = await getQuizById(id);
@@ -31,7 +32,9 @@ export function QuizCard({ id, title, description, setPlayQuizId }: QuizCardProp
       <div className="flex justify-between items-center">
         <div className="flex-1">
           <h3 className="text-lg font-semibold mb-2 text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+          <p className="text-sm text-gray-600 line-clamp-2">
+            CATEGORY: {category} | Created at: {createdAt}
+          </p>
         </div>
         <div className="flex gap-2 md:gap-3 ml-4 items-center">
           {/* <Link onClick={handleDetailsClick} href={`/quizzes/${id}`}>
