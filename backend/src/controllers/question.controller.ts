@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { imageResize } from "../models/ImageResize";
 import { questionImage } from "../models/image.model";
 import { QuestionModel } from "../models/question.model";
 import { uploadImage } from "../types/image";
@@ -6,6 +7,8 @@ import { CreateQuestion, UpdateQuestion } from "../types/question";
 
 const questionModel = new QuestionModel();
 const imageService = new questionImage();
+
+type ImageFormat = "jpeg" | "png" | "webp";
 
 class QuestionController {
   async createQuestion(
@@ -16,9 +19,19 @@ class QuestionController {
       const question = req.body;
       const newQuestion = await questionModel.createQuestion(question);
       if (req.file) {
+        const questionImage = req.file;
+        if (req.file.size > 1024) {
+          const format = req.file.mimetype.split("/")[1] as ImageFormat;
+          const newBuffer = await imageResize(questionImage.buffer, format);
+          if (Number((newBuffer.length / (1024 * 1024)).toFixed(2)) > 1) {
+            res.status(400).json({ message: "Image its to big" });
+            return;
+          }
+          questionImage.buffer = newBuffer;
+        }
         const imageInfo: uploadImage = {
-          fileBuffer: req.file?.buffer,
-          mimeType: req.file?.mimetype,
+          fileBuffer: questionImage.buffer,
+          mimeType: questionImage.mimetype,
         };
         const uploadImage = await imageService.uploadImage(
           imageInfo,
@@ -48,6 +61,17 @@ class QuestionController {
     try {
       const existingQuestion = await questionModel.getQuestionById(id);
       if (req.file && existingQuestion) {
+        const questionImage = req.file;
+        if (req.file.size > 1024) {
+          const format = req.file.mimetype.split("/")[1] as ImageFormat;
+          const newBuffer = await imageResize(questionImage.buffer, format);
+          console.log(Number((newBuffer.length / (1024 * 1024)).toFixed(2)));
+          if (Number((newBuffer.length / (1024 * 1024)).toFixed(2)) > 1) {
+            res.status(400).json({ message: "Image its to big" });
+            return;
+          }
+          questionImage.buffer = newBuffer;
+        }
         // delete the old image
         if (existingQuestion) {
           if (existingQuestion.picture) {
@@ -55,8 +79,8 @@ class QuestionController {
           }
         }
         const imageInfo: uploadImage = {
-          fileBuffer: req.file?.buffer,
-          mimeType: req.file?.mimetype,
+          fileBuffer: questionImage.buffer,
+          mimeType: questionImage.mimetype,
         };
         const uploadImage = await imageService.uploadImage(imageInfo, existingQuestion.quizId, id);
         if (uploadImage) {

@@ -23,9 +23,9 @@ export class questionImage {
       //console.log(file)
       if (bucketName) {
         const { fileBuffer, mimeType } = file;
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
         if (!allowedTypes.includes(mimeType)) {
-          throw new Error("Invalid file type. Allowed: JPEG, PNG, GIF");
+          throw new Error("Invalid file type. Allowed: JPEG, PNG, WEBP");
         }
 
         // optimize image
