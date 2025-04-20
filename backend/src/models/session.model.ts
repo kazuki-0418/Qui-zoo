@@ -105,4 +105,14 @@ export class SessionModel {
       throw error;
     }
   }
+
+  async updateSessionStatus(sessionId: string, status: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      await sessionRef.update({ status });
+    } catch (error) {
+      console.error("Error updating session status:", error);
+      throw error;
+    }
+  }
 }

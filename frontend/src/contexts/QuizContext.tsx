@@ -65,7 +65,7 @@ export const QuizProvider: React.FC<{
     if (!socket) return;
 
     // クイズ開始ハンドラー
-    const handleQuizStart = () => {
+    const handleQuizStart = (sessionId:string) => {
       setQuizState(QUIZ_STATES.READY);
       setHasAnswered(false);
       setSelectedAnswer(null);
@@ -147,7 +147,6 @@ export const QuizProvider: React.FC<{
   // クイズ開始（ホストのみ）
   const startQuiz = () => {
     if (!socket || !isHost) return;
-
     socket.emit(webSocketAppEvents.QUIZ_START, { sessionId });
   };
 
