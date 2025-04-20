@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { ProtectedRoute } from "./auth/hooks/ProtectedRoute";
 import { useAuthStore } from "./auth/store/useAuthStore";
 
 const geistSans = Geist({
@@ -49,16 +50,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* TODO username avatar */}
-        {/* {isAuthPage ? (
+        {isAuthPage ? (
           <div className="bg-gray-50 min-h-screen">{children}</div>
         ) : (
-          <AuthProvider> */}
-        {/* <ProtectedRoute> */}
-        {children}
-        {/* </ProtectedRoute> */}
-        {/* </AuthProvider>
-        )} */}
+          <AuthProvider>
+            <ProtectedRoute>{children}</ProtectedRoute>
+          </AuthProvider>
+        )}
       </body>
     </html>
   );
