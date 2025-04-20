@@ -2,7 +2,7 @@ import type { Quiz } from "@/types/Quiz";
 
 class QuizAdapters {
   async getAllQuizzesAdapter(): Promise<Quiz[]> {
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/quizzes`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/quizzes`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -19,7 +19,7 @@ class QuizAdapters {
   }
 
   async getQuizByIdAdapter(id: string): Promise<Quiz> {
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/quizzes/${id}`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/quizzes/${id}`, {
       method: "GET",
       credentials: "include",
       headers: {

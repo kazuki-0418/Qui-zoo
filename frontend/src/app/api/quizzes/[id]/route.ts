@@ -14,8 +14,7 @@ export async function GET(context: { params: { id: string } }) {
     }
 
     return NextResponse.json({
-      message: "Quiz fetched successfully",
-      response,
+      ...response,
     });
   } catch (error) {
     console.error("Error in get quiz by ID route:", error);

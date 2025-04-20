@@ -4,7 +4,7 @@ import axios from "axios";
 
 export const getAllQuizzes = async (): Promise<Quiz[]> => {
   try {
-    const response = await api.get("/auth/quizzes");
+    const response = await api.get("/quizzes");
     return response.data as Quiz[];
   } catch (error) {
     if (axios.isAxiosError(error)) {
