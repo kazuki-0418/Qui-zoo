@@ -1,7 +1,6 @@
 "use client";
 import type { Question } from "@/types/Question";
-import type React from "react";
-import { type ReactNode, useEffect } from "react";
+import type { ReactNode } from "react";
 import type { Socket } from "socket.io-client";
 import { type StoreApi, create } from "zustand";
 import { QUIZ_STATES, type QuizState } from "../constants/quizState";
@@ -154,42 +153,62 @@ class QuizDomain {
   }
 }
 
-// biome-ignore lint/style/useNamingConvention: <explanation>
-export const QuizProvider: React.FC<{
+import { useEffect, useRef } from "react";
+
+export function QuizProvider({
+  children,
+  sessionId,
+  isHost = false,
+}: {
   children: ReactNode;
   sessionId: string;
   isHost?: boolean;
-}> = ({ children, sessionId, isHost = false }) => {
+}) {
   const { socket } = useWebSocket();
   const quizStore = useQuizStore;
-  const quizDomain = new QuizDomain(quizStore);
+  // useRefを使ってquizDomainをレンダリング間で保持する
+  const quizDomainRef = useRef<QuizDomain | null>(null);
   const { setSocket, setSessionId, setIsHost, setMyParticipantId } = useQuizStore();
   const { myParticipantId } = useParticipantStore();
 
+  // 初回レンダリング時にのみQuizDomainを作成
   useEffect(() => {
+    quizDomainRef.current = new QuizDomain(quizStore);
+  }, []);
+
+  useEffect(() => {
+    // 必要なステート更新
     setSocket(socket);
     setSessionId(sessionId);
     setIsHost(isHost);
     setMyParticipantId(myParticipantId);
 
-    if (!socket) return;
+    if (!socket || !quizDomainRef.current) return;
+
+    const quizDomain = quizDomainRef.current;
+
+    // イベントハンドラを定義
+    const handleQuizStart = (sessionId: string) => {
+      quizDomain.handleQuizStart(sessionId);
+    };
+
+    const handleNextQuestion = (data: { question: Question; timeLimit: number }) => {
+      return quizDomain.handleQuestionDisplay(data);
+    };
+
+    const handleQuestionResults = (data: QuizResult[]) => {
+      quizDomain.handleQuestionResults(data);
+    };
+
+    const handleQuizComplete = (data: unknown) => {
+      quizDomain.handleQuizComplete(data);
+    };
 
     // WebSocketイベントリスナーの登録
-    socket.on(webSocketAppEvents.QUIZ_START, (sessionId: string) => {
-      quizDomain.handleQuizStart(sessionId);
-    });
-    socket.on(
-      webSocketAppEvents.QUIZ_NEXT_QUESTION,
-      (data: { question: Question; timeLimit: number }) => {
-        return quizDomain.handleQuestionDisplay(data);
-      },
-    );
-    socket.on(webSocketAppEvents.QUIZ_QUESTION_RESULT, (data: QuizResult[]) => {
-      quizDomain.handleQuestionResults(data);
-    });
-    socket.on(webSocketAppEvents.QUIZ_END, (_data: unknown) => {
-      quizDomain.handleQuizComplete(_data);
-    });
+    socket.on(webSocketAppEvents.QUIZ_START, handleQuizStart);
+    socket.on(webSocketAppEvents.QUIZ_NEXT_QUESTION, handleNextQuestion);
+    socket.on(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
+    socket.on(webSocketAppEvents.QUIZ_END, handleQuizComplete);
 
     if (sessionId) {
       // セッションの初期データ取得
@@ -199,17 +218,16 @@ export const QuizProvider: React.FC<{
     // クリーンアップ
     return () => {
       if (socket) {
-        socket.off(webSocketAppEvents.QUIZ_START, quizDomain.handleQuizStart);
-        socket.off(webSocketAppEvents.QUIZ_NEXT_QUESTION, quizDomain.handleQuestionDisplay);
-        socket.off(webSocketAppEvents.QUIZ_QUESTION_RESULT, quizDomain.handleQuestionResults);
-        socket.off(webSocketAppEvents.QUIZ_END, quizDomain.handleQuizComplete);
+        socket.off(webSocketAppEvents.QUIZ_START, handleQuizStart);
+        socket.off(webSocketAppEvents.QUIZ_NEXT_QUESTION, handleNextQuestion);
+        socket.off(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
+        socket.off(webSocketAppEvents.QUIZ_END, handleQuizComplete);
       }
     };
   }, [
     socket,
     sessionId,
     isHost,
-    quizDomain,
     setSocket,
     setSessionId,
     setIsHost,
@@ -218,7 +236,7 @@ export const QuizProvider: React.FC<{
   ]);
 
   return <>{children}</>;
-};
+}
 
 // biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
 export const useQuiz = () => {
