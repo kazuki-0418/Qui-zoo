@@ -218,6 +218,15 @@ export function QuizProvider({
 
       const startTimer = () => {
         const animate = (now: number) => {
+          // 現在のステートを取得（毎フレーム最新の状態を取得）
+          const { timeRemaining, quizState, setTimeRemaining } = quizStore.getState();
+
+          // // 全員が結果表示の場合はタイマーを停止
+          if (quizState === QUIZ_STATES.RESULTS) {
+            cancelAnimationFrame(animationFrameId || 0);
+            return;
+          }
+
           // 経過時間を計算 (ミリ秒)
           const deltaTime = now - lastTime;
           lastTime = now;
@@ -227,9 +236,8 @@ export function QuizProvider({
 
           // 1秒経過したらカウントダウン
           if (accumulatedTime >= 1000) {
-            const timeRemaining = quizStore.getState().timeRemaining;
             if (timeRemaining > 0) {
-              quizStore.getState().setTimeRemaining(timeRemaining - 1);
+              setTimeRemaining(timeRemaining - 1);
             } else {
               // タイムアップ時の処理
               cancelAnimationFrame(animationFrameId || 0);

@@ -61,6 +61,7 @@ export function TimerContainer({
   // 時間切れ処理
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    // 時間が0になったらonTimeExpireを呼び出す
     if (timeRemaining === 0) {
       onTimeExpire();
     }
