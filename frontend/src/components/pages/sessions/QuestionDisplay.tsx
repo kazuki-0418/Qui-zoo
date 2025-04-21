@@ -1,65 +1,55 @@
 import { AnswerButtons } from "@/components/pages/sessions/AnswerButtons";
 import { RankingModal } from "@/components/pages/sessions/RankingModal";
-import type { Question, QuestionStatus } from "@/types/Question";
-import type { QuestionResult, Result } from "@/types/Result";
-import { useEffect } from "react";
-import { Timer } from "./Timer";
+import { QUIZ_STATES } from "@/constants/quizState";
+import { useQuiz } from "@/stores/QuizStore";
+import type { Question } from "@/types/Question";
+import type { QuestionResult } from "@/types/Result";
+import { useCallback, useState } from "react";
+import { TimerContainer } from "./Timer";
 
 type QuestionDisplayProps = {
   question: Question;
-  results: Result | null;
-  questionTotal: number;
-  onAnswer: (optionId: string) => void;
-  isAnswered: boolean;
-  showResults: boolean;
-  showRankingModal: boolean;
   questionResult: QuestionResult | null;
-  questionIndex: number;
-  onTimeExpire: () => void;
   unansweredCount: number;
 };
 
 export function QuestionDisplay({
   question,
-  results,
-  questionTotal,
-  onAnswer,
-  isAnswered,
-  showResults,
-  showRankingModal,
   questionResult,
-  questionIndex,
-  onTimeExpire,
   unansweredCount,
 }: QuestionDisplayProps) {
-  // const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-
-  const handleOptionClick = (optionId: string) => {
-    if (!isAnswered && !showResults) {
-      // setSelectedOptionId(optionId);
-      onAnswer(optionId);
-
-      // await submitAnswer({ questionId: question.id, selectedOption: optionId });
-    }
-  };
+  const {
+    quizState,
+    setQuizState,
+    questionTotal,
+    submitAnswer,
+    hasAnswered,
+    showResults,
+    setShowResults,
+  } = useQuiz();
+  const [showRankingModal, setShowRankingModal] = useState<boolean>(false);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    // setSelectedOptionId(null);
-  }, [question.id]);
+  const handleTimeExpire = useCallback(() => {
+    setQuizState(QUIZ_STATES.RESULTS);
 
-  const status: QuestionStatus = showResults ? "completed" : "active";
+    setTimeout(() => {
+      setShowRankingModal(true);
+      setShowResults(true);
+    }, 3000);
+  }, []);
+
+  const handleOptionClick = async (optionId: string) => {
+    if (!hasAnswered && !showResults) {
+      submitAnswer(optionId);
+    }
+  };
 
   return (
     <>
       <div className="flex flex-col items-center justify-center h-full">
         <div className="w-full mt-2 mb-6">
-          <Timer
-            showResults={showResults}
-            duration={question.timeLimit}
-            onExpire={onTimeExpire}
-            questionIndex={questionIndex}
-          />
+          <TimerContainer showResults={showResults} onTimeExpire={handleTimeExpire} />
         </div>
         <h2 className="grow text-xl font-bold mt-2 mb-6 text-center">{question.questionText}</h2>
         <AnswerButtons
@@ -67,9 +57,8 @@ export function QuestionDisplay({
           onAnswer={(optionId) => {
             handleOptionClick(optionId);
           }}
-          isAnswered={isAnswered}
+          isAnswered={hasAnswered}
           questionResult={questionResult}
-          status={status}
         />
         <div className="mt-6 text-sm text-gray-500 h-[1rem] flex items-center justify-center">
           {!showResults && (
@@ -79,13 +68,8 @@ export function QuestionDisplay({
           )}
         </div>
       </div>
-      {results && (
-        <RankingModal
-          open={showRankingModal}
-          result={results}
-          questionIndex={questionIndex}
-          questionTotal={questionTotal}
-        />
+      {quizState === QUIZ_STATES.RESULTS && showResults && (
+        <RankingModal open={showRankingModal} questionTotal={questionTotal} />
       )}
     </>
   );

@@ -15,28 +15,26 @@ type ParticipantWaitingRoomProps = {
   roomUrl?: string;
 };
 
-// const participantsLimit = 10;
+const participantsLimit = 10;
 
 export function ParticipantWaitingRoom({
   participants,
-  participantsLimit,
   isHost = false,
-  // roomUrl = "",
 }: ParticipantWaitingRoomProps) {
   const params = useParams();
   const { sessionId } = params;
-  const { leaveSession } = useWebSocket();
   const { myParticipantId } = useParticipantStore();
+  const { leaveSession } = useWebSocket();
 
   const roomCode = params.roomCode;
   const roomUrl = `http://localhost:3000/sessions/${roomCode}`;
 
-  const handleExitRoom = (participantId: string) => {
+  const handleExitRoom = () => {
     // TODO : Exit room
     leaveSession({
-      participantId,
       sessionId: sessionId as string,
       isHost: false,
+      participantId: myParticipantId as string,
     });
   };
 
@@ -52,12 +50,7 @@ export function ParticipantWaitingRoom({
         <ParticipantList participants={participants} />
       </div>
       <div className="flex gap-2 md:gap-4 mt-2">
-        <PushButton
-          color="cancel"
-          size="md"
-          width="full"
-          onClick={() => handleExitRoom(myParticipantId as string)}
-        >
+        <PushButton color="cancel" size="md" width="full" onClick={() => handleExitRoom()}>
           Exit Room
         </PushButton>
       </div>

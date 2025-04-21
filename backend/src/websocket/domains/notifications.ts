@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
+import { realtimeQuizController } from "../../controllers/realtimeQuiz.controller";
 import { websocketController } from "../../controllers/websocket.controller";
 import { webSocketAppEvents } from "../constants/websocket-events";
-
 // ソケット拡張型を定義
 // interface AuthenticatedSocket extends Socket {
 //   userId: string;
@@ -25,6 +25,7 @@ interface SessionLeaveData {
 
 export function registerNotificationHandlers(io: Server): void {
   io.on(webSocketAppEvents.CONNECT, (socket: Socket) => {
+    // 接続時の処理
     socket.on(webSocketAppEvents.SESSION_DATA, async (data: { sessionId: string }) => {
       try {
         const { sessionId } = data;
@@ -53,6 +54,25 @@ export function registerNotificationHandlers(io: Server): void {
         });
       }
     });
+
+    // ホスト部屋入室ハンドラー
+    socket.on(
+      webSocketAppEvents.HOST_JOINED,
+      async (data: { roomCode: string; sessionId: string }) => {
+        try {
+          const { sessionId } = data;
+
+          websocketController.saveHostSocketId(sessionId, socket.id);
+        } catch (error) {
+          console.error("Error creating session:", error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          socket.emit(webSocketAppEvents.ERROR, {
+            message: `Failed to create session: ${errorMessage}`,
+          });
+        }
+      },
+    );
+
     // セッション参加ハンドラー
     socket.on(webSocketAppEvents.SESSION_JOIN_REQUEST, async (data: SessionJoinData) => {
       try {
@@ -187,6 +207,147 @@ export function registerNotificationHandlers(io: Server): void {
           const errorMessage = error instanceof Error ? error.message : String(error);
           socket.emit(webSocketAppEvents.ERROR, {
             message: `Failed to close session: ${errorMessage}`,
+          });
+        }
+      },
+    );
+
+    // クイズ開始ハンドラー
+    socket.on(webSocketAppEvents.QUIZ_START_REQUEST, async (data: { sessionId: string }) => {
+      try {
+        const { sessionId } = data;
+        // クイズ開始
+        const session = await websocketController.getSessionById(sessionId);
+        if (!session) {
+          throw new Error("Session not found");
+        }
+
+        const questionIds = await websocketController.getQuestionIds(sessionId);
+        if (!questionIds || questionIds.length === 0) {
+          throw new Error("No questions available for the quiz");
+        }
+
+        await realtimeQuizController.startQuiz({
+          sessionId,
+          questionIds,
+        });
+
+        const questionId = questionIds[0]; // 最初のクエスチョンIDを取得
+
+        const firstQuestion = Object.values(session.questions).find(
+          (question) => question.id === questionId,
+        );
+        if (!firstQuestion) {
+          throw new Error("First question not found");
+        }
+
+        // 参加者全員にクイズ開始通知
+        io.to(sessionId).emit(webSocketAppEvents.QUIZ_STARTED, {
+          currentQuestion: firstQuestion,
+          questionTotal: questionIds.length,
+          timeLimit: 10,
+        });
+      } catch (error) {
+        console.error("Error starting quiz:", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        socket.emit(webSocketAppEvents.ERROR, {
+          message: `Failed to start quiz: ${errorMessage}`,
+        });
+      }
+    });
+
+    socket.on(
+      webSocketAppEvents.QUIZ_SUBMIT_ANSWER,
+      async (data: {
+        sessionId: string;
+        questionId: string;
+        answer: string;
+        participantId: string;
+      }) => {
+        try {
+          const { sessionId, questionId, answer, participantId } = data;
+
+          // 回答を送信
+          const response = await realtimeQuizController.submitAnswer({
+            sessionId,
+            questionId,
+            selectedOption: answer,
+            participantId,
+          });
+
+          if (!response) {
+            throw new Error("No data returned from submitAnswer");
+          }
+
+          const { isCorrect, answeredParticipantCount } = response;
+
+          const hostId = await websocketController.getHostSocketId(sessionId);
+          io.to(hostId).emit(webSocketAppEvents.ANSWER_RESULT_TO_HOST, {
+            participantId,
+            questionId,
+            answer,
+            isCorrect,
+            answeredParticipantCount,
+          });
+
+          // 参加者全員に回答結果を通知
+          io.to(sessionId).emit(webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS, {
+            answeredParticipantCount,
+          });
+        } catch (error) {
+          console.error("Error submitting answer:", error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          socket.emit(webSocketAppEvents.ERROR, {
+            message: `Failed to submit answer: ${errorMessage}`,
+          });
+        }
+      },
+    );
+
+    // クイズ結果表示ハンドラー
+    socket.on(
+      webSocketAppEvents.QUIZ_SHOW_RESULTS,
+      async (data: { showResults: boolean; sessionId: string; questionId: string }) => {
+        try {
+          const { showResults, sessionId } = data;
+          if (!showResults) {
+            throw new Error("Show results flag is false");
+          }
+
+          const sessionResults = await realtimeQuizController.getSessionResults(sessionId);
+
+          if (!sessionResults) {
+            throw new Error("No session results available");
+          }
+
+          // questionResultsがオブジェクトであることを確認
+          const questionResultsEntries =
+            sessionResults.questionResults && typeof sessionResults.questionResults === "object"
+              ? Object.entries(sessionResults.questionResults)
+              : [];
+
+          const questionResult = questionResultsEntries.map(([questionId, result]) => ({
+            questionId,
+            ...(result as object), // resultをオブジェクトとして扱う
+          }))[0];
+          // questionResultがnullまたはundefinedでないことを確認
+          if (!questionResult) {
+            throw new Error("Question result not found");
+          }
+
+          // participantRankingを安全に取得
+          const participantRanking = sessionResults.participantRanking || [];
+
+          // 参加者全員に結果表示通知
+          io.to(sessionId).emit(webSocketAppEvents.QUIZ_QUESTION_RESULT, {
+            questionResult,
+            participantRanking,
+          });
+        } catch (error) {
+          console.error("Error showing results:", error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          socket.emit(webSocketAppEvents.ERROR, {
+            message: `Failed to show results: ${errorMessage}`,
           });
         }
       },

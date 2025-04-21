@@ -1,0 +1,394 @@
+"use client";
+import type { Question } from "@/types/Question";
+import type { ReactNode } from "react";
+import type { Socket } from "socket.io-client";
+import { type StoreApi, create } from "zustand";
+import { QUIZ_STATES, type QuizState } from "../constants/quizState";
+import { webSocketAppEvents } from "../constants/websocket-events";
+import { useWebSocket } from "../contexts/WebSocketContext";
+import { useParticipantStore } from "./participantStore";
+
+// Zustand store definition
+interface QuizStore {
+  quizState: QuizState;
+  currentQuestion: Question | null;
+  timeRemaining: number;
+  hasAnswered: boolean;
+  selectedAnswer: string | null;
+  isHost: boolean;
+  sessionId: string | null;
+  socket: Socket | null;
+  myParticipantId: string | null;
+  questionTotal: number;
+  questionIndex: number;
+  currentRanking: ParticipantRanking[];
+  showResults: boolean;
+  questionResult: QuestionResult | null;
+
+  setQuizState: (state: QuizState) => void;
+  setCurrentQuestion: (question: Question | null) => void;
+  setTimeRemaining: (time: number) => void;
+  setHasAnswered: (answered: boolean) => void;
+  setSelectedAnswer: (answer: string | null) => void;
+  setIsHost: (host: boolean) => void;
+  setSessionId: (id: string | null) => void;
+  setSocket: (socket: Socket | null) => void;
+  setMyParticipantId: (id: string | null) => void;
+  setQuestionTotal: (questionTotal: number) => void;
+  setQuestionIndex: (questionIndex: number) => void;
+  setCurrentRanking: (ranking: ParticipantRanking[]) => void;
+  setQuestionResult: (result: QuestionResult | null) => void;
+
+  submitAnswer: (answer: string) => void;
+  setShowResults: (showResults: boolean) => void;
+  startQuiz: () => void; // ホストのみ
+  nextQuestion: () => void; // ホストのみ
+}
+
+const useQuizStore = create<QuizStore>((set, get) => ({
+  quizState: QUIZ_STATES.WAITING,
+  currentQuestion: null,
+  timeRemaining: 0,
+  hasAnswered: false,
+  selectedAnswer: null,
+  isHost: false,
+  sessionId: null,
+  socket: null,
+  myParticipantId: null,
+  questionTotal: 0,
+  questionIndex: 0,
+  currentRanking: [],
+  showResults: false,
+  questionResult: null,
+
+  setQuizState: (state) => set({ quizState: state }),
+  setCurrentQuestion: (question) => set({ currentQuestion: question }),
+  setTimeRemaining: (time) => set({ timeRemaining: time }),
+  setHasAnswered: (answered) => set({ hasAnswered: answered }),
+  setSelectedAnswer: (answer) => set({ selectedAnswer: answer }),
+  setIsHost: (host) => set({ isHost: host }),
+  setSessionId: (id) => set({ sessionId: id }),
+  setSocket: (socket) => set({ socket: socket }),
+  setMyParticipantId: (id) => set({ myParticipantId: id }),
+  setQuestionTotal: (total) => set({ questionTotal: total }), // 追加: 質問の合計数を設定する関数
+  setQuestionIndex: (index) => set({ questionIndex: index }), // 追加: 質問のインデックスを設定する関数
+  setCurrentRanking: (currentRanking) => set({ currentRanking }),
+  setQuestionResult: (result) => set({ questionResult: result }),
+
+  submitAnswer: (answer: string) => {
+    const { socket, currentQuestion, hasAnswered, quizState, sessionId, myParticipantId } = get();
+    if (!socket || !currentQuestion || hasAnswered || quizState !== QUIZ_STATES.ACTIVE) return;
+
+    socket.emit(webSocketAppEvents.QUIZ_SUBMIT_ANSWER, {
+      sessionId,
+      questionId: currentQuestion.id,
+      answer,
+      participantId: myParticipantId,
+    });
+
+    set({ hasAnswered: true, selectedAnswer: answer });
+  },
+
+  setShowResults(showResults) {
+    const { socket, sessionId, currentQuestion } = get();
+    if (!socket) return;
+    set({ showResults });
+    socket.emit(webSocketAppEvents.QUIZ_SHOW_RESULTS, {
+      showResults,
+      sessionId,
+      questionId: currentQuestion?.id,
+    });
+  },
+
+  startQuiz: () => {
+    const { socket, sessionId, isHost } = get();
+    if (!socket || !isHost || !sessionId) return;
+    socket.emit(webSocketAppEvents.QUIZ_START_REQUEST, { sessionId });
+  },
+
+  nextQuestion: () => {
+    const { socket, sessionId, isHost } = get();
+    if (!socket || !isHost || !sessionId) return;
+    socket.emit(webSocketAppEvents.QUIZ_NEXT_QUESTION, { sessionId });
+  },
+}));
+
+// ドメインロジックを分離するクラス
+class QuizDomain {
+  private quizStore: StoreApi<QuizStore>;
+
+  constructor(quizStore: StoreApi<QuizStore>) {
+    this.quizStore = quizStore;
+  }
+
+  handleCurrentRanking(ranking: ParticipantRanking[], questionResult: QuestionResult) {
+    const { setCurrentRanking, setQuestionResult, setQuizState } = this.quizStore.getState();
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log("Current ranking event received", ranking);
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log("Question result event received", questionResult);
+    // ストアの状態を更新
+    setCurrentRanking(ranking);
+    setQuestionResult(questionResult);
+    // クイズの状態を更新
+    setQuizState(QUIZ_STATES.RESULTS);
+  }
+
+  handleQuizComplete(_data: unknown) {
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log("Quiz complete event received");
+    this.quizStore.getState().setQuizState(QUIZ_STATES.COMPLETED);
+  }
+}
+
+import type { ParticipantRanking, QuestionResult } from "@/types/Result";
+import { useEffect, useRef } from "react";
+
+export function QuizProvider({
+  children,
+  sessionId,
+  isHost = false,
+}: {
+  children: ReactNode;
+  sessionId: string;
+  isHost?: boolean;
+}) {
+  const { socket } = useWebSocket();
+  const quizStore = useQuizStore;
+  // useRefを使ってquizDomainをレンダリング間で保持する
+  const quizDomainRef = useRef<QuizDomain | null>(null);
+  const { setSocket, setSessionId, setIsHost, setMyParticipantId } = useQuizStore();
+  const { myParticipantId, setAnsweredParticipantsCount } = useParticipantStore();
+
+  // 初回レンダリング時にのみQuizDomainを作成
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    quizDomainRef.current = new QuizDomain(quizStore);
+  }, []);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    // 必要なステート更新
+    setSocket(socket);
+    setSessionId(sessionId);
+    setIsHost(isHost);
+    setMyParticipantId(myParticipantId);
+
+    if (!socket || !quizDomainRef.current) return;
+
+    const quizDomain = quizDomainRef.current;
+
+    const handleQuestionDisplay = (data: {
+      question: Question;
+      timeLimit: number;
+      questionTotal: number;
+    }) => {
+      const {
+        setQuizState,
+        setCurrentQuestion,
+        setTimeRemaining,
+        setHasAnswered,
+        setSelectedAnswer,
+        setQuestionTotal,
+        setQuestionIndex,
+      } = quizStore.getState();
+
+      const { question, timeLimit, questionTotal } = data;
+      const stopTimer = setupTimerWithRaf();
+
+      setCurrentQuestion(question);
+      setTimeRemaining(timeLimit);
+      setQuizState(QUIZ_STATES.ACTIVE);
+      setHasAnswered(false);
+      setSelectedAnswer(null);
+      setQuestionTotal(questionTotal);
+      setQuestionIndex(0);
+      setAnsweredParticipantsCount(0);
+
+      return () => {
+        stopTimer(); // クリーンアップ
+      };
+    };
+
+    const setupTimerWithRaf = () => {
+      // 前回の時間を記録
+      let lastTime = performance.now();
+      let accumulatedTime = 0;
+      let animationFrameId: number | null = null;
+
+      const startTimer = () => {
+        const animate = (now: number) => {
+          // 現在のステートを取得（毎フレーム最新の状態を取得）
+          const { timeRemaining, quizState, setTimeRemaining } = quizStore.getState();
+
+          // // 全員が結果表示の場合はタイマーを停止
+          if (quizState === QUIZ_STATES.RESULTS) {
+            cancelAnimationFrame(animationFrameId || 0);
+            return;
+          }
+
+          // 経過時間を計算 (ミリ秒)
+          const deltaTime = now - lastTime;
+          lastTime = now;
+
+          // 累積時間に加算
+          accumulatedTime += deltaTime;
+
+          // 1秒経過したらカウントダウン
+          if (accumulatedTime >= 1000) {
+            if (timeRemaining > 0) {
+              setTimeRemaining(timeRemaining - 1);
+            } else {
+              // タイムアップ時の処理
+              cancelAnimationFrame(animationFrameId || 0);
+              return;
+            }
+
+            // 余りの時間を保持
+            accumulatedTime -= 1000;
+          }
+
+          animationFrameId = requestAnimationFrame(animate);
+        };
+
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(animate);
+
+        return () => {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+          }
+        };
+      };
+
+      return startTimer();
+    };
+
+    // イベントハンドラを定義
+    const handleQuizStart = (data: {
+      questionTotal: number;
+      currentQuestion: Question;
+      timeLimit: number;
+    }) => {
+      const { setQuizState, setTimeRemaining, setCurrentRanking } = quizStore.getState();
+
+      const { questionTotal, currentQuestion, timeLimit } = data;
+      setQuizState(QUIZ_STATES.READY);
+      setTimeRemaining(0); // Reset time remaining
+      setCurrentRanking([]); // Reset ranking
+
+      handleQuestionDisplay({
+        question: currentQuestion,
+        timeLimit: timeLimit,
+        questionTotal,
+      });
+    };
+
+    const handleNextQuestion = (data: { question: Question; timeLimit: number }) => {
+      return handleQuestionDisplay({
+        question: data.question,
+        timeLimit: data.timeLimit,
+        questionTotal: quizStore.getState().questionTotal,
+      });
+    };
+
+    const handleQuestionResults = (data: {
+      participantRanking: ParticipantRanking[];
+      questionResult: QuestionResult;
+    }) => {
+      const { participantRanking, questionResult } = data;
+      quizDomain.handleCurrentRanking(participantRanking, questionResult);
+    };
+
+    const handleQuizComplete = (data: unknown) => {
+      quizDomain.handleQuizComplete(data);
+    };
+
+    const handleAnswerResultToParticipants = (data: {
+      answeredParticipantCount: number;
+    }) => {
+      const { answeredParticipantCount } = data;
+      setAnsweredParticipantsCount(answeredParticipantCount);
+    };
+
+    // WebSocketイベントリスナーの登録
+    socket.on(webSocketAppEvents.QUIZ_STARTED, handleQuizStart);
+    socket.on(webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS, handleAnswerResultToParticipants);
+    socket.on(webSocketAppEvents.QUIZ_NEXT_QUESTION, handleNextQuestion);
+    socket.on(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
+    socket.on(webSocketAppEvents.QUIZ_END, handleQuizComplete);
+
+    if (sessionId) {
+      // セッションの初期データ取得
+      socket.emit(webSocketAppEvents.SESSION_DATA, { sessionId });
+    }
+
+    // クリーンアップ
+    return () => {
+      if (socket) {
+        socket.off(webSocketAppEvents.QUIZ_STARTED, handleQuizStart);
+        socket.on(
+          webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS,
+          handleAnswerResultToParticipants,
+        );
+        socket.off(webSocketAppEvents.QUIZ_NEXT_QUESTION, handleNextQuestion);
+        socket.off(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
+        socket.off(webSocketAppEvents.QUIZ_END, handleQuizComplete);
+      }
+    };
+  }, [
+    socket,
+    sessionId,
+    isHost,
+    setSocket,
+    setSessionId,
+    setIsHost,
+    setMyParticipantId,
+    myParticipantId,
+  ]);
+
+  return <>{children}</>;
+}
+
+// biome-ignore lint/nursery/useComponentExportOnlyModules: <explanation>
+export const useQuiz = () => {
+  const {
+    quizState,
+    setQuizState,
+    currentQuestion,
+    timeRemaining,
+    hasAnswered,
+    selectedAnswer,
+    submitAnswer,
+    startQuiz,
+    nextQuestion,
+    isHost,
+    questionTotal,
+    questionIndex,
+    currentRanking,
+    setCurrentRanking,
+    showResults,
+    setShowResults,
+    questionResult,
+  } = useQuizStore();
+
+  return {
+    quizState,
+    setQuizState,
+    currentQuestion,
+    timeRemaining,
+    hasAnswered,
+    selectedAnswer,
+    submitAnswer,
+    startQuiz,
+    nextQuestion,
+    isHost,
+    questionTotal,
+    questionIndex,
+    currentRanking,
+    setCurrentRanking,
+    showResults,
+    setShowResults,
+    questionResult,
+  };
+};

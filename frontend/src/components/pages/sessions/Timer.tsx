@@ -1,47 +1,16 @@
-import { Progress } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { useQuiz } from "@/stores/QuizStore";
+import { memo, useEffect, useRef } from "react";
 
 interface TimerProps {
   showResults: boolean;
-  duration: number; // seconds
-  onExpire: () => void;
-  questionIndex: number;
+  timeRemaining: number; // 残り時間
+  initialTime?: number; // 初期時間（オプション）
 }
 
-export function Timer({ showResults, duration, onExpire, questionIndex }: TimerProps) {
-  const [timeLeft, setTimeLeft] = useState(duration);
-  const requestRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (showResults) {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-      return;
-    }
-    startTimeRef.current = performance.now();
-    const animate = (now: number) => {
-      if (!startTimeRef.current) return;
-
-      const elapsed = (now - startTimeRef.current) / 1000; // seconds
-      const newTimeLeft = Math.max(duration - elapsed, 0);
-      setTimeLeft(newTimeLeft);
-
-      if (newTimeLeft > 0) {
-        requestRef.current = requestAnimationFrame(animate);
-      } else {
-        onExpire();
-      }
-    };
-
-    requestRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, [duration, onExpire, showResults]);
-
-  const progress = (timeLeft / duration) * 100;
-
+function TimerComponent({ timeRemaining, initialTime = 30 }: TimerProps) {
+  const progress =
+    timeRemaining === 0 ? 0 : Math.max(0, Math.min(100, (timeRemaining / initialTime) * 100));
+  const { questionIndex } = useQuiz();
   const getColor = () => {
     if (progress > 66) return "green";
     if (progress > 33) return "yellow";
@@ -52,9 +21,57 @@ export function Timer({ showResults, duration, onExpire, questionIndex }: TimerP
     <div className="w-full">
       <div className="flex items-between justify-between mb-1">
         <span className="text-sm font-medium text-gray-700">Question {questionIndex + 1}</span>
-        <span className="text-sm font-medium text-gray-700">{Math.ceil(timeLeft)}s</span>
+        <span className="text-sm font-medium text-gray-700">{timeRemaining}s</span>
       </div>
-      <Progress progress={progress} color={getColor()} size="md" />
+      <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full ${timeRemaining <= 0.1 ? "" : "transition-all duration-950 ease-linear"} transform`}
+          style={{
+            width: `${progress}%`,
+            backgroundColor:
+              getColor() === "green" ? "#10b981" : getColor() === "yellow" ? "#f59e0b" : "#ef4444",
+          }}
+        />
+      </div>
     </div>
+  );
+}
+
+// biome-ignore lint/style/useNamingConvention: <explanation>
+const Timer = memo(TimerComponent);
+
+export function TimerContainer({
+  showResults,
+  onTimeExpire,
+}: {
+  initialTime?: number;
+  showResults: boolean;
+  onTimeExpire: () => void;
+}) {
+  const { timeRemaining, currentQuestion } = useQuiz();
+  const initialTimeRef = useRef(currentQuestion?.timeLimit || 30);
+
+  // 新しい問題が来たとき
+  useEffect(() => {
+    if (currentQuestion) {
+      initialTimeRef.current = currentQuestion.timeLimit;
+    }
+  }, [currentQuestion]);
+
+  // 時間切れ処理
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    // 時間が0になったらonTimeExpireを呼び出す
+    if (timeRemaining === 0) {
+      onTimeExpire();
+    }
+  }, [timeRemaining]);
+
+  return (
+    <Timer
+      timeRemaining={timeRemaining}
+      initialTime={initialTimeRef.current}
+      showResults={showResults}
+    />
   );
 }

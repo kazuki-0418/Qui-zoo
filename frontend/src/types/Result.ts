@@ -1,6 +1,6 @@
 export type Result = {
   participantRanking: ParticipantRanking[];
-  questionResults: Record<string, QuestionResult>;
+  questionResults: QuestionResult;
 };
 
 export type ParticipantRanking = {

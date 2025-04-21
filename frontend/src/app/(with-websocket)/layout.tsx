@@ -4,10 +4,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { ProtectedRoute } from "@/app/(no-websocket)/auth/hooks/ProtectedRoute";
 import { useAuthStore } from "@/app/(no-websocket)/auth/store/useAuthStore";
-import { QuizProvider } from "@/contexts/QuizContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
+import { QuizProvider } from "@/stores/QuizStore";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +41,20 @@ export default function RootLayout({
   const params = useParams();
   const sessionId = typeof params?.sessionId === "string" ? params.sessionId : "";
 
+  const [hasHostString, setHasHostString] = useState(false);
+
+  const checkPathForHostString = () => {
+    const pathName = window.location.pathname;
+
+    const includesHost = pathName.includes("host");
+    return includesHost;
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    setHasHostString(checkPathForHostString());
+  }, []);
+
   return (
     <html lang="en">
       <body
@@ -49,7 +63,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <WebSocketProvider>
-            <QuizProvider sessionId={sessionId} isHost={false}>
+            <QuizProvider sessionId={sessionId} isHost={hasHostString}>
               <ProtectedRoute>{children}</ProtectedRoute>
             </QuizProvider>
           </WebSocketProvider>

@@ -1,20 +1,19 @@
 "use client";
 import { RankingList } from "@/components/pages/sessions/RankingList";
-import type { Result } from "@/types/Result";
+import { useQuiz } from "@/stores/QuizStore";
 import { useEffect, useState } from "react";
 
 type RankingModalProps = {
   open: boolean;
-  result: Result;
-  questionIndex: number;
   questionTotal: number;
 };
 
-export function RankingModal({ open, result, questionIndex, questionTotal }: RankingModalProps) {
+export function RankingModal({ open, questionTotal }: RankingModalProps) {
   const [isVisible, setIsVisible] = useState(open);
   const [animateIn, setAnimateIn] = useState(false);
   const [dynamicIsVertical, setDynamicIsVertical] = useState(false); // Default to true
   const mobileQuery = "(max-width: 767px)";
+  const { questionIndex } = useQuiz();
 
   useEffect(() => {
     if (open) {
@@ -74,10 +73,7 @@ export function RankingModal({ open, result, questionIndex, questionTotal }: Ran
             Question {questionIndex + 1}/{questionTotal}
           </span>
         </div>
-        <RankingList
-          participantRanking={result.participantRanking}
-          isVertical={dynamicIsVertical}
-        />
+        <RankingList isVertical={dynamicIsVertical} />
       </div>
     </div>
   );

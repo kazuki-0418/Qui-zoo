@@ -1,10 +1,14 @@
 export type Participant = {
   id: string;
-  quizId: string;
-  roomId: string;
-  currentQuestionIndex: number;
-  status: "waiting" | "active" | "ended";
   socketId: string;
+  name: string;
+  avatar: string;
+  score: number;
+  userId: string | null;
+  isGuest: boolean;
+  isOnline: boolean;
+  joinedAt: number;
+  lastActive: number;
 };
 
 export type CreateParticipant = {

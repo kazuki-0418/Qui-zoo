@@ -14,6 +14,7 @@ interface WebSocketContextValue {
   joinSession: (joinUserInfo: JoinUserInfo) => void;
   leaveSession: (userInfo: LeaveUserInfo) => void;
   closeSession: (sessionId: string) => void;
+  hostJoinSession: (sessionId: string) => void;
 }
 
 type JoinUserInfo = {
@@ -26,8 +27,8 @@ type JoinUserInfo = {
 
 type LeaveUserInfo = {
   sessionId: string;
-  participantId: string;
   isHost: boolean;
+  participantId: string;
 };
 
 const webSocketContext = createContext<WebSocketContextValue>({
@@ -38,6 +39,7 @@ const webSocketContext = createContext<WebSocketContextValue>({
   joinSession: () => {},
   leaveSession: () => {},
   closeSession: () => {},
+  hostJoinSession: () => {},
 });
 
 // biome-ignore lint/style/useNamingConvention: <explanation>
@@ -123,6 +125,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
+  const hostJoinSession = (sessionId: string) => {
+    if (socket) {
+      socket.emit(webSocketAppEvents.HOST_JOINED, { sessionId });
+    }
+  };
+
   const joinSession = (userInfo: JoinUserInfo) => {
     if (socket) {
       socket.emit(webSocketAppEvents.SESSION_JOIN_REQUEST, userInfo);
@@ -167,6 +175,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({ children 
     joinSession,
     leaveSession,
     closeSession,
+    hostJoinSession,
   };
 
   return <webSocketContext.Provider value={value}>{children}</webSocketContext.Provider>;

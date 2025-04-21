@@ -6,17 +6,12 @@ import { WaitingRoomHeader } from "@/components/shared/WaitingRoomHeader";
 import { PushButton } from "@/components/ui/PushButton";
 import { TabNavigation } from "@/components/ui/Tabs";
 import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useQuiz } from "@/stores/QuizStore";
 import { useParticipantStore } from "@/stores/participantStore";
 import type { Question } from "@/types/Question";
 import { get, getDatabase, ref } from "firebase/database";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-// TODO : Demo data for participants
-// const demoParticipants: Participant[] = [
-//   { id: "1", name: "Alice", avatar: "koala", isGuest: false },
-//   { id: "2", name: "Bob", avatar: "owl-1", isGuest: true },
-// ];
 
 // TODO : Demo data
 const participantsLimit = 10;
@@ -28,7 +23,8 @@ const tabs = [
 
 export function HostWaitingRoom() {
   const { participants } = useParticipantStore();
-  const { leaveSession, closeSession } = useWebSocket();
+  const { leaveSession, closeSession, hostJoinSession } = useWebSocket();
+  const { startQuiz } = useQuiz();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const params = useParams();
@@ -49,6 +45,7 @@ export function HostWaitingRoom() {
         setQuestions(questionsArray);
       }
     };
+    hostJoinSession(sessionId);
     fetchQuestions();
   }, []);
 
@@ -56,6 +53,7 @@ export function HostWaitingRoom() {
     if (participants.length < 2) {
       return;
     }
+    startQuiz();
   };
 
   const handleCloseRoom = () => {

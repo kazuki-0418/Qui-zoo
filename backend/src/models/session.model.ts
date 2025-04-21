@@ -105,4 +105,59 @@ export class SessionModel {
       throw error;
     }
   }
+
+  async updateSessionStatus(sessionId: string, status: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      await sessionRef.update({ status });
+    } catch (error) {
+      console.error("Error updating session status:", error);
+      throw error;
+    }
+  }
+
+  async getQuestionIds(sessionId: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}/questions`);
+      const snapshot = await sessionRef.once("value");
+      const sessionData = snapshot.val();
+      if (!sessionData) {
+        throw new Error("Session data not found");
+      }
+      const questionIds = Object.keys(sessionData).map((key) => sessionData[key].id);
+      return questionIds;
+    } catch (error) {
+      console.error("Error getting question IDs:", error);
+      throw error;
+    }
+  }
+
+  async saveHostSocketId(sessionId: string, socketId: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      await sessionRef.update({ hostSocketId: socketId });
+    } catch (error) {
+      console.error("Error saving host socket ID:", error);
+      throw error;
+    }
+  }
+
+  async getHostSocketId(sessionId: string) {
+    try {
+      const sessionRef = rtdb.ref(`sessions/${sessionId}`);
+      const snapshot = await sessionRef.once("value");
+      const sessionData = snapshot.val();
+      if (!sessionData) {
+        throw new Error("Session not found");
+      }
+
+      if (!sessionData.hostSocketId) {
+        throw new Error("Host ID not found");
+      }
+
+      return sessionData.hostSocketId;
+    } catch (error) {
+      throw new Error(`Error getting host socket ID: ${error}`);
+    }
+  }
 }
