@@ -1,6 +1,9 @@
 "use client";
 import firebaseApp from "@/app/api/firebaseClient";
+import { RankingModal } from "@/components/pages/sessions/RankingModal";
 import { PushButton } from "@/components/ui/PushButton";
+import { QUIZ_STATES } from "@/constants/quizState";
+import { useQuiz } from "@/stores/QuizStore";
 import type { Question } from "@/types/Question";
 import { getDatabase, ref } from "firebase/database";
 import { useParams } from "next/navigation";
@@ -17,6 +20,8 @@ type Props = {
 export function HostQuizPanel({ question, unansweredCount }: Props) {
   const { sessionId } = useParams() as { sessionId: string };
   const [isPaused, setIsPaused] = useState(false);
+  const { quizState, questionTotal } = useQuiz();
+  const [showRankingModal, setShowRankingModal] = useState(false);
 
   const db = getDatabase(firebaseApp);
 
@@ -51,6 +56,9 @@ export function HostQuizPanel({ question, unansweredCount }: Props) {
           Pause Quiz
         </PushButton>
       </div>
+      {quizState === QUIZ_STATES.RESULTS && showRankingModal && (
+        <RankingModal open={showRankingModal} questionTotal={questionTotal} />
+      )}
     </div>
   );
 }
