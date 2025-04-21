@@ -52,6 +52,19 @@ class WebSocketController {
     }
   }
 
+  async getSessionById(sessionId: string) {
+    try {
+      const session = await sessionModel.getSessionById(sessionId);
+      if (!session) {
+        throw new Error("Session not found");
+      }
+      return session;
+    } catch (error) {
+      console.error("Error getting session by ID:", error);
+      throw error;
+    }
+  }
+
   async joinRoom(participantConfig: CreateParticipant) {
     const { roomCode, name, avatar, isGuest, userId = null, socketId } = participantConfig;
 
@@ -115,6 +128,23 @@ class WebSocketController {
     } catch (error) {
       console.error("Error closing session", error);
     }
+  }
+
+  getQuestionIds(sessionId: string) {
+    return sessionModel.getQuestionIds(sessionId);
+  }
+
+  getHostSocketId(sessionId: string) {
+    const socketId = sessionModel.getHostSocketId(sessionId);
+    if (!socketId) {
+      throw new Error("Host not found");
+    }
+
+    return socketId;
+  }
+
+  saveHostSocketId(sessionId: string, socketId: string) {
+    return sessionModel.saveHostSocketId(sessionId, socketId);
   }
 }
 

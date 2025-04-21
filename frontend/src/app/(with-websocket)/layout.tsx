@@ -50,6 +50,7 @@ export default function RootLayout({
     return includesHost;
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setHasHostString(checkPathForHostString());
   }, []);

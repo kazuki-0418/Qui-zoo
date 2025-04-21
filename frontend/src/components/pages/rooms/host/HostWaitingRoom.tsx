@@ -23,7 +23,7 @@ const tabs = [
 
 export function HostWaitingRoom() {
   const { participants } = useParticipantStore();
-  const { leaveSession, closeSession } = useWebSocket();
+  const { leaveSession, closeSession, hostJoinSession } = useWebSocket();
   const { startQuiz } = useQuiz();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -45,6 +45,7 @@ export function HostWaitingRoom() {
         setQuestions(questionsArray);
       }
     };
+    hostJoinSession(sessionId);
     fetchQuestions();
   }, []);
 

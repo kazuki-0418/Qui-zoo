@@ -2,7 +2,7 @@ export const QUIZ_STATES = {
     WAITING: 'waiting',       // waiting for participants
     READY: 'ready',           // before quiz start
     ACTIVE: 'active',         // progressing
-    ANSWERING: 'answering',   
+    ANSWERING: 'answering',
     RESULTS: 'results',       // quiz results
     COMPLETED: 'completed',   // quiz completed
   } as const;

@@ -1,39 +1,34 @@
 import AnswerPushButton from "@/components/pages/sessions/AnswerPushButton";
-import type { Question, QuestionStatus } from "@/types/Question";
+import { QUIZ_STATES } from "@/constants/quizState";
+import { useQuiz } from "@/stores/QuizStore";
+import type { Question } from "@/types/Question";
 import type { QuestionResult } from "@/types/Result";
-import { useState } from "react";
 
 type AnswerButtonsProps = {
   question: Question;
   onAnswer: (optionId: string) => void;
   isAnswered: boolean;
   questionResult: QuestionResult | null;
-  status: QuestionStatus;
+  // status: QuestionStatus;
 };
 
-export function AnswerButtons({
-  question,
-  onAnswer,
-  isAnswered,
-  questionResult,
-  status,
-}: AnswerButtonsProps) {
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+export function AnswerButtons({ question, onAnswer, questionResult }: AnswerButtonsProps) {
+  const { currentQuestion, submitAnswer, hasAnswered, selectedAnswer, quizState } = useQuiz();
 
-  const showResults = status === "completed";
-  const isDisabled = isAnswered || selectedOptionId !== null;
+  const showResults = quizState === QUIZ_STATES.RESULTS;
+  const isDisabled = hasAnswered || selectedAnswer !== null;
 
   const handleOptionClick = (text: string) => {
     if (!isDisabled && !showResults) {
-      setSelectedOptionId(text);
+      submitAnswer(text);
       onAnswer(text);
     }
   };
 
   return (
     <div className="w-full grid grid-cols-2 gap-x-2 gap-y-3">
-      {question.options.map((text, index) => {
-        const isSelected = selectedOptionId === text;
+      {currentQuestion?.options.map((text, index) => {
+        const isSelected = selectedAnswer === text;
         const isCorrect = question.correctOption === text;
         const count = questionResult?.optionDistribution[text] ?? 0;
 

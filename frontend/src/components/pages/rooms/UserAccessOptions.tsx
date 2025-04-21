@@ -2,8 +2,9 @@
 import { GuestProfileSelector } from "@/components/shared/GuestProfileSelector";
 import { PushButton } from "@/components/ui/PushButton";
 import { useWebSocket } from "@/contexts/WebSocketContext";
+import { useParticipantStore } from "@/stores/participantStore";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface UserAccessOptionsProps {
@@ -12,7 +13,8 @@ interface UserAccessOptionsProps {
 
 export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
   const { joinSession } = useWebSocket();
-
+  const { sessionId } = useParticipantStore();
+  const router = useRouter();
   const param = useParams();
   const roomCode = param.roomCode as string;
   const [avatar, setAvatar] = useState("");
@@ -36,6 +38,9 @@ export function UserAccessOptions({ allowGuests }: UserAccessOptionsProps) {
       isGuest: true,
       roomCode,
     });
+    if (!sessionId) {
+      router.push(`/sessions/${sessionId}`);
+    }
     setIsSubmitting(false);
   };
 

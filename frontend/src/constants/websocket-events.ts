@@ -18,18 +18,18 @@ export const webSocketAppEvents = {
   CONNECT: "connect",
   DISCONNECT: "disconnect",
 
+  HOST_JOINED: "host:joined",
+
   // セッション関連
   SESSION_JOIN_REQUEST: "session:join:request",
   SESSION_LEAVE_REQUEST: "session:leave:request",
-  
-  SESSION_JOIN_SUCCESS: "session:join:success", 
+
+  SESSION_JOIN_SUCCESS: "session:join:success",
   SESSION_LEAVE_SUCCESS: "session:leave:success",
   SESSION_DATA: "session:data",
   SESSION_DATA_RESPONSE: "session:data:response",
   SESSION_CLOSE_REQUEST: "session:close:request",
   SESSION_CLOSE_SUCCESS: "session:close:success",
-  
-
 
   // 参加者関連
   PARTICIPANT_JOINED: "participant:joined",
@@ -38,9 +38,18 @@ export const webSocketAppEvents = {
   PARTICIPANT_KICKED: "participant:kicked",
 
   // クイズ進行関連
-  QUIZ_START: "quiz:start",
+  QUIZ_START_REQUEST: "quiz:start:request",
+  QUIZ_START_SUCCESS: "quiz:start:success",
+  QUIZ_STARTED: "quiz:started",
   QUIZ_NEXT_QUESTION: "quiz:next",
   QUIZ_SUBMIT_ANSWER: "quiz:submit",
+  QUIZ_ANSWER_SUBMITTED: "quiz:answer:submitted",
+  ANSWER_RESULT_TO_PARTICIPANTS: "quiz:answer:result:participants",
+  ANSWER_RESULT_TO_HOST: "quiz:answer:result:host",
+
+  QUIZ_SHOW_RESULTS: "quiz:show:results",
+  QUIZ_SHOW_RESULTS_SUCCESS: "quiz:show:results:success",
+
   QUIZ_QUESTION_RESULT: "quiz:result",
   QUIZ_END: "quiz:end",
 

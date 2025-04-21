@@ -1,13 +1,12 @@
 "use client";
 import { RankingList } from "@/components/pages/sessions/RankingList";
-import type { ParticipantRanking, Result } from "@/types/Result";
+import type { ParticipantRanking } from "@/types/Result";
 
 type FinalResultPageProps = {
-  results: Result;
   myResult: ParticipantRanking | null;
 };
 
-export function FinalResultDisplay({ results, myResult }: FinalResultPageProps) {
+export function FinalResultDisplay({ myResult }: FinalResultPageProps) {
   return (
     <div className="h-full w-full flex flex-col justify-around">
       <div className="text-center mb-4">
@@ -19,7 +18,7 @@ export function FinalResultDisplay({ results, myResult }: FinalResultPageProps) 
           </span>
         )}
       </div>
-      <RankingList participantRanking={results.participantRanking} />
+      <RankingList />
     </div>
   );
 }

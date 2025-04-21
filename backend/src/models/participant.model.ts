@@ -62,11 +62,23 @@ export class ParticipantModel {
       }
 
       // オブジェクトから配列に変換
-      const participants = Object.entries(participantsData).map(([_, value]) => {
-        return {
-          ...(value as Participant),
-        };
-      });
+      const participants = Object.entries(participantsData as Record<string, Participant>).map(
+        ([key, data]) => {
+          const participant: Participant = {
+            id: key,
+            userId: data.userId || "",
+            name: data.name || "",
+            avatar: data.avatar || "",
+            isGuest: data.isGuest || false,
+            isOnline: data.isOnline || false,
+            joinedAt: data.joinedAt || 0,
+            socketId: data.socketId || "",
+            score: data.score || 0,
+            lastActive: data.lastActive || 0,
+          };
+          return participant;
+        },
+      );
 
       return participants;
     } catch (error) {

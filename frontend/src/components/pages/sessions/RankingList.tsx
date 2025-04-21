@@ -1,4 +1,5 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
+import { useQuiz } from "@/stores/QuizStore";
 import type { ParticipantRanking } from "@/types/Result";
 
 function PodiumPlace({ rank, participant }: { rank: number; participant: ParticipantRanking }) {
@@ -64,52 +65,53 @@ function RankingItem({ participant }: { participant: ParticipantRanking }) {
 }
 
 type RankingListProps = {
-  participantRanking: ParticipantRanking[];
   isVertical?: boolean;
 };
-export function RankingList({ participantRanking, isVertical = false }: RankingListProps) {
+export function RankingList({ isVertical = false }: RankingListProps) {
+  const { currentRanking } = useQuiz();
   return (
     <div className="flex flex-col h-[70vh]">
       {!isVertical && (
         <div className="flex justify-center items-end gap-4">
-          <PodiumPlace
-            key={participantRanking[1].id}
-            rank={2}
-            participant={participantRanking[1]}
-          />
-          <PodiumPlace
-            key={participantRanking[0].id}
-            rank={1}
-            participant={participantRanking[0]}
-          />
-          <PodiumPlace
-            key={participantRanking[2].id}
-            rank={3}
-            participant={participantRanking[2]}
-          />
+          {currentRanking[0] && (
+            <PodiumPlace key={currentRanking[0].id} rank={1} participant={currentRanking[0]} />
+          )}
+          {currentRanking[1] && (
+            <PodiumPlace key={currentRanking[1].id} rank={2} participant={currentRanking[1]} />
+          )}
+
+          {currentRanking[2] && (
+            <PodiumPlace key={currentRanking[2].id} rank={3} participant={currentRanking[2]} />
+          )}
         </div>
       )}
       <div className="flex-1 bg-gray-100 rounded-lg p-4 overflow-y-auto">
         {isVertical && (
           <div className="flex flex-col justify-start gap-2 mb-2">
-            <VerticalPodiumPlace
-              key={participantRanking[0].id}
-              rank={1}
-              participant={participantRanking[0]}
-            />
-            <VerticalPodiumPlace
-              key={participantRanking[1].id}
-              rank={2}
-              participant={participantRanking[1]}
-            />
-            <VerticalPodiumPlace
-              key={participantRanking[2].id}
-              rank={3}
-              participant={participantRanking[2]}
-            />
+            {currentRanking[0] && (
+              <VerticalPodiumPlace
+                key={currentRanking[0].id}
+                rank={1}
+                participant={currentRanking[0]}
+              />
+            )}
+            {currentRanking[1] && (
+              <VerticalPodiumPlace
+                key={currentRanking[1].id}
+                rank={2}
+                participant={currentRanking[1]}
+              />
+            )}
+            {currentRanking[2] && (
+              <VerticalPodiumPlace
+                key={currentRanking[2].id}
+                rank={3}
+                participant={currentRanking[2]}
+              />
+            )}
           </div>
         )}
-        {participantRanking.slice(3).map((participant) => (
+        {currentRanking.slice(3).map((participant) => (
           <RankingItem key={participant.id} participant={participant} />
         ))}
       </div>

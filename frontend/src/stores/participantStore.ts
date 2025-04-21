@@ -1,10 +1,15 @@
 import type { Participant } from "@/types/Participant";
 import { create } from "zustand";
 
+// ローカルストレージのキー
+const PARTICIPANT_ID_KEY = "quiz_participant_id";
+const SESSION_ID_KEY = "quiz_session_id";
+
 type ParticipantState = {
   participants: Participant[];
   sessionId: string | null;
   myParticipantId: string | null;
+  answeredParticipantsCount: number;
 
   // アクション
   setParticipants: (participants: Participant[]) => void;
@@ -12,13 +17,32 @@ type ParticipantState = {
   removeParticipant: (participantId: string) => void;
   setSessionId: (sessionId: string) => void;
   setMyParticipantId: (participantId: string) => void;
+  setAnsweredParticipantsCount: (count: number) => void;
   clearAll: () => void;
 };
 
+// ローカルストレージから初期値を取得
+const getInitialState = () => {
+  if (typeof window === "undefined") {
+    return {
+      myParticipantId: null,
+      sessionId: null,
+    };
+  }
+
+  return {
+    myParticipantId: sessionStorage.getItem(PARTICIPANT_ID_KEY),
+    sessionId: sessionStorage.getItem(SESSION_ID_KEY),
+  };
+};
+
+const initialState = getInitialState();
+
 export const useParticipantStore = create<ParticipantState>((set) => ({
   participants: [],
-  sessionId: null,
-  myParticipantId: null,
+  sessionId: initialState.sessionId,
+  myParticipantId: initialState.myParticipantId,
+  answeredParticipantsCount: 0,
 
   setParticipants: (participants) => set({ participants }),
 
@@ -36,9 +60,30 @@ export const useParticipantStore = create<ParticipantState>((set) => ({
       participants: state.participants.filter((p) => p.id !== participantId),
     })),
 
-  setSessionId: (sessionId) => set({ sessionId }),
+  setSessionId: (sessionId) => {
+    // sessionStorage に保存
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(SESSION_ID_KEY, sessionId);
+    }
+    return set({ sessionId });
+  },
 
-  setMyParticipantId: (participantId) => set({ myParticipantId: participantId }),
+  setMyParticipantId: (participantId) => {
+    // sessionStorage に保存
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(PARTICIPANT_ID_KEY, participantId);
+    }
+    return set({ myParticipantId: participantId });
+  },
 
-  clearAll: () => set({ participants: [], sessionId: null, myParticipantId: null }),
+  setAnsweredParticipantsCount: (count) => set({ answeredParticipantsCount: count }),
+
+  clearAll: () => {
+    // sessionStorage からも削除
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem(PARTICIPANT_ID_KEY);
+      sessionStorage.removeItem(SESSION_ID_KEY);
+    }
+    return set({ participants: [], sessionId: null, myParticipantId: null });
+  },
 }));

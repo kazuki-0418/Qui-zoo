@@ -17,7 +17,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"quizId\": \"quiz-123\",\n    \"hostId\": \"host-456\",\n    \"allowGuests\": true,\n    \"roomId\": \"room-789\"\n}"
+          "raw": "{\n    \"quizId\": \"6cd44d61-423d-4a5e-864e-e2e3c6aab632\",\n    \"hostId\": \"host-456\",\n    \"allowGuests\": true,\n    \"roomId\": \"room-789\"\n}"
         },
         "url": {
           "raw": "http://localhost:4000/api/rooms",
