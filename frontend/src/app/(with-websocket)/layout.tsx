@@ -2,10 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
-import { ProtectedRoute } from "@/app/(no-websocket)/auth/hooks/ProtectedRoute";
 import { useAuthStore } from "@/app/(no-websocket)/auth/store/useAuthStore";
-import { WebSocketProvider } from "@/contexts/WebSocketContext";
-import { QuizProvider } from "@/stores/QuizStore";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -61,13 +58,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        <AuthProvider>
+        {/* <AuthProvider>
           <WebSocketProvider>
             <QuizProvider sessionId={sessionId} isHost={hasHostString}>
-              <ProtectedRoute>{children}</ProtectedRoute>
+              <ProtectedRoute> */}
+        {children}
+        {/* </ProtectedRoute>
             </QuizProvider>
           </WebSocketProvider>
-        </AuthProvider>
+        </AuthProvider> */}
       </body>
     </html>
   );
