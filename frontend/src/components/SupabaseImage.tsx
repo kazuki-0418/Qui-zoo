@@ -1,12 +1,22 @@
 "use client";
 
 import { createClient } from "@supabase/supabase-js";
-import Image from "next/image";
+// import Image from "next/image";
 import { useEffect, useState } from "react";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL as string;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+interface SupabaseImageProps {
+  bucketName: string;
+  quizId: string;
+  questionId: string;
+  fileName: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+}
 
 export default function SupabaseImage({
   bucketName,
@@ -16,10 +26,10 @@ export default function SupabaseImage({
   width = 300,
   height = 200,
   alt = "Image",
-}) {
-  const [imageUrl, setImageUrl] = useState(null);
+}: SupabaseImageProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -28,14 +38,14 @@ export default function SupabaseImage({
 
         const imagePath = `questions/${quizId}/${questionId}/${fileName}`;
 
-        const { data, error } = await supabase.storage.from(bucketName).getPublicUrl(imagePath);
+        const { data } = supabase.storage.from(bucketName).getPublicUrl(imagePath);
 
-        if (error) throw error;
-
+        if (!data || !data.publicUrl) {
+          throw new Error("Failed to retrieve public URL for the image.");
+        }
         setImageUrl(data.publicUrl);
-      } catch (err) {
-        console.error("Error fetching image:", err);
-        setError(err.message);
+      } catch {
+        setError("An unknown error occurred");
       } finally {
         setLoading(false);
       }
@@ -59,12 +69,13 @@ export default function SupabaseImage({
   }
 
   return (
-    <Image
+    <img
       src={imageUrl}
       width={width}
       height={height}
       alt={alt}
       className="rounded object-cover"
+      // unoptimized
     />
   );
 }
