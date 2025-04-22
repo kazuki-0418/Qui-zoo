@@ -156,6 +156,7 @@ class QuizDomain {
 }
 
 import type { ParticipantRanking, QuestionResult } from "@/types/Result";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 export function QuizProvider({
@@ -167,6 +168,7 @@ export function QuizProvider({
   sessionId: string;
   isHost?: boolean;
 }) {
+  const router = useRouter();
   const { socket } = useWebSocket();
   const quizStore = useQuizStore;
   // useRefを使ってquizDomainをレンダリング間で保持する
@@ -350,6 +352,7 @@ export function QuizProvider({
       setSessionId(null);
       setIsHost(false);
       setMyParticipantId(null);
+      router.push("/");
     });
 
     if (sessionId) {
