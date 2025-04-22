@@ -1,4 +1,5 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
+import { PushButton } from "@/components/ui/PushButton";
 import { useQuiz } from "@/stores/QuizStore";
 import type { ParticipantRanking } from "@/types/Result";
 
@@ -68,7 +69,14 @@ type RankingListProps = {
   isVertical?: boolean;
 };
 export function RankingList({ isVertical = false }: RankingListProps) {
-  const { currentRanking } = useQuiz();
+  const { currentRanking, isHost, questionIndex } = useQuiz();
+  const handleNextQuestion = () => {
+    // Handle the next question logic here
+  };
+  const handleEndQuiz = () => {
+    // Handle the end quiz logic here
+  };
+
   return (
     <div className="flex flex-col h-[70vh]">
       {!isVertical && (
@@ -114,6 +122,29 @@ export function RankingList({ isVertical = false }: RankingListProps) {
         {currentRanking.slice(3).map((participant) => (
           <RankingItem key={participant.id} participant={participant} />
         ))}
+        {isHost && (
+          <div className="text-center  h-full flex items-end justify-center">
+            {questionIndex + 1 === currentRanking.length ? (
+              <PushButton
+                onClick={handleNextQuestion}
+                color="primary"
+                size="lg"
+                className="w-full max-w-xs"
+              >
+                End Quiz
+              </PushButton>
+            ) : (
+              <PushButton
+                onClick={handleEndQuiz}
+                color="primary"
+                size="lg"
+                className="w-full max-w-xs"
+              >
+                Next Question
+              </PushButton>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,13 +1,11 @@
 "use client";
-import firebaseApp from "@/app/api/firebaseClient";
 import { RankingModal } from "@/components/pages/sessions/RankingModal";
 import { PushButton } from "@/components/ui/PushButton";
 import { QUIZ_STATES } from "@/constants/quizState";
 import { useQuiz } from "@/stores/QuizStore";
 import type { Question } from "@/types/Question";
-import { getDatabase, ref } from "firebase/database";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+// import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { HostQuizPanelHeader } from "./HostQuizPanelHeader";
 import { HostQuizPanelParticipants } from "./HostQuizPanelParticipants";
 import { HostQuizPanelQuestion } from "./QuestionOptions";
@@ -18,23 +16,20 @@ type Props = {
 };
 
 export function HostQuizPanel({ question, unansweredCount }: Props) {
-  const { sessionId } = useParams() as { sessionId: string };
+  // const { sessionId } = useParams() as { sessionId: string };
   const [isPaused, setIsPaused] = useState(false);
-  const { quizState, questionTotal } = useQuiz();
-  const [showRankingModal, setShowRankingModal] = useState(false);
-
-  const db = getDatabase(firebaseApp);
+  const { quizState, questionTotal, showResults, setShowResults, timeRemaining } = useQuiz();
 
   const togglePause = async () => {
-    if (!isPaused) {
-      const confirmPause = window.confirm("Are you sure you want to pause the quiz?");
-      if (!confirmPause) return;
-    }
     const newState = !isPaused;
     setIsPaused(newState);
-    const quizRef = ref(db, `sessions/${sessionId}/quizState`);
-    // await set(quizRef, newState ? "paused" : "active");
   };
+
+  useEffect(() => {
+    if (quizState === QUIZ_STATES.RESULTS && timeRemaining === 0) {
+      setShowResults(true);
+    }
+  }, [quizState]);
 
   return (
     <div className="flex flex-col h-full gap-4">
@@ -56,8 +51,8 @@ export function HostQuizPanel({ question, unansweredCount }: Props) {
           Pause Quiz
         </PushButton>
       </div>
-      {quizState === QUIZ_STATES.RESULTS && showRankingModal && (
-        <RankingModal open={showRankingModal} questionTotal={questionTotal} />
+      {quizState === QUIZ_STATES.RESULTS && showResults && (
+        <RankingModal open={showResults} questionTotal={questionTotal} />
       )}
     </div>
   );

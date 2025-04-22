@@ -9,7 +9,7 @@ import { useParticipantStore } from "@/stores/participantStore";
 // TODO demo
 
 export default function RoomsHostPage() {
-  const { quizState, currentQuestion, questionResult } = useQuiz();
+  const { quizState, currentQuestion } = useQuiz();
   const { participants, answeredParticipantsCount } = useParticipantStore();
   const unansweredCount = participants.length - answeredParticipantsCount;
 
@@ -19,11 +19,7 @@ export default function RoomsHostPage() {
       {/* 完了状態と進行中状態を別々に条件判定 */}
       {(quizState === QUIZ_STATES.RESULTS || quizState === QUIZ_STATES.ACTIVE) &&
         currentQuestion && (
-          <HostQuizPanel
-            question={currentQuestion}
-            questionResult={questionResult}
-            unansweredCount={unansweredCount}
-          />
+          <HostQuizPanel question={currentQuestion} unansweredCount={unansweredCount} />
         )}
       {quizState === QUIZ_STATES.COMPLETED && <FinalResultDisplay myResult={null} />}
     </FullHeightCardLayout>
