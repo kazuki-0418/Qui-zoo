@@ -1,7 +1,7 @@
 import type React from "react";
 
 type PushButtonProps = {
-  color?: "primary" | "secondly" | "warning" | "cancel";
+  color?: "primary" | "secondary" | "warning" | "cancel";
   size?: "sm" | "md" | "lg";
   rounded?: "md" | "lg" | "full";
   width?: "fit" | "full";
@@ -19,14 +19,14 @@ const sizeClasses = {
 
 const bgColorMap: Record<string, string> = {
   primary: "bg-blue-600",
-  secondly: "bg-red-600",
+  secondary: "bg-red-600",
   warning: "bg-red-600",
   cancel: "bg-gray-500",
 };
 
 const shadowColorMap: Record<string, string> = {
   primary: "#1e40af",
-  secondly: "#b91c1c",
+  secondary: "#b91c1c",
   warning: "#b91c1c",
   cancel: "#4b5563",
 };
@@ -51,13 +51,13 @@ export function PushButton({
 
   const divClass = `relative ${width === "fit" ? "w-fit" : "w-full"} rounded-${rounded} ${disabled ? "opacity-80" : ""}`;
   const buttonClass = `${baseClass} ${sizeClasses[size]} ${width === "fit" ? "w-fit" : "w-full"} rounded-${rounded} ${bgColorMap[color]} ${className}`;
-  const buttonStyle = {
+  const boxShadowStyle = {
     boxShadow: disabled ? "none" : `0px 4px 0px 0px ${shadowColorMap[color]}`,
   };
 
   return (
-    <div className={divClass}>
-      <button style={buttonStyle} onClick={onClick} className={buttonClass} disabled={disabled}>
+    <div className={divClass} style={boxShadowStyle}>
+      <button onClick={onClick} className={buttonClass} disabled={disabled}>
         {children}
       </button>
     </div>
