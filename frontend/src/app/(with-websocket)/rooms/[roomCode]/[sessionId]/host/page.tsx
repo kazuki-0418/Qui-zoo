@@ -6,7 +6,6 @@ import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 import { QUIZ_STATES } from "@/constants/quizState";
 import { useParticipantStore } from "@/stores/participantStore";
 import { useQuiz } from "@/stores/quizStore";
-// TODO demo
 
 export default function RoomsHostPage() {
   const { quizState, currentQuestion } = useQuiz();

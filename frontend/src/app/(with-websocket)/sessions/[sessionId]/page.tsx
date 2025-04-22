@@ -24,8 +24,7 @@ export default function SessionPage() {
     setParticipantsLimit(demoParticipantsLimit);
   }, [sessionId]);
 
-  // TODO: Replace with actual participant ID
-  const myResult = currentRanking.find((p) => p.id === myParticipantId); // Using demo data for myResult
+  const myResult = currentRanking.find((p) => p.id === myParticipantId);
   const unansweredCount = participants.length - answeredParticipantsCount;
   return (
     <FullHeightCardLayout useWithHeader={false}>

@@ -247,7 +247,7 @@ export function registerNotificationHandlers(io: Server): void {
           question: firstQuestion,
           questionIndex: firstQuestionIndex,
           questionTotal: questionIds.length,
-          timeLimit: 10, // TODO : fix this to be 30
+          timeLimit: 30,
         });
       } catch (error) {
         console.error("Error starting quiz:", error);
