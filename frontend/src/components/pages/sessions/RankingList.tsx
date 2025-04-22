@@ -122,30 +122,20 @@ export function RankingList({ isVertical = false }: RankingListProps) {
         {currentRanking.slice(3).map((participant) => (
           <RankingItem key={participant.id} participant={participant} />
         ))}
-        {isHost && (
-          <div className="text-center  h-full flex items-end justify-center">
-            {questionIndex + 1 === currentRanking.length ? (
-              <PushButton
-                onClick={handleNextQuestion}
-                color="primary"
-                size="lg"
-                className="w-full max-w-xs"
-              >
-                End Quiz
-              </PushButton>
-            ) : (
-              <PushButton
-                onClick={handleEndQuiz}
-                color="primary"
-                size="lg"
-                className="w-full max-w-xs"
-              >
-                Next Question
-              </PushButton>
-            )}
-          </div>
-        )}
       </div>
+      {isHost && (
+        <div className="text-center flex items-end justify-center mt-3">
+          {questionIndex + 1 === currentRanking.length ? (
+            <PushButton onClick={handleEndQuiz} color="warning" size="md" width="full">
+              End Quiz
+            </PushButton>
+          ) : (
+            <PushButton onClick={handleNextQuestion} color="primary" size="md" width="full">
+              Next Question
+            </PushButton>
+          )}
+        </div>
+      )}
     </div>
   );
 }
