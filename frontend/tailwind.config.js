@@ -1,6 +1,15 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}", "node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}"],
+  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}", "./node_modules/flowbite-react/**/*.js"],
   plugins: [require("flowbite/plugin")],
+  future: {
+    // この行を追加
+    hoverOnlyWhenSupported: true,
+  },
+  // この設定を追加
+  experimental: {
+    disableColorOpacityUtilitiesByDefault: true,
+  },
   theme: {
     extend: {
       transitionDuration: {
