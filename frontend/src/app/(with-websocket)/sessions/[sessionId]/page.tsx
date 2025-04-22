@@ -40,13 +40,8 @@ export default function SessionPage() {
             unansweredCount={unansweredCount}
           />
         )}
-
-      {quizState === QUIZ_STATES.COMPLETED ? (
+      {quizState === QUIZ_STATES.COMPLETED && (
         <FinalResultDisplay myResult={myResult ? myResult : null} />
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <p>Loading...</p>
-        </div>
       )}
     </FullHeightCardLayout>
   );

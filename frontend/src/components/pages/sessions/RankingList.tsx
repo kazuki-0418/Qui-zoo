@@ -1,5 +1,7 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
+import { PushButton } from "@/components/ui/PushButton";
 import { useQuiz } from "@/stores/quizStore";
+
 import type { ParticipantRanking } from "@/types/Result";
 
 function PodiumPlace({ rank, participant }: { rank: number; participant: ParticipantRanking }) {
@@ -68,7 +70,14 @@ type RankingListProps = {
   isVertical?: boolean;
 };
 export function RankingList({ isVertical = false }: RankingListProps) {
-  const { currentRanking } = useQuiz();
+  const { currentRanking, isHost, questionIndex } = useQuiz();
+  const handleNextQuestion = () => {
+    // Handle the next question logic here
+  };
+  const handleEndQuiz = () => {
+    // Handle the end quiz logic here
+  };
+
   return (
     <div className="flex flex-col h-[70vh]">
       {!isVertical && (
@@ -115,6 +124,19 @@ export function RankingList({ isVertical = false }: RankingListProps) {
           <RankingItem key={participant.id} participant={participant} />
         ))}
       </div>
+      {isHost && (
+        <div className="text-center flex items-end justify-center mt-3">
+          {questionIndex + 1 === currentRanking.length ? (
+            <PushButton onClick={handleEndQuiz} color="warning" size="md" width="full">
+              End Quiz
+            </PushButton>
+          ) : (
+            <PushButton onClick={handleNextQuestion} color="primary" size="md" width="full">
+              Next Question
+            </PushButton>
+          )}
+        </div>
+      )}
     </div>
   );
 }
