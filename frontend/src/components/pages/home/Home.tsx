@@ -1,6 +1,7 @@
 "use client";
 import SupabaseImage from "@/components/SupabaseImage";
 import { CreateRoomModal } from "@/components/shared/CreateRoomModal";
+import { Header } from "@/components/shared/Header";
 import { QuizBanner } from "@/components/shared/QuizBanner";
 import { QuizCard } from "@/components/shared/QuizCard";
 import { skeletonListPlaceholder } from "@/components/ui/SkeltonListPlaceHolder";
@@ -62,66 +63,69 @@ export function Home() {
   const role = "teacher"; // or "user
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">🎉 Hello username!</h1>
-      <QuizBanner
-        onCreateRoom={() => {
-          if (role === "teacher") {
-            setPlayQuizId(null);
-            setShowCreateRoomModal(true);
-          } else {
-            router.push("/quiz/");
-          }
-        }}
-        buttonText={role === "teacher" ? "Create Room" : "Join Room"}
-      />
-      {role === "teacher" && (
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-4">Popular Quizzes</h2>
+    <>
+      <Header username="username" avatarImage="koala" />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 className="text-3xl font-bold mb-6">🎉 Hello username!</h1>
+        <QuizBanner
+          onCreateRoom={() => {
+            if (role === "teacher") {
+              setPlayQuizId(null);
+              setShowCreateRoomModal(true);
+            } else {
+              router.push("/quiz/");
+            }
+          }}
+          buttonText={role === "teacher" ? "Create Room" : "Join Room"}
+        />
+        {role === "teacher" && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold mb-4">Popular Quizzes</h2>
 
-          {isLoading && skeletonListPlaceholder({ count: 4 })}
+            {isLoading && skeletonListPlaceholder({ count: 4 })}
 
-          {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-red-500">{error}</p>}
 
-          {!isLoading && !error && (
-            <div className="space-y-4">
-              {quizzes.map((quiz) => (
-                <QuizCard
-                  key={quiz.id}
-                  id={quiz.id}
-                  title={quiz.title}
-                  category={quiz.category}
-                  createdAt={new Date(quiz.createdAt).toLocaleDateString()}
-                  setPlayQuizId={handlePlayQuiz}
-                />
-              ))}
-            </div>
-          )}
+            {!isLoading && !error && (
+              <div className="space-y-4">
+                {quizzes.map((quiz) => (
+                  <QuizCard
+                    key={quiz.id}
+                    id={quiz.id}
+                    title={quiz.title}
+                    category={quiz.category}
+                    createdAt={new Date(quiz.createdAt).toLocaleDateString()}
+                    setPlayQuizId={handlePlayQuiz}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {showCreateRoomModal && role === "teacher" && (
+          <CreateRoomModal
+            isOpen={showCreateRoomModal}
+            onClose={() => setShowCreateRoomModal(false)}
+            onCreateRoom={handleCreateRoom}
+            selectedQuizId={playQuizId}
+            availableQuizzes={quizzes}
+            isSubmitting={isSubmitting}
+          />
+        )}
+        <div className="p-4">
+          <h1 className="text-xl font-semibold mb-4">Question Image</h1>
+          <SupabaseImage
+            bucketName="questions-images"
+            quizId="ff680f97-b74b-47f0-a4a0-74095c570fa9"
+            questionId="0e63bc49-2f79-4c58-a717-1f6c2d2d35bd"
+            fileName="1745161230983_35b0be3f-dbc0-46bf-8b18-489e3891b230.png"
+            width={400}
+            height={300}
+            alt="Question Image"
+          />
         </div>
-      )}
-
-      {showCreateRoomModal && role === "teacher" && (
-        <CreateRoomModal
-          isOpen={showCreateRoomModal}
-          onClose={() => setShowCreateRoomModal(false)}
-          onCreateRoom={handleCreateRoom}
-          selectedQuizId={playQuizId}
-          availableQuizzes={quizzes}
-          isSubmitting={isSubmitting}
-        />
-      )}
-      <div className="p-4">
-        <h1 className="text-xl font-semibold mb-4">Question Image</h1>
-        <SupabaseImage
-          bucketName="questions-images"
-          quizId="ff680f97-b74b-47f0-a4a0-74095c570fa9"
-          questionId="0e63bc49-2f79-4c58-a717-1f6c2d2d35bd"
-          fileName="1745161230983_35b0be3f-dbc0-46bf-8b18-489e3891b230.png"
-          width={400}
-          height={300}
-          alt="Question Image"
-        />
       </div>
-    </div>
+    </>
   );
 }
