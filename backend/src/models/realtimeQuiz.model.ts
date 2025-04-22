@@ -181,6 +181,10 @@ export class RealtimeQuizModel {
       const answersSnapshot = await this.db.ref(`answers/${sessionId}/${questionId}`).once("value");
       const answers = answersSnapshot.val() || {};
 
+      if (!answers) {
+        throw new Error(`No answers found for session ${sessionId} and question ${questionId}`);
+      }
+
       // 2. 正解の選択肢を取得
       const correctAnswer = await this.getCorrectAnswer(sessionId, questionId);
 
@@ -217,7 +221,7 @@ export class RealtimeQuizModel {
           stats.wrongAnswers++;
         }
 
-        // 最高・最低スコアを更新
+        // // 最高・最低スコアを更新
         stats.highestScore = Math.max(stats.highestScore, answer.pointsEarned || 0);
         if (answer.pointsEarned !== undefined) {
           stats.lowestScore = Math.min(stats.lowestScore, answer.pointsEarned);
@@ -293,7 +297,7 @@ export class RealtimeQuizModel {
 
   // セッションステータスを更新
   async updateSessionStatus(sessionId: string, status: string) {
-    await this.db.ref(`sessions/${sessionId}/status`).update({ status });
+    await this.db.ref(`sessions/${sessionId}`).update({ status });
     if (status === "active") {
       await this.db
         .ref(`sessions/${sessionId}`)
@@ -344,18 +348,17 @@ export class RealtimeQuizModel {
         .ref(`sessions/${sessionId}/currentQuestionIndex`)
         .once("value");
       const currentQuestionIndex = snapshot.val() || 0;
-      const nextQuestionIndex = currentQuestionIndex + 1;
 
       // 次の質問が存在するかチェック
-      if (nextQuestionIndex >= questionIds.length) {
+      if (currentQuestionIndex + 1 >= questionIds.length) {
         // biome-ignore lint/suspicious/noConsoleLog: <explanation>
         console.log("No more questions available. Quiz complete.");
         return {
           currentQuestionId: null,
-          currentQuestionIndex: nextQuestionIndex,
+          currentQuestionIndex,
         };
       }
-
+      const nextQuestionIndex = currentQuestionIndex + 1;
       const nextQuestionId = questionIds[nextQuestionIndex];
 
       // DBを更新
@@ -376,6 +379,23 @@ export class RealtimeQuizModel {
   async getQuestionProgress(sessionId: string) {
     const snapshot = await this.db.ref(`questionProgress/${sessionId}`).once("value");
     return snapshot.val();
+  }
+
+  // 現在の質問を取得
+  async getNextQuestion(sessionId: string, nextQuestionId: string) {
+    const snapshot = await this.db.ref(`sessions/${sessionId}/questions`).once("value");
+    const questions = snapshot.val();
+    if (!questions) {
+      console.error("No questions found for session:", sessionId);
+      return null;
+    }
+    // 質問IDに一致する質問を見つける
+    for (const index in questions) {
+      if (questions[index].id === nextQuestionId) {
+        return questions[index];
+      }
+    }
+    return null; // 質問が見つからない場合
   }
 
   // セッションステータスを取得
@@ -415,6 +435,19 @@ export class RealtimeQuizModel {
       return null;
     }
     return questionResults;
+  }
+
+  // 分布のみ取得する
+  async getOptionDistribution(sessionId: string, questionId: string) {
+    const snapshot = await this.db
+      .ref(`sessionResults/${sessionId}/questionResults/${questionId}/optionDistribution`)
+      .once("value");
+    const optionDistribution = snapshot.val();
+    if (!optionDistribution) {
+      console.error("No option distribution found for session:", sessionId);
+      return null;
+    }
+    return optionDistribution;
   }
 
   // 質問の進行状況を取得

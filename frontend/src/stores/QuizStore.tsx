@@ -25,6 +25,7 @@ interface QuizStore {
   showResults: boolean;
   questionResult: QuestionResult | null;
   questionFinalResults: QuestionResult[] | null;
+  optionDistribution: Record<string, number>;
 
   setQuizState: (state: QuizState) => void;
   setCurrentQuestion: (question: Question | null) => void;
@@ -40,6 +41,7 @@ interface QuizStore {
   setCurrentRanking: (ranking: ParticipantRanking[]) => void;
   setQuestionResult: (result: QuestionResult | null) => void;
   setQuestionFinalResults: (result: QuestionResult[] | null) => void;
+  setOptionDistribution: (distribution: Record<string, number>) => void;
 
   submitAnswer: (answer: string) => void;
   setShowResults: (showResults: boolean) => void;
@@ -63,6 +65,7 @@ const useQuizStore = create<QuizStore>((set, get) => ({
   showResults: false,
   questionResult: null,
   questionFinalResults: null,
+  optionDistribution: {},
 
   setQuizState: (state) => set({ quizState: state }),
   setCurrentQuestion: (question) => set({ currentQuestion: question }),
@@ -78,6 +81,7 @@ const useQuizStore = create<QuizStore>((set, get) => ({
   setCurrentRanking: (currentRanking) => set({ currentRanking }),
   setQuestionResult: (result) => set({ questionResult: result }),
   setQuestionFinalResults: (result) => set({ questionFinalResults: result }),
+  setOptionDistribution: (distribution) => set({ optionDistribution: distribution }),
 
   submitAnswer: (answer: string) => {
     const { socket, currentQuestion, hasAnswered, quizState, sessionId, myParticipantId } = get();
@@ -95,8 +99,9 @@ const useQuizStore = create<QuizStore>((set, get) => ({
 
   setShowResults(showResults) {
     const { socket, sessionId, currentQuestion } = get();
-    if (!socket) return;
+    if (!socket || !sessionId || !currentQuestion) return;
     set({ showResults });
+    if (!showResults) return;
     socket.emit(webSocketAppEvents.QUIZ_SHOW_RESULTS, {
       showResults,
       sessionId,
@@ -154,7 +159,7 @@ class QuizDomain {
     setQuizState(QUIZ_STATES.COMPLETED);
   }
 }
-
+import type { AnsweredParticipant } from "@/types/Participant";
 import type { ParticipantRanking, QuestionResult } from "@/types/Result";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -174,7 +179,8 @@ export function QuizProvider({
   // useRefを使ってquizDomainをレンダリング間で保持する
   const quizDomainRef = useRef<QuizDomain | null>(null);
   const { setSocket, setSessionId, setIsHost, setMyParticipantId } = useQuizStore();
-  const { myParticipantId, setAnsweredParticipantsCount } = useParticipantStore();
+  const { myParticipantId, setAnsweredParticipantsCount, setAnsweredParticipants } =
+    useParticipantStore();
 
   // 初回レンダリング時にのみQuizDomainを作成
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -208,6 +214,7 @@ export function QuizProvider({
         setSelectedAnswer,
         setQuestionTotal,
         setQuestionIndex,
+        setShowResults,
       } = quizStore.getState();
 
       const { question, questionIndex, timeLimit, questionTotal } = data;
@@ -221,6 +228,8 @@ export function QuizProvider({
       setQuestionTotal(questionTotal);
       setQuestionIndex(questionIndex);
       setAnsweredParticipantsCount(0);
+      setAnsweredParticipants([]);
+      setShowResults(false);
 
       return () => {
         stopTimer(); // クリーンアップ
@@ -336,13 +345,36 @@ export function QuizProvider({
 
     const handleAnswerResultToParticipants = (data: {
       answeredParticipantCount: number;
+      optionDistribution: Record<string, number>;
     }) => {
-      const { answeredParticipantCount } = data;
+      const { setOptionDistribution } = quizStore.getState();
+      const { answeredParticipantCount, optionDistribution } = data;
       setAnsweredParticipantsCount(answeredParticipantCount);
+      setOptionDistribution(optionDistribution);
+    };
+
+    const handleAnswerResultToHost = (data: {
+      participantId: string;
+      answer: string;
+      isCorrect: boolean;
+      answeredParticipantCount: number;
+    }) => {
+      const { answeredParticipantCount, participantId, answer, isCorrect } = data;
+      setAnsweredParticipantsCount(answeredParticipantCount);
+      setAnsweredParticipants((prev: AnsweredParticipant[]) => {
+        const existingParticipant = prev.find((p) => p.participantId === participantId);
+        if (existingParticipant) {
+          return prev.map((p) =>
+            p.participantId === participantId ? { ...p, answer, isCorrect } : p,
+          );
+        }
+        return [...prev, { participantId, answer, isCorrect } as AnsweredParticipant];
+      });
     };
 
     // WebSocketイベントリスナーの登録
     socket.on(webSocketAppEvents.QUIZ_STARTED, handleQuizStart);
+    socket.on(webSocketAppEvents.ANSWER_RESULT_TO_HOST, handleAnswerResultToHost);
     socket.on(webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS, handleAnswerResultToParticipants);
     socket.on(webSocketAppEvents.QUIZ_QUESTION_UPDATE, handleNextQuestion);
     socket.on(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
@@ -364,6 +396,7 @@ export function QuizProvider({
     return () => {
       if (socket) {
         socket.off(webSocketAppEvents.QUIZ_STARTED, handleQuizStart);
+        socket.off(webSocketAppEvents.ANSWER_RESULT_TO_HOST, handleAnswerResultToHost);
         socket.off(
           webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS,
           handleAnswerResultToParticipants,
@@ -408,6 +441,7 @@ export const useQuiz = () => {
     showResults,
     setShowResults,
     questionResult,
+    optionDistribution,
   } = useQuizStore();
 
   return {
@@ -428,5 +462,6 @@ export const useQuiz = () => {
     showResults,
     setShowResults,
     questionResult,
+    optionDistribution,
   };
 };

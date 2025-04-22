@@ -12,9 +12,10 @@ import { useEffect, useState } from "react";
 const demoParticipantsLimit = 10;
 
 export default function SessionPage() {
-  const { quizState, currentQuestion, currentRanking, questionResult } = useQuiz();
+  const { quizState, currentQuestion, currentRanking } = useQuiz();
 
-  const { participants, sessionId, answeredParticipantsCount } = useParticipantStore();
+  const { participants, sessionId, answeredParticipantsCount, myParticipantId } =
+    useParticipantStore();
   const [participantsLimit, setParticipantsLimit] = useState<number>(10);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export default function SessionPage() {
   }, [sessionId]);
 
   // TODO: Replace with actual participant ID
-  const myResult = currentRanking.find((p) => p.id === "0"); // Using demo data for myResult
+  const myResult = currentRanking.find((p) => p.id === myParticipantId); // Using demo data for myResult
   const unansweredCount = participants.length - answeredParticipantsCount;
   return (
     <FullHeightCardLayout useWithHeader={false}>
@@ -34,11 +35,7 @@ export default function SessionPage() {
       {/* 完了状態と進行中状態を別々に条件判定 */}
       {(quizState === QUIZ_STATES.RESULTS || quizState === QUIZ_STATES.ACTIVE) &&
         currentQuestion && (
-          <QuestionDisplay
-            question={currentQuestion || {}}
-            questionResult={questionResult}
-            unansweredCount={unansweredCount}
-          />
+          <QuestionDisplay question={currentQuestion || {}} unansweredCount={unansweredCount} />
         )}
       {quizState === QUIZ_STATES.COMPLETED && (
         <FinalResultDisplay myResult={myResult ? myResult : null} />

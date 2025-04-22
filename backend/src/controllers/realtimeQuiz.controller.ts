@@ -197,12 +197,19 @@ class RealtimeQuizDomain {
     sessionId: string;
     nextQuestionId: string;
     timeLimit: number;
-  }): Promise<void> {
+  }): Promise<object> {
     await realtimeQuizModel.initializeQuestionProgress({
       sessionId,
       questionId: nextQuestionId,
       timeLimit,
     });
+
+    const currentQuestion = await realtimeQuizModel.getNextQuestion(sessionId, nextQuestionId);
+    if (!currentQuestion) {
+      throw new Error("Next question not found");
+    }
+
+    return currentQuestion;
   }
 
   // プレゼンスを処理するドメインロジック
@@ -226,74 +233,6 @@ class RealtimeQuizDomain {
 }
 
 const realtimeQuizDomain = new RealtimeQuizDomain();
-
-// WebSocketイベントを使ってコントローラー層を呼び出す
-// export const setupRealtimeQuizSocketHandlers = (io: Socket) => {
-//   io.on("connection", (socket) => {
-//     socket.on("joinRoom", (sessionId: string) => {
-//       socket.join(sessionId);
-//       // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-//       console.log(`User joined room: ${sessionId}, socket ID: ${socket.id}`);
-
-//       // クライアントからのイベントリスナー
-//       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-
-//       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-//       socket.on("setPresence", async (data: any) => {
-//         try {
-//           const { participantId } = data;
-//           await realtimeQuizDomain.processPresence(sessionId, participantId);
-//           io.to(sessionId).emit("participantJoined", { participantId });
-//         } catch (error) {
-//           console.error("Error handling setPresence:", error);
-//           socket.emit("error", { message: "Failed to set presence" });
-//         }
-//       });
-
-//       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-//       socket.on("updateLastActive", async (data: any) => {
-//         try {
-//           const { participantId } = data;
-//           await realtimeQuizDomain.processLastActive(sessionId, participantId);
-//         } catch (error) {
-//           console.error("Error handling updateLastActive:", error);
-//           socket.emit("error", { message: "Failed to update last active" });
-//         }
-//       });
-
-//       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-//       socket.on("startQuiz", async (data: any) => {
-//         try {
-//           const { questionIds, timeLimit } = data;
-//           await realtimeQuizDomain.processQuizStart(sessionId, questionIds, timeLimit);
-//           io.to(sessionId).emit("quizStarted");
-//         } catch (error) {
-//           console.error("Error handling startQuiz:", error);
-//           socket.emit("error", { message: "Failed to start quiz" });
-//         }
-//       });
-
-//       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-//       socket.on("nextQuestion", async (data: any) => {
-//         try {
-//           const { nextQuestionId, timeLimit } = data;
-//           await realtimeQuizDomain.processNextQuestion(sessionId, nextQuestionId, timeLimit);
-//           io.to(sessionId).emit("nextQuestion", { questionId: nextQuestionId, timeLimit });
-//         } catch (error) {
-//           console.error("Error handling nextQuestion:", error);
-//           socket.emit("error", { message: "Failed to start next question" });
-//         }
-//       });
-
-//       socket.on("disconnect", () => {
-//         // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-//         console.log(`User disconnected from room: ${sessionId}, socket ID: ${socket.id}`);
-//         // プレゼンスを更新 (オフラインにする)
-//         realtimeQuizDomain.processPresence(sessionId, socket.id); // socket.id を participantId として使用している場合
-//       });
-//     });
-//   });
-// };
 
 class RealtimeQuizController {
   async submitAnswer(data: {
@@ -324,9 +263,24 @@ class RealtimeQuizController {
         response.isCorrect ? 10 : 0,
       );
 
+      // 参加者の回答分布を取得
+      const optionDistribution = await realtimeQuizModel.getOptionDistribution(
+        sessionId,
+        questionId,
+      );
+
+      if (!optionDistribution) {
+        return {
+          isCorrect,
+          answeredParticipantCount,
+          optionDistribution: {},
+        };
+      }
+
       return {
         isCorrect,
         answeredParticipantCount,
+        optionDistribution,
       };
     } catch (error) {
       console.error("Error submitting answer:", error);
@@ -403,6 +357,10 @@ class RealtimeQuizController {
         nextQuestionId: result.currentQuestionId,
         timeLimit,
       });
+
+      if (currentQuestion === undefined) {
+        throw new Error("Next question not found");
+      }
 
       return {
         ended: false,
