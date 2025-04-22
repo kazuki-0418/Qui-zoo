@@ -2,8 +2,5 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "lefthook": "^1.11.3"
-  },
-  "overrides": {
-    "lightningcss": "1.22.1"
   }
 }
