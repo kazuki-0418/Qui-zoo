@@ -1,6 +1,6 @@
 import AnswerPushButton from "@/components/pages/sessions/AnswerPushButton";
 import { QUIZ_STATES } from "@/constants/quizState";
-import { useQuiz } from "@/stores/QuizStore";
+import { useQuiz } from "@/stores/quizStore";
 import type { Question } from "@/types/Question";
 import type { QuestionResult } from "@/types/Result";
 

@@ -24,6 +24,7 @@ interface QuizStore {
   currentRanking: ParticipantRanking[];
   showResults: boolean;
   questionResult: QuestionResult | null;
+  questionFinalResults: QuestionResult[] | null;
 
   setQuizState: (state: QuizState) => void;
   setCurrentQuestion: (question: Question | null) => void;
@@ -38,6 +39,7 @@ interface QuizStore {
   setQuestionIndex: (questionIndex: number) => void;
   setCurrentRanking: (ranking: ParticipantRanking[]) => void;
   setQuestionResult: (result: QuestionResult | null) => void;
+  setQuestionFinalResults: (result: QuestionResult[] | null) => void;
 
   submitAnswer: (answer: string) => void;
   setShowResults: (showResults: boolean) => void;
@@ -60,6 +62,7 @@ const useQuizStore = create<QuizStore>((set, get) => ({
   currentRanking: [],
   showResults: false,
   questionResult: null,
+  questionFinalResults: null,
 
   setQuizState: (state) => set({ quizState: state }),
   setCurrentQuestion: (question) => set({ currentQuestion: question }),
@@ -74,6 +77,7 @@ const useQuizStore = create<QuizStore>((set, get) => ({
   setQuestionIndex: (index) => set({ questionIndex: index }), // 追加: 質問のインデックスを設定する関数
   setCurrentRanking: (currentRanking) => set({ currentRanking }),
   setQuestionResult: (result) => set({ questionResult: result }),
+  setQuestionFinalResults: (result) => set({ questionFinalResults: result }),
 
   submitAnswer: (answer: string) => {
     const { socket, currentQuestion, hasAnswered, quizState, sessionId, myParticipantId } = get();
@@ -134,10 +138,20 @@ class QuizDomain {
     setQuizState(QUIZ_STATES.RESULTS);
   }
 
-  handleQuizComplete(_data: unknown) {
-    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-    console.log("Quiz complete event received");
-    this.quizStore.getState().setQuizState(QUIZ_STATES.COMPLETED);
+  handleQuizComplete(data: {
+    ended: boolean;
+    sessionId: string;
+    questionResults: QuestionResult[];
+    participantRanking: ParticipantRanking[];
+  }) {
+    const { ended, questionResults, participantRanking } = data;
+
+    if (!ended) return;
+    const { setCurrentRanking, setQuestionFinalResults, setQuizState } = this.quizStore.getState();
+
+    setCurrentRanking(participantRanking);
+    setQuestionFinalResults(questionResults);
+    setQuizState(QUIZ_STATES.COMPLETED);
   }
 }
 
@@ -180,6 +194,7 @@ export function QuizProvider({
 
     const handleQuestionDisplay = (data: {
       question: Question;
+      questionIndex: number;
       timeLimit: number;
       questionTotal: number;
     }) => {
@@ -193,7 +208,7 @@ export function QuizProvider({
         setQuestionIndex,
       } = quizStore.getState();
 
-      const { question, timeLimit, questionTotal } = data;
+      const { question, questionIndex, timeLimit, questionTotal } = data;
       const stopTimer = setupTimerWithRaf();
 
       setCurrentQuestion(question);
@@ -202,7 +217,7 @@ export function QuizProvider({
       setHasAnswered(false);
       setSelectedAnswer(null);
       setQuestionTotal(questionTotal);
-      setQuestionIndex(0);
+      setQuestionIndex(questionIndex);
       setAnsweredParticipantsCount(0);
 
       return () => {
@@ -266,29 +281,37 @@ export function QuizProvider({
 
     // イベントハンドラを定義
     const handleQuizStart = (data: {
-      questionTotal: number;
-      currentQuestion: Question;
+      question: Question;
+      questionIndex: number;
       timeLimit: number;
+      questionTotal: number;
     }) => {
-      const { setQuizState, setTimeRemaining, setCurrentRanking } = quizStore.getState();
+      const { setTimeRemaining, setCurrentRanking } = quizStore.getState();
 
-      const { questionTotal, currentQuestion, timeLimit } = data;
-      setQuizState(QUIZ_STATES.READY);
+      const { question, questionIndex, timeLimit, questionTotal } = data;
       setTimeRemaining(0); // Reset time remaining
       setCurrentRanking([]); // Reset ranking
 
       handleQuestionDisplay({
-        question: currentQuestion,
+        question: question,
         timeLimit: timeLimit,
         questionTotal,
+        questionIndex,
       });
     };
 
-    const handleNextQuestion = (data: { question: Question; timeLimit: number }) => {
+    const handleNextQuestion = (data: {
+      question: Question;
+      questionIndex: number;
+      questionTotal: number;
+      timeLimit: number;
+    }) => {
+      const { question, questionIndex, questionTotal, timeLimit } = data;
       return handleQuestionDisplay({
-        question: data.question,
-        timeLimit: data.timeLimit,
-        questionTotal: quizStore.getState().questionTotal,
+        question,
+        questionIndex,
+        questionTotal,
+        timeLimit,
       });
     };
 
@@ -300,7 +323,12 @@ export function QuizProvider({
       quizDomain.handleCurrentRanking(participantRanking, questionResult);
     };
 
-    const handleQuizComplete = (data: unknown) => {
+    const handleQuizComplete = (data: {
+      ended: boolean;
+      sessionId: string;
+      questionResults: QuestionResult[];
+      participantRanking: ParticipantRanking[];
+    }) => {
       quizDomain.handleQuizComplete(data);
     };
 
@@ -314,9 +342,15 @@ export function QuizProvider({
     // WebSocketイベントリスナーの登録
     socket.on(webSocketAppEvents.QUIZ_STARTED, handleQuizStart);
     socket.on(webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS, handleAnswerResultToParticipants);
-    socket.on(webSocketAppEvents.QUIZ_NEXT_QUESTION, handleNextQuestion);
+    socket.on(webSocketAppEvents.QUIZ_QUESTION_UPDATE, handleNextQuestion);
     socket.on(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
     socket.on(webSocketAppEvents.QUIZ_END, handleQuizComplete);
+    // 接続されているすべてのクライアントにクリーンアップを通知
+    socket.on(webSocketAppEvents.SESSION_CLEANUP_DONE, () => {
+      setSessionId(null);
+      setIsHost(false);
+      setMyParticipantId(null);
+    });
 
     if (sessionId) {
       // セッションの初期データ取得
@@ -327,11 +361,12 @@ export function QuizProvider({
     return () => {
       if (socket) {
         socket.off(webSocketAppEvents.QUIZ_STARTED, handleQuizStart);
-        socket.on(
+        socket.off(
           webSocketAppEvents.ANSWER_RESULT_TO_PARTICIPANTS,
           handleAnswerResultToParticipants,
         );
-        socket.off(webSocketAppEvents.QUIZ_NEXT_QUESTION, handleNextQuestion);
+        socket.off(webSocketAppEvents.QUIZ_QUESTION_UPDATE, handleNextQuestion);
+
         socket.off(webSocketAppEvents.QUIZ_QUESTION_RESULT, handleQuestionResults);
         socket.off(webSocketAppEvents.QUIZ_END, handleQuizComplete);
       }

@@ -1,5 +1,5 @@
 import { AvatarIcon } from "@/components/ui/AvatarIcon";
-import { useQuiz } from "@/stores/QuizStore";
+import { useQuiz } from "@/stores/quizStore";
 import type { ParticipantRanking } from "@/types/Result";
 
 function PodiumPlace({ rank, participant }: { rank: number; participant: ParticipantRanking }) {

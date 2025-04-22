@@ -4,8 +4,8 @@ import { ParticipantWaitingRoom } from "@/components/pages/sessions/ParticipantW
 import { QuestionDisplay } from "@/components/pages/sessions/QuestionDisplay";
 import { FullHeightCardLayout } from "@/components/ui/FullHeightCardLayout";
 import { QUIZ_STATES } from "@/constants/quizState";
-import { useQuiz } from "@/stores/QuizStore";
 import { useParticipantStore } from "@/stores/participantStore";
+import { useQuiz } from "@/stores/quizStore";
 import { useEffect, useState } from "react";
 
 // TODO demo

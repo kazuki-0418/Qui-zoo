@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import { ParticipantModel } from "../models/participant.model";
 import { RealtimeQuizModel } from "../models/realtimeQuiz.model";
 
@@ -105,18 +104,12 @@ class RealtimeQuizDomain {
       sessionId,
       questionId,
     });
-
-    // フロントエンドに通知
-    // this.io.to(sessionId).emit('QUIZ_PAUSED', { sessionId, questionId, pausedAt });
   }
 
   // 質問を再開する関数
   async resumeQuestion(sessionId: string, questionId: string): Promise<void> {
     // 一時停止履歴を更新
     await realtimeQuizModel.recordResume(sessionId, questionId);
-
-    // フロントエンドに通知
-    // this.io.to(sessionId).emit('QUIZ_RESUMED', { sessionId, questionId, resumedAt });
   }
 
   // 質問完了を処理するドメインロジック
@@ -196,11 +189,15 @@ class RealtimeQuizDomain {
   }
 
   // 次の質問を開始するドメインロジック
-  async processNextQuestion(
-    sessionId: string,
-    nextQuestionId: string,
-    timeLimit: number,
-  ): Promise<void> {
+  async processNextQuestion({
+    sessionId,
+    nextQuestionId,
+    timeLimit,
+  }: {
+    sessionId: string;
+    nextQuestionId: string;
+    timeLimit: number;
+  }): Promise<void> {
     await realtimeQuizModel.initializeQuestionProgress({
       sessionId,
       questionId: nextQuestionId,
@@ -374,16 +371,134 @@ class RealtimeQuizController {
     }
   }
 
-  async setPresence(req: Request, res: Response) {
+  async getNextQuestion(data: {
+    sessionId: string;
+    questionIds: string[];
+  }) {
     try {
-      const { sessionId, participantId } = req.params;
-      await realtimeQuizDomain.processPresence(sessionId, participantId);
-      res.status(200).json({ message: "Presence set" });
+      const { sessionId, questionIds } = data;
+
+      // currentQuestionIndexをupdate
+      const result = await realtimeQuizModel.updateCurrentQuestionId({
+        sessionId,
+        questionIds,
+      });
+
+      // resultがundefinedの場合を処理
+      if (!result) {
+        console.error("Failed to update current question ID");
+        throw new Error("Failed to update current question ID");
+      }
+
+      // 次の質問が存在しない場合（配列の最後に達した場合）
+      if (!result.currentQuestionId) {
+        // クイズ終了の処理を実行
+        await this.endQuiz(sessionId);
+        return { ended: true };
+      }
+
+      const timeLimit = 30; // default time limit in seconds
+      const currentQuestion = await realtimeQuizDomain.processNextQuestion({
+        sessionId,
+        nextQuestionId: result.currentQuestionId,
+        timeLimit,
+      });
+
+      return {
+        ended: false,
+        question: currentQuestion,
+        questionIndex: result.currentQuestionIndex,
+        questionTotal: questionIds.length,
+      };
     } catch (error) {
-      console.error("Error setting presence:", error);
-      res.status(500).json({ error: "Failed to set presence" });
+      console.error("Error starting next question:", error);
+      throw error; // エラーを上位に伝搬させる
     }
   }
+
+  // クイズ終了処理
+  async endQuiz(sessionId: string) {
+    try {
+      // セッションのステータスを更新
+      await realtimeQuizModel.updateSessionStatus(sessionId, "completed");
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error ending quiz:", error);
+      throw error;
+    }
+  }
+
+  async pauseQuiz({
+    sessionId,
+    questionId,
+  }: {
+    sessionId: string;
+    questionId: string;
+  }) {
+    try {
+      await realtimeQuizDomain.pauseQuestion(sessionId, questionId);
+    } catch (error) {
+      console.error("Error pausing quiz:", error);
+    }
+  }
+
+  async resumeQuiz({
+    sessionId,
+    questionId,
+  }: {
+    sessionId: string;
+    questionId: string;
+  }) {
+    try {
+      await realtimeQuizDomain.resumeQuestion(sessionId, questionId);
+    } catch (error) {
+      console.error("Error resuming quiz:", error);
+    }
+  }
+
+  async getAnswers(sessionId: string, questionId: string) {
+    try {
+      const answers = await realtimeQuizModel.getAnswers(sessionId, questionId);
+      if (!answers) {
+        throw new Error("Answers not found");
+      }
+      return answers;
+    } catch (error) {
+      console.error("Error fetching answers:", error);
+      throw error;
+    }
+  }
+
+  // realtimeQuizController.js
+  async cleanupSession(sessionId: string) {
+    try {
+      // 1. セッションステータスを更新
+      await realtimeQuizModel.updateSessionStatus(sessionId, "terminated");
+
+      // 2. セッション結果を保存（オプション - 必要に応じて）
+      // 結果が必要な場合は削除前に永続ストレージに保存
+
+      // 3. Firebaseからセッション関連のデータを削除
+      await realtimeQuizModel.removeSessionData(sessionId);
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error cleaning up session:", error);
+      throw error;
+    }
+  }
+
+  // async setPresence(req: Request, res: Response) {
+  //   try {
+  //     const { sessionId, participantId } = req.params;
+  //     await realtimeQuizDomain.processPresence(sessionId, participantId);
+  //     res.status(200).json({ message: "Presence set" });
+  //   } catch (error) {
+  //     console.error("Error setting presence:", error);
+  //     res.status(500).json({ error: "Failed to set presence" });
+  //   }
+  // }
 
   // async updateLastActive(req: Request, res: Response) {
   //   try {
@@ -393,17 +508,6 @@ class RealtimeQuizController {
   //   } catch (error) {
   //     console.error("Error updating last active:", error);
   //     res.status(500).json({ error: "Failed to update last active" });
-  //   }
-  // }
-
-  // async nextQuestion(req: Request, res: Response) {
-  //   try {
-  //     const { sessionId, nextQuestionId, timeLimit } = req.body;
-  //     await realtimeQuizDomain.processNextQuestion(sessionId, nextQuestionId, timeLimit);
-  //     res.status(200).json({ message: "Next question started" });
-  //   } catch (error) {
-  //     console.error("Error starting next question:", error);
-  //     res.status(500).json({ error: "Failed to start next question" });
   //   }
   // }
 }

@@ -1,7 +1,7 @@
 import { AnswerButtons } from "@/components/pages/sessions/AnswerButtons";
 import { RankingModal } from "@/components/pages/sessions/RankingModal";
 import { QUIZ_STATES } from "@/constants/quizState";
-import { useQuiz } from "@/stores/QuizStore";
+import { useQuiz } from "@/stores/quizStore";
 import type { Question } from "@/types/Question";
 import type { QuestionResult } from "@/types/Result";
 import { useCallback, useState } from "react";

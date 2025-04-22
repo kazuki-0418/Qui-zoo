@@ -71,6 +71,7 @@ export class RealtimeQuizModel {
     });
   }
 
+  // 質問の再開時間を記録
   async recordResume(sessionId: string, questionId: string) {
     const now = admin.database.ServerValue.TIMESTAMP;
     await this.db.ref(`questionProgress/${sessionId}`).update({
@@ -329,6 +330,48 @@ export class RealtimeQuizModel {
     });
   }
 
+  // 次の質問のIDに更新
+  async updateCurrentQuestionId({
+    sessionId,
+    questionIds,
+  }: {
+    sessionId: string;
+    questionIds: string[];
+  }): Promise<{ currentQuestionId: string | null; currentQuestionIndex: number }> {
+    try {
+      // currentQuestionIndexを取得
+      const snapshot = await this.db
+        .ref(`sessions/${sessionId}/currentQuestionIndex`)
+        .once("value");
+      const currentQuestionIndex = snapshot.val() || 0;
+      const nextQuestionIndex = currentQuestionIndex + 1;
+
+      // 次の質問が存在するかチェック
+      if (nextQuestionIndex >= questionIds.length) {
+        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+        console.log("No more questions available. Quiz complete.");
+        return {
+          currentQuestionId: null,
+          currentQuestionIndex: nextQuestionIndex,
+        };
+      }
+
+      const nextQuestionId = questionIds[nextQuestionIndex];
+
+      // DBを更新
+      await this.db.ref(`sessions/${sessionId}/currentQuestionIndex`).set(nextQuestionIndex);
+      await this.db.ref(`questionProgress/${sessionId}/currentQuestionId`).set(nextQuestionId);
+
+      return {
+        currentQuestionId: nextQuestionId,
+        currentQuestionIndex: nextQuestionIndex,
+      };
+    } catch (error) {
+      console.error("Error updating current question ID:", error);
+      throw error;
+    }
+  }
+
   // 質問進行状況を取得
   async getQuestionProgress(sessionId: string) {
     const snapshot = await this.db.ref(`questionProgress/${sessionId}`).once("value");
@@ -347,6 +390,7 @@ export class RealtimeQuizModel {
     return snapshot.val();
   }
 
+  // 参加者のランキングを保存
   async storeRanking(
     sessionId: string,
     questionId: string,
@@ -360,6 +404,7 @@ export class RealtimeQuizModel {
     await this.db.ref(`sessionResults/${sessionId}/participantRanking`).set(ranking);
   }
 
+  // 参加者のランキング、スコア、質問の結果、分布を取得
   async getQuestionResults(sessionId: string, questionId: string) {
     const snapshot = await this.db
       .ref(`sessionResults/${sessionId}/questionResults/${questionId}`)
@@ -370,5 +415,37 @@ export class RealtimeQuizModel {
       return null;
     }
     return questionResults;
+  }
+
+  // 質問の進行状況を取得
+  async getAnswers(sessionId: string, questionId: string) {
+    const snapshot = await this.db.ref(`answers/${sessionId}/${questionId}`).once("value");
+    const answers = snapshot.val();
+    if (!answers) {
+      console.error("No answers found for session:", sessionId);
+      return null;
+    }
+    return answers;
+  }
+
+  // セッションのデータをクリーンアップ
+  async removeSessionData(sessionId: string) {
+    try {
+      // セッション関連のすべてのデータへのリファレンスを取得
+      const updates: Record<string, null> = {
+        [`sessions/${sessionId}`]: null,
+        [`questionProgress/${sessionId}`]: null,
+        [`answers/${sessionId}`]: null,
+        [`presence/${sessionId}`]: null,
+      };
+
+      // 一度の操作ですべてのデータを削除（アトミックな操作）
+      await this.db.ref().update(updates);
+
+      return true;
+    } catch (error) {
+      console.error("Error removing session data:", error);
+      throw error;
+    }
   }
 }
